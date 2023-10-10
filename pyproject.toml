@@ -1,0 +1,232 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gotenberg-client"
+dynamic = ["version"]
+description = 'A Python client for interfacing with the Gotenberg API'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MPL-2.0"
+keywords = []
+authors = [
+  { name = "Trenton H", email = "rda0128ou@mozmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Environment :: Web Environment",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "httpx[http2] ~= 0.24",
+  "typing-extensions; python_version < '3.11'"
+  ]
+
+[project.urls]
+Documentation = "https://github.com/stumpylog/gotenberg-client/#readme"
+Issues = "https://github.com/stumpylog/gotenberg-client/issues"
+Source = "https://github.com/stumpylog/gotenberg-client/"
+Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+compression = ["httpx[http2,brotli] ~= 0.24"]
+magic = ["python-magic"]
+
+[tool.hatch.version]
+path = "src/gotenberg_client/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  ".github",
+  ".docker"
+]
+
+[tool.hatch.envs.default]
+dependencies = [
+  "coverage[toml] >= 7.3",
+  "pytest >= 7.4",
+  "pytest-sugar",
+  "pytest-httpx ~= 0.26; python_version >= '3.9'",
+  "pytest-httpx ~= 0.22; python_version < '3.9'",
+  "pikepdf",
+  "python-magic",
+  "brotli",
+]
+
+[tool.hatch.envs.default.scripts]
+version = "python3 --version"
+test = "pytest --pythonwarnings=all {args:tests}"
+test-cov = "coverage run -m pytest --pythonwarnings=all {args:tests}"
+cov-clear = "coverage erase"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov-html = "coverage html"
+cov-json = "coverage json"
+cov = [
+  "version",
+  "cov-clear",
+  "test-cov",
+  "cov-report",
+  "cov-json",
+  "cov-html"
+]
+pip-list = "pip list"
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.pre-commit]
+dependencies = [
+  "pre-commit>=3.4.0",
+]
+
+[tool.hatch.envs.pre-commit.scripts]
+check = ["pre-commit run --all-files"]
+update = ["pre-commit autoupdate"]
+
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "black>=23.9.1",
+  "mypy>=1.0.0",
+  "ruff>=0.0.292",
+  "httpx",
+]
+
+[tool.hatch.envs.lint.scripts]
+typing = [
+  "mypy --version",
+  "mypy --install-types --non-interactive {args:src/gotenberg_client}"
+  ]
+style = [
+  "ruff {args:.}",
+  "black --check --diff {args:.}",
+]
+fmt = [
+  "black {args:.}",
+  "ruff {args:.}",
+  "style",
+]
+all = [
+  "style",
+  "typing",
+]
+
+[tool.black]
+target-version = ["py38"]
+line-length = 120
+skip-string-normalization = true
+
+[tool.ruff]
+fix = true
+output-format = "grouped"
+target-version = "py38"
+line-length = 120
+extend-select = [
+  "A",
+  "ARG",
+  "B",
+  "C",
+  "COM",
+  "DTZ",
+  "E",
+  "EM",
+  "EXE",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "INP",
+  "ISC",
+  "N",
+  "PIE",
+  "PTH",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "PT",
+  "Q",
+  "RSE",
+  "RUF",
+  "S",
+  "SIM",
+  "T",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
+]
+ignore = [
+  # Allow non-abstract empty methods in abstract base classes
+  "B027",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
+  # Ignore complexity
+  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+]
+
+[tool.ruff.isort]
+force-single-line = true
+known-first-party = ["gotenberg_client"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
+
+[tool.coverage.run]
+source_pkgs = ["gotenberg_client", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/gotenberg_client/__about__.py",
+  "tests/conftest.py",
+  "tests/utils.py",
+]
+
+[tool.coverage.paths]
+gotenberg_client = ["src/gotenberg_client", "*/gotenberg_client/src/gotenberg_client"]
+tests = ["tests", "*/gotenberg_client/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+  "if SAVE_OUTPUTS:",
+]
+
+[tool.mypy]
+exclude = [
+  "tests/test_convert_chromium_html.py",
+  "tests/test_convert_chromium_url.py",
+  "tests/test_convert_chromium_markdown.py",
+  "tests/conftest.py",
+  ]
+disallow_any_expr = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+warn_unused_configs = true

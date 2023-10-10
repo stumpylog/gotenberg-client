@@ -1,0 +1,25 @@
+# https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates#package-ecosystem
+
+version: 2
+updates:
+
+  # Enable version updates for Python
+  - package-ecosystem: "pip"
+    target-branch: "develop"
+    # Look for a `Pipfile` in the `root` directory
+    directory: "/"
+    # Check for updates once a week
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+
+  # Enable updates for Github Actions
+  - package-ecosystem: "github-actions"
+    target-branch: "develop"
+    directory: "/"
+    schedule:
+      # Check for updates to GitHub Actions every month
+      interval: "monthly"
+    labels:
+      - "dependencies"
