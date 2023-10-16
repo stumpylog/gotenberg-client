@@ -6,18 +6,23 @@ from pytest_httpx import HTTPXMock
 
 from gotenberg_client._client import GotenbergClient
 from gotenberg_client._convert.chromium import EmulatedMediaType
+from tests.utils import call_run_with_server_error_handling
 from tests.utils import verify_stream_contains
 
 
 class TestConvertChromiumUrlRoute:
     def test_basic_convert(self, client: GotenbergClient):
         with client.chromium.url_to_pdf() as route:
-            resp = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").run()
+            resp = call_run_with_server_error_handling(
+                route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders"),
+            )
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
+
+class TestConvertChromiumUrlMocked:
     @pytest.mark.parametrize(
         ("emulation"),
         [EmulatedMediaType.Screen, EmulatedMediaType.Print],

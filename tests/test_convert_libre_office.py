@@ -12,13 +12,14 @@ from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
 from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
+from tests.utils import call_run_with_server_error_handling
 
 
 class TestLibreOfficeConvert:
     def test_libre_office_convert_docx_format(self, client: GotenbergClient):
         test_file = SAMPLE_DIR / "sample.docx"
         with client.libre_office.to_pdf() as route:
-            resp = route.convert(test_file).run()
+            resp = call_run_with_server_error_handling(route.convert(test_file))
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -30,7 +31,7 @@ class TestLibreOfficeConvert:
     def test_libre_office_convert_odt_format(self, client: GotenbergClient):
         test_file = SAMPLE_DIR / "sample.odt"
         with client.libre_office.to_pdf() as route:
-            resp = route.convert(test_file).run()
+            resp = call_run_with_server_error_handling(route.convert(test_file))
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -42,7 +43,7 @@ class TestLibreOfficeConvert:
     def test_libre_office_convert_xlsx_format(self, client: GotenbergClient):
         test_file = SAMPLE_DIR / "sample.xlsx"
         with client.libre_office.to_pdf() as route:
-            resp = route.convert(test_file).run()
+            resp = call_run_with_server_error_handling(route.convert(test_file))
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -54,7 +55,7 @@ class TestLibreOfficeConvert:
     def test_libre_office_convert_ods_format(self, client: GotenbergClient):
         test_file = SAMPLE_DIR / "sample.ods"
         with client.libre_office.to_pdf() as route:
-            resp = route.convert(test_file).run()
+            resp = call_run_with_server_error_handling(route.convert(test_file))
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -65,7 +66,9 @@ class TestLibreOfficeConvert:
 
     def test_libre_office_convert_multiples_format(self, client: GotenbergClient):
         with client.libre_office.to_pdf() as route:
-            resp = route.convert_files([SAMPLE_DIR / "sample.docx", SAMPLE_DIR / "sample.odt"]).no_merge().run()
+            resp = call_run_with_server_error_handling(
+                route.convert_files([SAMPLE_DIR / "sample.docx", SAMPLE_DIR / "sample.odt"]).no_merge(),
+            )
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -76,7 +79,9 @@ class TestLibreOfficeConvert:
 
     def test_libre_office_convert_multiples_format_merged(self, client: GotenbergClient):
         with client.libre_office.to_pdf() as route:
-            resp = route.convert_files([SAMPLE_DIR / "sample.docx", SAMPLE_DIR / "sample.odt"]).merge().run()
+            resp = call_run_with_server_error_handling(
+                route.convert_files([SAMPLE_DIR / "sample.docx", SAMPLE_DIR / "sample.odt"]).merge(),
+            )
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -89,7 +94,9 @@ class TestLibreOfficeConvert:
         with patch("gotenberg_client._utils.guess_mime_type") as mocked_guess_mime_type:
             mocked_guess_mime_type.side_effect = guess_mime_type_stdlib
             with client.libre_office.to_pdf() as route:
-                resp = route.convert_files([SAMPLE_DIR / "sample.docx", SAMPLE_DIR / "sample.odt"]).no_merge().run()
+                resp = call_run_with_server_error_handling(
+                    route.convert_files([SAMPLE_DIR / "sample.docx", SAMPLE_DIR / "sample.odt"]).no_merge(),
+                )
 
             assert resp.status_code == codes.OK
             assert "Content-Type" in resp.headers
@@ -110,7 +117,7 @@ class TestLibreOfficeConvert:
     ):
         test_file = SAMPLE_DIR / "sample.xlsx"
         with client.libre_office.to_pdf() as route:
-            resp = route.convert(test_file).pdf_format(gt_format).run()
+            resp = call_run_with_server_error_handling(route.convert(test_file).pdf_format(gt_format))
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
