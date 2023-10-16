@@ -24,14 +24,14 @@ class GotenbergClient:
 
     def __init__(
         self,
+        host: str,
         *,
-        gotenerg_url: str,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
         http2: bool = True,
     ):
         # Configure the client
-        self._client = Client(base_url=gotenerg_url, timeout=timeout, http2=http2)
+        self._client = Client(base_url=host, timeout=timeout, http2=http2)
 
         # Set the log level
         logging.getLogger("httpx").setLevel(log_level)
