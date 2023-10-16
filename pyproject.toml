@@ -65,6 +65,7 @@ dependencies = [
 
 [tool.hatch.envs.default.scripts]
 version = "python3 --version"
+pip-list = "pip list"
 test = "pytest --pythonwarnings=all {args:tests}"
 test-cov = "coverage run -m pytest --pythonwarnings=all {args:tests}"
 cov-clear = "coverage erase"
@@ -76,13 +77,13 @@ cov-html = "coverage html"
 cov-json = "coverage json"
 cov = [
   "version",
+  "pip-list",
   "cov-clear",
   "test-cov",
   "cov-report",
   "cov-json",
   "cov-html"
 ]
-pip-list = "pip list"
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.8", "3.9", "3.10", "3.11", "3.12"]

@@ -2,6 +2,7 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/gotenberg-client.svg)](https://pypi.org/project/gotenberg-client)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gotenberg-client.svg)](https://pypi.org/project/gotenberg-client)
+[![codecov](https://codecov.io/gh/stumpylog/gotenberg-client/graph/badge.svg?token=PH25G91Q6J)](https://codecov.io/gh/stumpylog/gotenberg-client)
 
 ---
 

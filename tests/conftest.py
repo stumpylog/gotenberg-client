@@ -20,5 +20,5 @@ if SAVE_OUTPUTS:
 
 @pytest.fixture()
 def client() -> GotenbergClient:
-    with GotenbergClient(gotenerg_url=GOTENBERG_URL, log_level=logging.INFO) as client:
+    with GotenbergClient(host=GOTENBERG_URL, log_level=logging.INFO) as client:
         yield client
