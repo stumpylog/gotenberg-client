@@ -1,0 +1,4 @@
+codecov:
+  require_ci_to_pass: true
+comment:
+  require_changes: true
