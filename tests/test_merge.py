@@ -1,7 +1,7 @@
 import shutil
+import subprocess
 import tempfile
 from pathlib import Path
-from typing import List
 
 import pikepdf
 import pytest
@@ -15,18 +15,27 @@ from tests.conftest import SAVE_OUTPUTS
 from tests.utils import call_run_with_server_error_handling
 
 
-@pytest.fixture()
-def create_files():
+def extract_text(pdf_path: Path) -> str:
     """
-    Creates 2 files in a temporary directory and cleans them up
-    after their use
+    Using pdftotext from poppler, extracts the text of a PDF into a file,
+    then reads the file contents and returns it
     """
-    temp_dir = Path(tempfile.mkdtemp())
-    test_file = SAMPLE_DIR / "sample1.pdf"
-    other_test_file = temp_dir / "sample2.pdf"
-    other_test_file.write_bytes(test_file.read_bytes())
-    yield [test_file, other_test_file]
-    shutil.rmtree(temp_dir, ignore_errors=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w+",
+    ) as tmp:
+        subprocess.run(
+            [  # noqa: S603
+                shutil.which("pdftotext"),
+                "-q",
+                "-layout",
+                "-enc",
+                "UTF-8",
+                str(pdf_path),
+                tmp.name,
+            ],
+            check=True,
+        )
+        return tmp.read()
 
 
 class TestMergePdfs:
@@ -37,12 +46,15 @@ class TestMergePdfs:
     def test_merge_files_pdf_a(
         self,
         client: GotenbergClient,
-        create_files: List[Path],
         gt_format: PdfAFormat,
         pike_format: str,
     ):
         with client.merge.merge() as route:
-            resp = call_run_with_server_error_handling(route.merge(create_files).pdf_format(gt_format))
+            resp = call_run_with_server_error_handling(
+                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"]).pdf_format(
+                    gt_format,
+                ),
+            )
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -58,14 +70,31 @@ class TestMergePdfs:
         if SAVE_OUTPUTS:
             (SAVE_DIR / f"test_libre_office_convert_xlsx_format_{pike_format}.pdf").write_bytes(resp.content)
 
-    def test_pdf_a_multiple_file(
+    def test_merge_multiple_file(
         self,
         client: GotenbergClient,
-        create_files: List[Path],
     ):
-        with client.merge.merge() as route:
-            resp = call_run_with_server_error_handling(route.merge(create_files))
+        if shutil.which("pdftotext") is None:
+            pytest.skip("No pdftotext executable found")
+        else:
+            with client.merge.merge() as route:
+                # By default, these would not merge correctly
+                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
+                resp = call_run_with_server_error_handling(route)
 
-            assert resp.status_code == codes.OK
-            assert "Content-Type" in resp.headers
-            assert resp.headers["Content-Type"] == "application/pdf"
+                assert resp.status_code == codes.OK
+                assert "Content-Type" in resp.headers
+                assert resp.headers["Content-Type"] == "application/pdf"
+
+                with tempfile.NamedTemporaryFile(mode="wb") as tmp:
+                    tmp.write(resp.content)
+
+                    text = extract_text(tmp.name)
+                    lines = text.split("\n")
+                    # Extra is empty line
+                    assert len(lines) == 3
+                    assert "first PDF to be merged." in lines[0]
+                    assert "second PDF to be merged." in lines[1]
+
+                if SAVE_OUTPUTS:
+                    (SAVE_DIR / "test_pdf_a_multiple_file.pdf").write_bytes(resp.content)

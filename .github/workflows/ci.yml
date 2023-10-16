@@ -65,6 +65,11 @@ jobs:
         echo "Wait for container to be started"
         sleep 5
     -
+      name: Install poppler-utils
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends poppler-utils
+    -
       name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -72,7 +77,9 @@ jobs:
         cache: 'pip'
     -
       name: Install Hatch
-      run: pip install --upgrade hatch
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install --upgrade hatch
     -
       name: Run tests
       run: hatch run cov

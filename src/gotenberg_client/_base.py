@@ -79,23 +79,22 @@ class BaseRoute:
         files = {}
         for filename in self._file_map:
             file_path = self._file_map[filename]
-            # Gotenberg requires these to have the specific name
-            filepath_name = filename if filename in {"index.html", "header.html", "footer.html"} else file_path.name
 
             # Helpful but not necessary to provide the mime type when possible
             mime_type = guess_mime_type(file_path)
             if mime_type is not None:
                 files.update(
-                    {filepath_name: (filepath_name, self._stack.enter_context(file_path.open("rb")), mime_type)},
+                    {filename: (filename, self._stack.enter_context(file_path.open("rb")), mime_type)},
                 )
             else:  # pragma: no cover
-                files.update({filepath_name: (filepath_name, self._stack.enter_context(file_path.open("rb")))})  # type: ignore
+                files.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})  # type: ignore
         return files
 
     def _add_file_map(self, filepath: Path, name: Optional[str] = None) -> None:
         """
         Small helper to handle bookkeeping of files for later opening.  The name is
         optional to support those things which are required to have a certain name
+        generally for ordering or just to be found at all
         """
         if name is None:
             name = filepath.name

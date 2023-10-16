@@ -19,7 +19,7 @@ def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -
         return {name: str(value).lower()}
 
 
-def guess_mime_type_stdlib(url: Path) -> Optional[str]:
+def guess_mime_type_stdlib(url: Path) -> Optional[str]:  # pragma: no cover
     """
     Uses the standard library to guess a mimetype
     """

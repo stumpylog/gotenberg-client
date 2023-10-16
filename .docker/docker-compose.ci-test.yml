@@ -4,9 +4,9 @@
 
 version: "3"
 services:
-  gotenberg:
+  gotenberg-client-test-server:
     image: docker.io/gotenberg/gotenberg:7.9.2
-    hostname: gotenberg
-    container_name: gotenberg
+    hostname: gotenberg-client-test-server
+    container_name: gotenberg-client-test-server
     network_mode: host
     restart: unless-stopped
