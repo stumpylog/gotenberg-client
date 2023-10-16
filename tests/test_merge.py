@@ -12,6 +12,7 @@ from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
 from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
+from tests.utils import call_run_with_server_error_handling
 
 
 @pytest.fixture()
@@ -41,7 +42,7 @@ class TestMergePdfs:
         pike_format: str,
     ):
         with client.merge.merge() as route:
-            resp = route.merge(create_files).pdf_format(gt_format).run()
+            resp = call_run_with_server_error_handling(route.merge(create_files).pdf_format(gt_format))
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -63,7 +64,7 @@ class TestMergePdfs:
         create_files: List[Path],
     ):
         with client.merge.merge() as route:
-            resp = route.merge(create_files).run()
+            resp = call_run_with_server_error_handling(route.merge(create_files))
 
             assert resp.status_code == codes.OK
             assert "Content-Type" in resp.headers
