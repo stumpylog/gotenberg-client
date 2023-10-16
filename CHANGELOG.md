@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CodeQL scanning via GitHub
+
 ### Changed
 
 - Updated pypa/gh-action-pypi-publish from 1.8.8 to 1.8.10
