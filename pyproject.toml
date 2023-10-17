@@ -39,7 +39,6 @@ Source = "https://github.com/stumpylog/gotenberg-client/"
 Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
-compression = ["httpx[http2,brotli] ~= 0.24"]
 magic = ["python-magic"]
 
 [tool.hatch.version]
@@ -60,7 +59,6 @@ dependencies = [
   "pytest-httpx ~= 0.22; python_version < '3.9'",
   "pikepdf",
   "python-magic",
-  "brotli",
 ]
 
 [tool.hatch.envs.default.scripts]
