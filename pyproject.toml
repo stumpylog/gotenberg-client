@@ -9,7 +9,7 @@ description = 'A Python client for interfacing with the Gotenberg API'
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MPL-2.0"
-keywords = []
+keywords = ["api", "pdf", "html", "client"]
 authors = [
   { name = "Trenton H", email = "rda0128ou@mozmail.com" },
 ]
@@ -18,7 +18,7 @@ classifiers = [
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
   "Environment :: Web Environment",
-  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
