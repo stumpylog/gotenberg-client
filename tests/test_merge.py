@@ -1,5 +1,4 @@
 import shutil
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -13,29 +12,7 @@ from tests.conftest import SAMPLE_DIR
 from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
 from tests.utils import call_run_with_server_error_handling
-
-
-def extract_text(pdf_path: Path) -> str:
-    """
-    Using pdftotext from poppler, extracts the text of a PDF into a file,
-    then reads the file contents and returns it
-    """
-    with tempfile.NamedTemporaryFile(
-        mode="w+",
-    ) as tmp:
-        subprocess.run(
-            [  # noqa: S603
-                shutil.which("pdftotext"),
-                "-q",
-                "-layout",
-                "-enc",
-                "UTF-8",
-                str(pdf_path),
-                tmp.name,
-            ],
-            check=True,
-        )
-        return tmp.read()
+from tests.utils import extract_text
 
 
 class TestMergePdfs:

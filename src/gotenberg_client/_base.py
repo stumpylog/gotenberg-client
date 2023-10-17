@@ -32,6 +32,7 @@ class BaseRoute:
         self._stack = ExitStack()
         self._form_data: Dict[str, str] = {}
         self._file_map: Dict[str, Path] = {}
+        self._headers: Dict[str, str] = {}
 
     def __enter__(self) -> Self:
         self.reset()
@@ -66,11 +67,11 @@ class BaseRoute:
         Response.
         TODO: It would be nice to return a simpler response to the user
         """
-        resp = self._client.post(url=self._route, data=self._form_data, files=self.get_files())
+        resp = self._client.post(url=self._route, headers=self._headers, data=self._form_data, files=self._get_files())
         resp.raise_for_status()
         return resp
 
-    def get_files(self) -> RequestFiles:
+    def _get_files(self) -> RequestFiles:
         """
         Deals with opening all provided files for multi-part uploads, including
         pushing their new contexts onto the stack to ensure resources like file
@@ -108,6 +109,14 @@ class BaseRoute:
         PDF/A format
         """
         self._form_data.update(pdf_format.to_form())
+        return self
+
+    def trace(self, trace_id: str) -> "BaseRoute":
+        self._headers["Gotenberg-Trace"] = trace_id
+        return self
+
+    def output_name(self, filename: str) -> "BaseRoute":
+        self._headers["Gotenberg-Output-Filename"] = filename
         return self
 
 

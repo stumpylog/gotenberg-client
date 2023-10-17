@@ -140,7 +140,7 @@ class UrlRoute(ChromiumBaseRoute):
         self._form_data["url"] = url
         return self
 
-    def get_files(self) -> ForceMultipartDict:
+    def _get_files(self) -> ForceMultipartDict:
         return FORCE_MULTIPART
 
 

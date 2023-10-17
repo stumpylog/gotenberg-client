@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for the output filename and request tracing for all routes
+
 ### Fixed
 
 - An issue with the sorting of merging PDFs. Expanded testing to cover the merged ordering
