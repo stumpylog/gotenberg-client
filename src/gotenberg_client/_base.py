@@ -32,6 +32,7 @@ class BaseRoute:
         self._stack = ExitStack()
         self._form_data: Dict[str, str] = {}
         self._file_map: Dict[str, Path] = {}
+        self._headers: Dict[str, str] = {}
 
     def __enter__(self) -> Self:
         self.reset()
@@ -66,11 +67,11 @@ class BaseRoute:
         Response.
         TODO: It would be nice to return a simpler response to the user
         """
-        resp = self._client.post(url=self._route, data=self._form_data, files=self.get_files())
+        resp = self._client.post(url=self._route, headers=self._headers, data=self._form_data, files=self._get_files())
         resp.raise_for_status()
         return resp
 
-    def get_files(self) -> RequestFiles:
+    def _get_files(self) -> RequestFiles:
         """
         Deals with opening all provided files for multi-part uploads, including
         pushing their new contexts onto the stack to ensure resources like file
@@ -79,23 +80,22 @@ class BaseRoute:
         files = {}
         for filename in self._file_map:
             file_path = self._file_map[filename]
-            # Gotenberg requires these to have the specific name
-            filepath_name = filename if filename in {"index.html", "header.html", "footer.html"} else file_path.name
 
             # Helpful but not necessary to provide the mime type when possible
             mime_type = guess_mime_type(file_path)
             if mime_type is not None:
                 files.update(
-                    {filepath_name: (filepath_name, self._stack.enter_context(file_path.open("rb")), mime_type)},
+                    {filename: (filename, self._stack.enter_context(file_path.open("rb")), mime_type)},
                 )
             else:  # pragma: no cover
-                files.update({filepath_name: (filepath_name, self._stack.enter_context(file_path.open("rb")))})  # type: ignore
+                files.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})  # type: ignore [dict-item]
         return files
 
     def _add_file_map(self, filepath: Path, name: Optional[str] = None) -> None:
         """
         Small helper to handle bookkeeping of files for later opening.  The name is
         optional to support those things which are required to have a certain name
+        generally for ordering or just to be found at all
         """
         if name is None:
             name = filepath.name
@@ -109,6 +109,14 @@ class BaseRoute:
         PDF/A format
         """
         self._form_data.update(pdf_format.to_form())
+        return self
+
+    def trace(self, trace_id: str) -> "BaseRoute":
+        self._headers["Gotenberg-Trace"] = trace_id
+        return self
+
+    def output_name(self, filename: str) -> "BaseRoute":
+        self._headers["Gotenberg-Output-Filename"] = filename
         return self
 
 

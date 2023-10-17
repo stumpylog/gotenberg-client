@@ -1,5 +1,9 @@
+import shutil
+import subprocess
+import tempfile
 import time
 import warnings
+from pathlib import Path
 
 from httpx import HTTPStatusError
 from httpx import Response
@@ -33,16 +37,16 @@ def call_run_with_server_error_handling(route: BaseRoute) -> Response:
     one attempt to parse.
 
     This will wait the following:
-        - Attempt 1 - 20s following failure
-        - Attempt 2 - 40s following failure
-        - Attempt 3 - 80s following failure
-        - Attempt 4 - 160s
-        - Attempt 5 - 320s
+        - Attempt 1 - 5s following failure
+        - Attempt 2 - 10s following failure
+        - Attempt 3 - 20s following failure
+        - Attempt 4 - 40s following failure
+        - Attempt 5 - 80s following failure
 
     """
     result = None
     succeeded = False
-    retry_time = 20.0
+    retry_time = 5.0
     retry_count = 0
     max_retry_count = 5
 
@@ -60,3 +64,26 @@ def call_run_with_server_error_handling(route: BaseRoute) -> Response:
         retry_time = retry_time * 2.0
 
     return result
+
+
+def extract_text(pdf_path: Path) -> str:
+    """
+    Using pdftotext from poppler, extracts the text of a PDF into a file,
+    then reads the file contents and returns it
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+",
+    ) as tmp:
+        subprocess.run(
+            [  # noqa: S603
+                shutil.which("pdftotext"),
+                "-q",
+                "-layout",
+                "-enc",
+                "UTF-8",
+                str(pdf_path),
+                tmp.name,
+            ],
+            check=True,
+        )
+        return tmp.read()

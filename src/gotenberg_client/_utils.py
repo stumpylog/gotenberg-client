@@ -19,7 +19,7 @@ def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -
         return {name: str(value).lower()}
 
 
-def guess_mime_type_stdlib(url: Path) -> Optional[str]:
+def guess_mime_type_stdlib(url: Path) -> Optional[str]:  # pragma: no cover
     """
     Uses the standard library to guess a mimetype
     """
@@ -33,9 +33,9 @@ def guess_mime_type_magic(url: Path) -> Optional[str]:
     """
     Uses libmagic to guess the mimetype
     """
-    import magic  # type: ignore
+    import magic  # type: ignore [import-not-found]
 
-    return magic.from_file(url, mime=True)  # type: ignore
+    return magic.from_file(url, mime=True)  # type: ignore [misc]
 
 
 # Use the best option

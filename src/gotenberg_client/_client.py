@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
-from importlib.util import find_spec
 from types import TracebackType
 from typing import Dict
 from typing import Optional
@@ -37,19 +36,12 @@ class GotenbergClient:
         logging.getLogger("httpx").setLevel(log_level)
         logging.getLogger("httpcore").setLevel(log_level)
 
-        # TODO Brotli?
-        if find_spec("brotli") is not None:
-            self._client.headers.update({"Accept-Encoding": "gzip,deflate,br"})
-        else:
-            self._client.headers.update({"Accept-Encoding": "gzip,deflate"})
-
         # Add the resources
         self.chromium = ChromiumApi(self._client)
         self.libre_office = LibreOfficeApi(self._client)
         self.pdf_a = PdfAApi(self._client)
         self.merge = MergeApi(self._client)
         self.health = HealthCheckApi(self._client)
-        # TODO
 
     def add_headers(self, header: Dict[str, str]) -> None:  # pragma: no cover
         """
