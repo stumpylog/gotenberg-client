@@ -33,9 +33,9 @@ def guess_mime_type_magic(url: Path) -> Optional[str]:
     """
     Uses libmagic to guess the mimetype
     """
-    import magic  # type: ignore
+    import magic  # type: ignore [import-not-found]
 
-    return magic.from_file(url, mime=True)  # type: ignore
+    return magic.from_file(url, mime=True)  # type: ignore [misc]
 
 
 # Use the best option

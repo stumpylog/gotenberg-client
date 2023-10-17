@@ -37,7 +37,6 @@ class GotenbergClient:
         logging.getLogger("httpx").setLevel(log_level)
         logging.getLogger("httpcore").setLevel(log_level)
 
-        # TODO Brotli?
         if find_spec("brotli") is not None:
             self._client.headers.update({"Accept-Encoding": "gzip,deflate,br"})
         else:
@@ -49,7 +48,6 @@ class GotenbergClient:
         self.pdf_a = PdfAApi(self._client)
         self.merge = MergeApi(self._client)
         self.health = HealthCheckApi(self._client)
-        # TODO
 
     def add_headers(self, header: Dict[str, str]) -> None:  # pragma: no cover
         """

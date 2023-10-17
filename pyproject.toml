@@ -90,7 +90,7 @@ python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
 [tool.hatch.envs.pre-commit]
 dependencies = [
-  "pre-commit>=3.4.0",
+  "pre-commit>=3.5.0",
 ]
 
 [tool.hatch.envs.pre-commit.scripts]
@@ -101,8 +101,8 @@ update = ["pre-commit autoupdate"]
 detached = true
 dependencies = [
   "black>=23.9.1",
-  "mypy>=1.0.0",
-  "ruff>=0.0.292",
+  "mypy>=1.6.0",
+  "ruff>=0.1.0",
   "httpx",
 ]
 
@@ -112,6 +112,7 @@ typing = [
   "mypy --install-types --non-interactive {args:src/gotenberg_client}"
   ]
 style = [
+  "ruff --version",
   "ruff {args:.}",
   "black --check --diff {args:.}",
 ]
@@ -135,25 +136,33 @@ fix = true
 output-format = "grouped"
 target-version = "py38"
 line-length = 120
+# https://docs.astral.sh/ruff/rules/
 extend-select = [
   "A",
   "ARG",
   "B",
   "C",
+  "C4",
   "COM",
   "DTZ",
   "E",
   "EM",
+  "ERA",
   "EXE",
   "F",
   "FBT",
+  "FLY",
   "I",
   "ICN",
   "INP",
+  "INT",
   "ISC",
   "N",
+  "PERF",
   "PIE",
+  "PGH",
   "PTH",
+  "PL",
   "PLC",
   "PLE",
   "PLR",
@@ -164,8 +173,14 @@ extend-select = [
   "RUF",
   "S",
   "SIM",
+  "SLF",
   "T",
+  "T10",
+  "T20",
+  "TCH",
+  "TD",
   "TID",
+  "TRY",
   "UP",
   "W",
   "YTT",
@@ -179,6 +194,8 @@ ignore = [
   "S105", "S106", "S107",
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Ignore no author and missing issue link in TODO tags
+  "TD002", "TD003"
 ]
 
 [tool.ruff.isort]

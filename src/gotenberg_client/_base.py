@@ -87,7 +87,7 @@ class BaseRoute:
                     {filename: (filename, self._stack.enter_context(file_path.open("rb")), mime_type)},
                 )
             else:  # pragma: no cover
-                files.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})  # type: ignore
+                files.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})  # type: ignore [dict-item]
         return files
 
     def _add_file_map(self, filepath: Path, name: Optional[str] = None) -> None:

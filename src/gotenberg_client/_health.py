@@ -78,9 +78,9 @@ class HealthStatus:
         status = StatusOptions(self.data["details"][module.value]["status"])
 
         # mypy is quite wrong here, it's clearly marked as a datetime.datetime, not Any
-        timestamp = self._extract_datetime(self.data["details"][module.value]["timestamp"])  # type: ignore
-        # Also wrong here
-        return ModuleStatus(status, timestamp)  # type: ignore
+        # but ...
+        timestamp: datetime.datetime = self._extract_datetime(self.data["details"][module.value]["timestamp"])
+        return ModuleStatus(status, timestamp)
 
     @staticmethod
     @no_type_check
