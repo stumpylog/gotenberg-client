@@ -51,11 +51,11 @@ class TestMergePdfs:
         self,
         client: GotenbergClient,
     ):
-        if shutil.which("pdftotext") is None:
+        if shutil.which("pdftotext") is None:  # pragma: no cover
             pytest.skip("No pdftotext executable found")
         else:
             with client.merge.merge() as route:
-                # By default, these would not merge correctly
+                # By default, these would not merge correctly, as it happens alphabetically
                 route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
                 resp = call_run_with_server_error_handling(route)
 
@@ -66,7 +66,7 @@ class TestMergePdfs:
                 with tempfile.NamedTemporaryFile(mode="wb") as tmp:
                     tmp.write(resp.content)
 
-                    text = extract_text(tmp.name)
+                    text = extract_text(Path(tmp.name))
                     lines = text.split("\n")
                     # Extra is empty line
                     assert len(lines) == 3

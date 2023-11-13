@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Removed some certain special cases from coverage
+- Updated `pre-commit` hook versions
+- Updated how pytest is configured, so it will apply to any invocation
+
 ## [0.3.0] - 2023-10-17
 
 ### Added
