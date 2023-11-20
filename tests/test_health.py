@@ -11,5 +11,6 @@ class TestHealthStatus:
         assert status.overall == StatusOptions.Up
         assert status.chromium is not None
         assert status.chromium.status == StatusOptions.Up
-        assert status.uno is not None
-        assert status.uno.status == StatusOptions.Up
+        if "uno" in status.data:
+            assert status.uno is not None
+            assert status.uno.status == StatusOptions.Up

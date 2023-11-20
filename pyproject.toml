@@ -84,10 +84,9 @@ cov = [
   "cov-html"
 ]
 
-[[tool.hatch.envs.all.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
 [tool.hatch.envs.pre-commit]
+template = "pre-commit"
+detached = true
 dependencies = [
   "pre-commit>=3.5.0",
 ]
