@@ -96,7 +96,48 @@ jobs:
       run: |
         docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml logs
         docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml down
-
+  test-edge:
+    name: Test Gotenberg :edge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs:
+      - lint
+    steps:
+    -
+      uses: actions/checkout@v4
+    -
+      name: Start containers
+      run: |
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml pull --quiet
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml up --detach
+        echo "Wait for container to be started"
+        sleep 5
+    -
+      name: Install poppler-utils
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends poppler-utils
+    -
+      name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+    -
+      name: Install Hatch
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install --upgrade hatch
+    -
+      name: Run tests
+      run: hatch run cov
+    -
+      name: Stop containers
+      if: always()
+      run: |
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml logs
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml down
   build:
     name: Build
     runs-on: ubuntu-latest

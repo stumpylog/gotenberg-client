@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pre-commit` hook versions
 - Updated how pytest is configured, so it will apply to any invocation
 
+### Added
+
+- Added new test job against Gotenberg's `:edge` tag
+
 ## [0.3.0] - 2023-10-17
 
 ### Added

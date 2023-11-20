@@ -1,0 +1,12 @@
+# docker-compose file for running testing with gotenberg container
+# Can be used locally or by the CI to start the nessecary container with the
+# correct networking for the tests
+
+version: "3"
+services:
+  gotenberg-client-test-server:
+    image: docker.io/gotenberg/gotenberg:edge
+    hostname: gotenberg-client-test-server
+    container_name: gotenberg-client-test-server
+    network_mode: host
+    restart: unless-stopped
