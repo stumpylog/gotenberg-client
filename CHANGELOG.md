@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed some certain special cases from coverage
 - Updated `pre-commit` hook versions
 - Updated how pytest is configured, so it will apply to any invocation
+- Updated test running image to log at warning or lower using text format
+- Updated test running image from 7.9.2 to 7.10.1
 
 ### Added
 
