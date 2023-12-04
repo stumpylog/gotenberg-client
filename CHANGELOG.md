@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2023-12-04
+
+### Changed
+
+- Removed some certain special cases from coverage
+- Updated `pre-commit` hook versions
+- Updated how pytest is configured, so it will apply to any invocation
+- Updated test running image to log at warning or lower using text format
+- Updated test running image from 7.9.2 to 7.10.1
+- For the moment, send both `pdfa` and `pdfFormat` for compatibility with 7.9 and 7.10
+  - See [here](https://github.com/stumpylog/gotenberg-client/issues/5#issuecomment-1839081129) for some subtle differences in what these options mean
+
+### Added
+
+- Added new test job against Gotenberg's `:edge` tag
+
 ## [0.3.0] - 2023-10-17
 
 ### Added

@@ -13,7 +13,7 @@ from httpx import Client
 from httpx import Response
 from httpx._types import RequestFiles
 
-from gotenberg_client._types_compat import Self
+from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import guess_mime_type
 from gotenberg_client.options import PdfAFormat
 
@@ -30,8 +30,11 @@ class BaseRoute:
         self._client = client
         self._route = api_route
         self._stack = ExitStack()
+        # These are the options that will be set to Gotenberg.  Things like PDF/A
         self._form_data: Dict[str, str] = {}
+        # These are the names of files, mapping to their Path
         self._file_map: Dict[str, Path] = {}
+        # Any header that will also be sent
         self._headers: Dict[str, str] = {}
 
     def __enter__(self) -> Self:
@@ -44,7 +47,7 @@ class BaseRoute:
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        self.reset()
+        self.close()
 
     def reset(self) -> None:
         """
@@ -103,7 +106,7 @@ class BaseRoute:
             logger.warning(f"{name} has already been provided, overwriting anyway")
         self._file_map[name] = filepath
 
-    def pdf_format(self, pdf_format: PdfAFormat) -> "BaseRoute":
+    def pdf_format(self, pdf_format: PdfAFormat) -> Self:
         """
         All routes provide the option to configure the output PDF as a
         PDF/A format
@@ -111,11 +114,15 @@ class BaseRoute:
         self._form_data.update(pdf_format.to_form())
         return self
 
-    def trace(self, trace_id: str) -> "BaseRoute":
+    def universal_access_pdf(self, *, pdf_ua: bool) -> Self:
+        self._form_data.update({"pdfua": str(pdf_ua).lower()})
+        return self
+
+    def trace(self, trace_id: str) -> Self:
         self._headers["Gotenberg-Trace"] = trace_id
         return self
 
-    def output_name(self, filename: str) -> "BaseRoute":
+    def output_name(self, filename: str) -> Self:
         self._headers["Gotenberg-Output-Filename"] = filename
         return self
 

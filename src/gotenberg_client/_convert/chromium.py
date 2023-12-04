@@ -11,7 +11,7 @@ from typing import Union
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._convert.common import ConvertBaseRoute
-from gotenberg_client._types_compat import Self
+from gotenberg_client._typing_compat import Self
 from gotenberg_client.options import EmulatedMediaType
 from gotenberg_client.options import Margin
 from gotenberg_client.options import PageSize

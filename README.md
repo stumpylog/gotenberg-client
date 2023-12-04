@@ -37,7 +37,7 @@ As far as I can tell, no active Python library exists to interface with the Gote
 - HTTP/2 enabled by default
 - Abstract away the handling of multi-part/form-data and deal with `Path`s instead
 - Based on the modern [httpx](https://github.com/encode/httpx) library
-- Full support for type hinting and concrete return types as mush as possible
+- Full support for type hinting and concrete return types as much as possible
 - Nearly full test coverage run against an actual Gotenberg server for multiple Python and PyPy versions
 
 ## How

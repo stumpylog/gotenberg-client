@@ -4,7 +4,7 @@
 import logging
 
 from gotenberg_client._base import BaseRoute
-from gotenberg_client._types_compat import Self
+from gotenberg_client._typing_compat import Self
 from gotenberg_client.options import PageOrientation
 
 logger = logging.getLogger()

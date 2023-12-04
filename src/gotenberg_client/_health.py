@@ -86,7 +86,7 @@ class HealthStatus:
     @no_type_check
     def _extract_datetime(timestamp: str) -> datetime.datetime:
         m = _TIME_RE.match(timestamp)
-        if not m:
+        if not m:  # pragma: no cover
             msg = f"Unable to parse {timestamp}"
             raise ValueError(msg)
 
@@ -97,7 +97,7 @@ class HealthStatus:
         if timezone_str is not None:
             if timezone_str.lower() == "z":
                 tzinfo = datetime.timezone.utc
-            else:
+            else:  # pragma: no cover
                 multi = -1 if timezone_str[0:1] == "-" else 1
                 hours = int(timezone_str[1:3])
                 minutes = int(timezone_str[4:])

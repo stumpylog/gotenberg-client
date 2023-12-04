@@ -28,9 +28,10 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "httpx[http2] ~= 0.24",
+  "httpx[http2] ~= 0.25; python_version >= '3.9'",
+  "httpx[http2] ~= 0.24; python_version < '3.9'",
   "typing-extensions; python_version < '3.11'"
-  ]
+]
 
 [project.urls]
 Documentation = "https://github.com/stumpylog/gotenberg-client/#readme"
@@ -64,8 +65,8 @@ dependencies = [
 [tool.hatch.envs.default.scripts]
 version = "python3 --version"
 pip-list = "pip list"
-test = "pytest --pythonwarnings=all {args:tests}"
-test-cov = "coverage run -m pytest --pythonwarnings=all {args:tests}"
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
 cov-clear = "coverage erase"
 cov-report = [
   "- coverage combine",
@@ -83,10 +84,9 @@ cov = [
   "cov-html"
 ]
 
-[[tool.hatch.envs.all.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
 [tool.hatch.envs.pre-commit]
+template = "pre-commit"
+detached = true
 dependencies = [
   "pre-commit>=3.5.0",
 ]
@@ -207,6 +207,11 @@ ban-relative-imports = "all"
 # Tests can use magic values, assertions, and relative imports
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "--pythonwarnings=all"
+
 [tool.coverage.run]
 source_pkgs = ["gotenberg_client", "tests"]
 branch = true
@@ -235,7 +240,7 @@ exclude = [
   "tests/test_convert_chromium_url.py",
   "tests/test_convert_chromium_markdown.py",
   "tests/conftest.py",
-  ]
+]
 disallow_any_expr = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
