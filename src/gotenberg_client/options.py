@@ -18,12 +18,15 @@ class PdfAFormat(enum.Enum):
     A3b = enum.auto()
 
     def to_form(self) -> Dict[str, str]:
+        format_name = None
         if self.value == PdfAFormat.A1a.value:
-            return {"pdfFormat": "PDF/A-1a"}
+            format_name = "PDF/A-1a"
         elif self.value == PdfAFormat.A2b.value:
-            return {"pdfFormat": "PDF/A-2b"}
+            format_name = "PDF/A-2b"
         elif self.value == PdfAFormat.A3b.value:
-            return {"pdfFormat": "PDF/A-3b"}
+            format_name = "PDF/A-3b"
+        if format_name is not None:
+            return {"pdfa": format_name, "pdfFormat": format_name}
         else:  # pragma: no cover
             raise NotImplementedError(self.value)
 

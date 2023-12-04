@@ -13,7 +13,7 @@ from httpx import Client
 from httpx import Response
 from httpx._types import RequestFiles
 
-from gotenberg_client._types_compat import Self
+from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import guess_mime_type
 from gotenberg_client.options import PdfAFormat
 
@@ -112,6 +112,10 @@ class BaseRoute:
         PDF/A format
         """
         self._form_data.update(pdf_format.to_form())
+        return self
+
+    def universal_access_pdf(self, *, pdf_ua: bool) -> Self:
+        self._form_data.update({"pdfua": str(pdf_ua).lower()})
         return self
 
     def trace(self, trace_id: str) -> Self:

@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated how pytest is configured, so it will apply to any invocation
 - Updated test running image to log at warning or lower using text format
 - Updated test running image from 7.9.2 to 7.10.1
+- For the moment, send both `pdfa` and `pdfFormat` for compatibility with 7.9 and 7.10
+  - See [here](https://github.com/stumpylog/gotenberg-client/issues/5#issuecomment-1839081129) for some subtle differences in what these options mean
 
 ### Added
 
