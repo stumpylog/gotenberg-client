@@ -1,4 +1,7 @@
+import shutil
+import tempfile
 import uuid
+from pathlib import Path
 
 from httpx import codes
 
@@ -43,3 +46,24 @@ class TestMiscFunctionality:
         assert resp.headers["Content-Type"] == "application/pdf"
         assert "Content-Disposition" in resp.headers
         assert f"{filename}.pdf" in resp.headers["Content-Disposition"]
+
+    def test_libre_office_convert_cyrillic(self, client: GotenbergClient):
+        """
+        Gotenberg versions before 8.0.0 could not internally handle filenames with
+        non-ASCII characters.  This replicates such a thing against 1 endpoint to
+        verify the workaround inside this library
+        """
+        test_file = SAMPLE_DIR / "sample.odt"
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            copy = shutil.copy(
+                test_file,
+                Path(temp_dir) / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
+            )
+
+            with client.libre_office.to_pdf() as route:
+                resp = call_run_with_server_error_handling(route.convert(copy))
+
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
