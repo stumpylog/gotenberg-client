@@ -4,10 +4,10 @@
 
 version: "3"
 services:
-  gotenberg-client-test-server:
+  gotenberg-client-test-edge-server:
     image: docker.io/gotenberg/gotenberg:edge
-    hostname: gotenberg-client-test-server
-    container_name: gotenberg-client-test-server
+    hostname: gotenberg-client-test-edge-server
+    container_name: gotenberg-client-test-edge-server
     network_mode: host
     restart: unless-stopped
     command:

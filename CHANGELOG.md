@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented an internal workaround for older Gotenberg versions and their handling of non-latin filenames.
   - When detected, the files will be copied into a temporary directory and the filename cleaned
   - Gotenberg 8.0.0 will start implementing something similar once released
+- The pulled Gotenberg image is now inspected, allowing local re-creation of failures against specific digests
+- The `:edge` tag testing is now allowed to fail
 
 ## [0.4.0] - 2023-12-04
 
