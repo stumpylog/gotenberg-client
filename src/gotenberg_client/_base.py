@@ -4,6 +4,7 @@
 import logging
 from contextlib import ExitStack
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import TracebackType
 from typing import Dict
 from typing import Optional
@@ -102,8 +103,23 @@ class BaseRoute:
         """
         if name is None:
             name = filepath.name
+
         if name in self._file_map:  # pragma: no cover
             logger.warning(f"{name} has already been provided, overwriting anyway")
+
+        try:
+            name.encode("utf8").decode("ascii")
+        except UnicodeDecodeError:
+            logger.warning(f"filename {name} includes non-ascii characters, compensating for Gotenberg")
+            tmp_dir = self._stack.enter_context(TemporaryDirectory())
+            # Filename can be fixed, the directory is random
+            new_path = Path(tmp_dir) / Path(name).with_name(f"clean-filename-copy{filepath.suffix}")
+            logger.warning(f"New path {new_path}")
+            new_path.write_bytes(filepath.read_bytes())
+            filepath = new_path
+            name = new_path.name
+            logger.warning(f"New name {name}")
+
         self._file_map[name] = filepath
 
     def pdf_format(self, pdf_format: PdfAFormat) -> Self:
