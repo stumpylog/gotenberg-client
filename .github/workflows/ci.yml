@@ -223,6 +223,7 @@ jobs:
     needs:
       - build
       - test
+      - documentation
     steps:
       -
         uses: actions/checkout@v4
@@ -259,6 +260,7 @@ jobs:
     needs:
       - build
       - test
+      - documentation
     steps:
       -
         uses: actions/download-artifact@v3
