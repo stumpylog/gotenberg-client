@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/stumpylog/gotenberg-client/#readme"
+Documentation = "https://stumpylog.github.io/gotenberg-client/"
 Issues = "https://github.com/stumpylog/gotenberg-client/issues"
 Source = "https://github.com/stumpylog/gotenberg-client/"
 Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.md"
@@ -94,6 +94,27 @@ dependencies = [
 [tool.hatch.envs.pre-commit.scripts]
 check = ["pre-commit run --all-files"]
 update = ["pre-commit autoupdate"]
+
+[tool.hatch.envs.docs]
+template = "docs"
+detached = true
+dependencies = [
+  "mkdocs-material[imaging]~=9.5.2",
+  "mike~=2.0.0",
+  "mkdocs-minify-plugin~=0.7.1"
+]
+
+[tool.hatch.envs.docs.scripts]
+new = ["mkdocs new ."]
+build = ["mkdocs build"]
+serve = [
+  "mkdocs serve"
+]
+mike-help = ["mike serve --help"]
+deploy = [
+  "mike deploy --push --branch gh-pages --remote origin --update-aliases latest {args}",
+  "mike set-default --branch gh-pages --remote origin --push latest"
+]
 
 [tool.hatch.envs.lint]
 detached = true

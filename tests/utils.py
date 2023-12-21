@@ -71,12 +71,14 @@ def extract_text(pdf_path: Path) -> str:
     Using pdftotext from poppler, extracts the text of a PDF into a file,
     then reads the file contents and returns it
     """
+    pdf_to_text = shutil.which("pdftotext")
+    assert pdf_to_text is not None
     with tempfile.NamedTemporaryFile(
         mode="w+",
     ) as tmp:
         subprocess.run(
             [  # noqa: S603
-                shutil.which("pdftotext"),
+                pdf_to_text,
                 "-q",
                 "-layout",
                 "-enc",

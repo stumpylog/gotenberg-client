@@ -172,7 +172,48 @@ jobs:
             path: dist/*
             if-no-files-found: error
             retention-days: 7
-
+  documentation:
+    name: Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - lint
+    steps:
+      -
+        uses: actions/checkout@v4
+      -
+        name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      -
+        name: Install Hatch
+        run: |
+          pip3 --quiet install --upgrade hatch
+      -
+        name: Build Documentation
+        run: |
+          hatch run docs:build
+      -
+        uses: actions/upload-artifact@v3
+        with:
+            name: documentation
+            path: site/*
+            if-no-files-found: error
+            retention-days: 7
+      -
+        name: Configure Git user
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      -
+        name: Deploy documentation
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          hatch run docs:deploy ${{ github.ref_name }}
   create-release:
     name: Release
     runs-on: ubuntu-latest

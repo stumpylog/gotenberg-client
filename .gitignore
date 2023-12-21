@@ -28,3 +28,7 @@ venv/
 
 # Possible PDF generated from testing
 tests/outputs/**
+
+# Documentation site
+site/
+.cache/
