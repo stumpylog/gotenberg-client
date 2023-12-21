@@ -11,7 +11,6 @@ from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
 from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
-from tests.utils import call_run_with_server_error_handling
 from tests.utils import extract_text
 
 
@@ -27,12 +26,13 @@ class TestMergePdfs:
         pike_format: str,
     ):
         with client.merge.merge() as route:
-            resp = call_run_with_server_error_handling(
-                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"]).pdf_format(
+            resp = (
+                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
+                .pdf_format(
                     gt_format,
-                ),
+                )
+                .run_with_retry()
             )
-
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
@@ -56,8 +56,9 @@ class TestMergePdfs:
         else:
             with client.merge.merge() as route:
                 # By default, these would not merge correctly, as it happens alphabetically
-                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
-                resp = call_run_with_server_error_handling(route)
+                resp = route.merge(
+                    [SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"],
+                ).run_with_retry()
 
                 assert resp.status_code == codes.OK
                 assert "Content-Type" in resp.headers

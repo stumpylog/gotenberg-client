@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Documentation site built with Github Pages and Material for MkDocs
+- New method `.run_with_retry` for routes, which allows the route to be rerun as configured, with progressive backoff if the server returns a server error
 
 ## [0.4.1] - 2023-12-11
 

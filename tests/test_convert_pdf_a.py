@@ -10,7 +10,6 @@ from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
 from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
-from tests.utils import call_run_with_server_error_handling
 
 
 class TestPdfAConvert:
@@ -26,7 +25,7 @@ class TestPdfAConvert:
     ):
         test_file = SAMPLE_DIR / "sample1.pdf"
         with client.pdf_a.to_pdfa() as route:
-            resp = call_run_with_server_error_handling(route.convert(test_file).pdf_format(gt_format))
+            resp = route.convert(test_file).pdf_format(gt_format).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -53,9 +52,7 @@ class TestPdfAConvert:
             other_test_file = Path(temp_dir) / "sample2.pdf"
             other_test_file.write_bytes(test_file.read_bytes())
             with client.pdf_a.to_pdfa() as route:
-                resp = call_run_with_server_error_handling(
-                    route.convert_files([test_file, other_test_file]).pdf_format(gt_format),
-                )
+                resp = route.convert_files([test_file, other_test_file]).pdf_format(gt_format).run_with_retry()
 
                 assert resp.status_code == codes.OK
                 assert "Content-Type" in resp.headers
