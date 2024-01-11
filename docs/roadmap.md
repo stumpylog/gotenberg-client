@@ -1,6 +1,8 @@
 # Roadmap
 
-## Webhooks
+## Custom Response Class
 
-Implement adding the [webhooks](https://gotenberg.dev/docs/webhook) via headers as defined in the
-documentation.
+Currently, the response returned is a basic httpx.Response. It could be useful to abstract this in some manner, especially for responses which return a zip file.
+
+- Ability to iterate through the zip file contents in some way
+- Ability to write the response to some given output location?

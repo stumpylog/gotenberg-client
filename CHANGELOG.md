@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The documentation site's changelog was not updating with the changes
 
+### Added
+
+- `codespell` pre-commit hook
+
 ## [0.5.0] - 2024-01-11
 
 ### Added
