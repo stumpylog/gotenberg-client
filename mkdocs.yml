@@ -1,0 +1,78 @@
+site_name: Gotenberg Client
+
+site_url: https://stumpylog.github.io/gotenberg-client/
+site_author: Trenton H
+
+repo_name: stumpylog/gotenberg-client
+repo_url: https://github.com/stumpylog/gotenberg-client
+
+nav:
+  - "index.md"
+  - "usage.md"
+  - "roadmap.md"
+  - "changelog.md"
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true
+
+theme:
+  name: material
+  custom_dir: docs/.override
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.integrate
+    - search.suggest
+    - content.code.annotate
+    - pymdownx.superfences
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - footnotes
+  font:
+    text: Roboto
+    code: Roboto Mono
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - social
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+
+extra:
+  version:
+    provider: mike
+  analytics:
+    provider: google
+    property: G-YHHSXXB0FT
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.

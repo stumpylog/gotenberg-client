@@ -2,7 +2,6 @@ from httpx import codes
 
 from gotenberg_client._client import GotenbergClient
 from tests.conftest import SAMPLE_DIR
-from tests.utils import call_run_with_server_error_handling
 
 
 class TestConvertChromiumUrlRoute:
@@ -13,9 +12,7 @@ class TestConvertChromiumUrlRoute:
         font = SAMPLE_DIR / "font.woff"
         style = SAMPLE_DIR / "style.css"
         with client.chromium.markdown_to_pdf() as route:
-            resp = call_run_with_server_error_handling(
-                route.index(index).markdown_files(md_files).resources([img, font]).resource(style),
-            )
+            resp = route.index(index).markdown_files(md_files).resources([img, font]).resource(style).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers

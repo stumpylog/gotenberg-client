@@ -14,7 +14,6 @@ from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
 from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
-from tests.utils import call_run_with_server_error_handling
 from tests.utils import verify_stream_contains
 
 
@@ -23,7 +22,7 @@ class TestConvertChromiumHtmlRoute:
         test_file = SAMPLE_DIR / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
-            resp = call_run_with_server_error_handling(route.index(test_file))
+            resp = route.index(test_file).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -37,7 +36,7 @@ class TestConvertChromiumHtmlRoute:
         footer_file = SAMPLE_DIR / "footer.html"
 
         with client.chromium.html_to_pdf() as route:
-            resp = call_run_with_server_error_handling(route.index(test_file).header(header_file).footer(footer_file))
+            resp = route.index(test_file).header(header_file).footer(footer_file).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -50,9 +49,7 @@ class TestConvertChromiumHtmlRoute:
         style = SAMPLE_DIR / "style.css"
 
         with client.chromium.html_to_pdf() as route:
-            resp = call_run_with_server_error_handling(
-                route.index(test_file).resource(img).resource(font).resource(style),
-            )
+            resp = route.index(test_file).resource(img).resource(font).resource(style).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -69,7 +66,7 @@ class TestConvertChromiumHtmlRoute:
         test_file = SAMPLE_DIR / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
-            resp = call_run_with_server_error_handling(route.index(test_file).pdf_format(gt_format))
+            resp = route.index(test_file).pdf_format(gt_format).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers

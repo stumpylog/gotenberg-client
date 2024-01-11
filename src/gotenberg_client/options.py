@@ -5,6 +5,7 @@ import dataclasses
 import enum
 from typing import Dict
 from typing import Final
+from typing import Literal
 from typing import Optional
 from typing import Union
 
@@ -102,3 +103,6 @@ class EmulatedMediaType(str, enum.Enum):
             return {"emulatedMediaType": "screen"}
         else:  # pragma: no cover
             raise NotImplementedError(self.value)
+
+
+HttpMethods = Literal["POST", "PATCH", "PUT"]

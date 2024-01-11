@@ -13,7 +13,7 @@ def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -
     Quick helper to convert an optional type into a form data field
     with the given name or no changes if the value is None
     """
-    if value is None:
+    if value is None:  # pragma: no cover
         return {}
     else:
         return {name: str(value).lower()}

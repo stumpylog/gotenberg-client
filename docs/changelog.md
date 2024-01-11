@@ -5,17 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.0] - 2024-01-11
+## [Unreleased]
 
 ### Added
 
 - Documentation site built with Github Pages and Material for MkDocs
-- New method `.run_with_retry` for routes, which allows the route to be rerun as configured, with progressive backoff if the server returns a server error
-- Support for Gotenberg [Webhooks](https://gotenberg.dev/docs/webhook)
-
-### Deprecated
-
-- Support for Gotenberg 7.x. This will likely be the last release to support 7.x, as the options for PDF/A have been changed
 
 ## [0.4.1] - 2023-12-11
 

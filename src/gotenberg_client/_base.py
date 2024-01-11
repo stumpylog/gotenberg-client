@@ -5,12 +5,15 @@ import logging
 from contextlib import ExitStack
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from time import sleep
 from types import TracebackType
 from typing import Dict
 from typing import Optional
 from typing import Type
+from typing import Union
 
 from httpx import Client
+from httpx import HTTPStatusError
 from httpx import Response
 from httpx._types import RequestFiles
 
@@ -19,6 +22,10 @@ from gotenberg_client._utils import guess_mime_type
 from gotenberg_client.options import PdfAFormat
 
 logger = logging.getLogger(__name__)
+
+
+class UnreachableCodeError(Exception):
+    pass
 
 
 class BaseRoute:
@@ -74,6 +81,59 @@ class BaseRoute:
         resp = self._client.post(url=self._route, headers=self._headers, data=self._form_data, files=self._get_files())
         resp.raise_for_status()
         return resp
+
+    def run_with_retry(
+        self,
+        *,
+        max_retry_count: int = 5,
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
+    ) -> Response:
+        """
+        For whatever reason, Gotenberg often returns HTTP 503 errors, even with the same files.
+        Hopefully v8 will improve upon this with its updates, but this is provided for convenience.
+
+        This function will retry the given method/function up to X times, with larger backoff
+        periods between each attempt, in hopes the issue resolves itself during
+        one attempt to parse.
+
+        This will wait the following (by default):
+            - Attempt 1 - 5s following failure
+            - Attempt 2 - 10s following failure
+            - Attempt 3 - 20s following failure
+            - Attempt 4 - 40s following failure
+            - Attempt 5 - 80s following failure
+
+        """
+        retry_time = initial_retry_wait
+        current_retry_count = 0
+
+        while current_retry_count < max_retry_count:
+            current_retry_count = current_retry_count + 1
+
+            try:
+                return self.run()
+            except HTTPStatusError as e:
+                logger.warning(f"HTTP error: {e}", stacklevel=1)
+
+                # This only handles status codes which are 5xx, indicating the server had a problem
+                # Not 4xx, with probably means a problem with the request
+                if not e.response.is_server_error:
+                    raise
+
+                # Don't do the extra waiting, return right away
+                if current_retry_count >= max_retry_count:
+                    raise
+
+            except Exception as e:  # pragma: no cover
+                logger.warning(f"Unexpected error: {e}", stacklevel=1)
+                if current_retry_count > -max_retry_count:
+                    raise
+
+            sleep(retry_time)
+            retry_time = retry_time * retry_scale
+
+        raise UnreachableCodeError  # pragma: no cover
 
     def _get_files(self) -> RequestFiles:
         """
