@@ -15,6 +15,7 @@ from gotenberg_client._convert.pdfa import PdfAApi
 from gotenberg_client._health import HealthCheckApi
 from gotenberg_client._merge import MergeApi
 from gotenberg_client._typing_compat import Self
+from gotenberg_client.options import HttpMethods
 
 
 class GotenbergClient:
@@ -44,11 +45,43 @@ class GotenbergClient:
         self.merge = MergeApi(self._client)
         self.health = HealthCheckApi(self._client)
 
-    def add_headers(self, header: Dict[str, str]) -> None:  # pragma: no cover
+    def add_headers(self, header: Dict[str, str]) -> None:
         """
         Updates the httpx Client headers with the given values
         """
         self._client.headers.update(header)
+
+    def add_webhook_url(self, url: str) -> None:
+        """
+        Adds the webhook URL to the headers
+        """
+        self.add_headers({"Gotenberg-Webhook-Url": url})
+
+    def add_error_webhook_url(self, url: str) -> None:
+        """
+        Adds the webhook error URL to the headers
+        """
+        self.add_headers({"Gotenberg-Webhook-Error-Url": url})
+
+    def set_webhook_http_method(self, method: HttpMethods = "PUT") -> None:
+        """
+        Sets the HTTP method Gotenberg will use to call the hooks
+        """
+        self.add_headers({"Gotenberg-Webhook-Method": method})
+
+    def set_error_webhook_http_method(self, method: HttpMethods = "PUT") -> None:
+        """
+        Sets the HTTP method Gotenberg will use to call the hooks
+        """
+        self.add_headers({"Gotenberg-Webhook-Error-Method": method})
+
+    def set_webhook_extra_headers(self, extra_headers: Dict[str, str]) -> None:
+        """
+        Sets the HTTP method Gotenberg will use to call the hooks
+        """
+        from json import dumps
+
+        self.add_headers({"Gotenberg-Webhook-Extra-Http-Headers": dumps(extra_headers)})
 
     def __enter__(self) -> Self:
         return self

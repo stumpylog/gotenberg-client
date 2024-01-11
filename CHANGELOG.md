@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Documentation site built with Github Pages and Material for MkDocs
 - New method `.run_with_retry` for routes, which allows the route to be rerun as configured, with progressive backoff if the server returns a server error
+- Support for Gotenberg [Webhooks](https://gotenberg.dev/docs/webhook)
+
+### Deprecated
+
+- Support for Gotenberg 7.x. This will likely be the last release to support 7.x, as the options for PDF/A have been changed
 
 ## [0.4.1] - 2023-12-11
 
