@@ -44,7 +44,7 @@ from gotenberg_client.options import PdfAFormat
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
-      response = route.index("my-index.html").resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A1a).run()
+      response = route.index("my-index.html").resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A2b).run()
       Path("my-index.pdf").write_bytes(response.content)
 ```
 

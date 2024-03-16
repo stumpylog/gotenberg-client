@@ -8,6 +8,7 @@ from typing import Final
 from typing import Literal
 from typing import Optional
 from typing import Union
+from warnings import warn
 
 from gotenberg_client._utils import optional_to_form
 
@@ -20,14 +21,16 @@ class PdfAFormat(enum.Enum):
 
     def to_form(self) -> Dict[str, str]:
         format_name = None
-        if self.value == PdfAFormat.A1a.value:
+        if self.value == PdfAFormat.A1a.value:  # pragma: no cover
             format_name = "PDF/A-1a"
+            warn("PDF Format PDF/A-1a is deprecated", DeprecationWarning, stacklevel=2)
+            return {}
         elif self.value == PdfAFormat.A2b.value:
             format_name = "PDF/A-2b"
         elif self.value == PdfAFormat.A3b.value:
             format_name = "PDF/A-3b"
         if format_name is not None:
-            return {"pdfa": format_name, "pdfFormat": format_name}
+            return {"pdfa": format_name}
         else:  # pragma: no cover
             raise NotImplementedError(self.value)
 

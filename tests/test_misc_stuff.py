@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 import shutil
 import tempfile
 import uuid
@@ -11,7 +14,7 @@ from httpx import Request
 from httpx import codes
 from pytest_httpx import HTTPXMock
 
-from gotenberg_client._client import GotenbergClient
+from gotenberg_client import GotenbergClient
 from tests.conftest import SAMPLE_DIR
 
 

@@ -1,18 +1,21 @@
+# SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 import json
 
 import pytest
 from httpx import codes
 from pytest_httpx import HTTPXMock
 
-from gotenberg_client._client import GotenbergClient
-from gotenberg_client._convert.chromium import EmulatedMediaType
+from gotenberg_client import GotenbergClient
+from gotenberg_client.options import EmulatedMediaType
 from tests.utils import verify_stream_contains
 
 
 class TestConvertChromiumUrlRoute:
     def test_basic_convert(self, client: GotenbergClient):
         with client.chromium.url_to_pdf() as route:
-            resp = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").run_with_retry()
+            resp = route.url("http://localhost:8888").run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -33,7 +36,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            _ = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").media_type(emulation).run()
+            _ = route.url("http://localhost:8888").media_type(emulation).run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(
@@ -55,7 +58,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders")
+            route.url("http://localhost:8888")
             getattr(route, method)()
             _ = route.run()
 
@@ -79,7 +82,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders")
+            route.url("http://localhost:8888")
             getattr(route, method)()
             _ = route.run()
 
@@ -103,7 +106,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders")
+            route.url("http://localhost:8888")
             getattr(route, method)()
             _ = route.run()
 
@@ -127,7 +130,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders")
+            route.url("http://localhost:8888")
             getattr(route, method)()
             _ = route.run()
 
@@ -146,7 +149,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            _ = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").scale(1.5).run()
+            _ = route.url("http://localhost:8888").scale(1.5).run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(
@@ -163,7 +166,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            _ = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").page_ranges("1-5").run()
+            _ = route.url("http://localhost:8888").page_ranges("1-5").run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(
@@ -180,7 +183,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            _ = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").render_wait(500).run()
+            _ = route.url("http://localhost:8888").render_wait(500).run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(
@@ -197,7 +200,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            _ = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").render_expr("wait while false;").run()
+            _ = route.url("http://localhost:8888").render_expr("wait while false;").run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(
@@ -214,7 +217,7 @@ class TestConvertChromiumUrlMocked:
         httpx_mock.add_response(method="POST")
 
         with client.chromium.url_to_pdf() as route:
-            _ = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").user_agent("Firefox").run()
+            _ = route.url("http://localhost:8888").user_agent("Firefox").run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(
@@ -233,7 +236,7 @@ class TestConvertChromiumUrlMocked:
         headers = {"X-Auth-Token": "Secure"}
 
         with client.chromium.url_to_pdf() as route:
-            _ = route.url("https://en.wikipedia.org/wiki/William_Edward_Sanders").headers(headers).run()
+            _ = route.url("http://localhost:8888").headers(headers).run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(

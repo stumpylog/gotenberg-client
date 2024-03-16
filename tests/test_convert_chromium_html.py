@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 import tempfile
 from pathlib import Path
 
@@ -6,9 +9,9 @@ import pytest
 from httpx import codes
 from pytest_httpx import HTTPXMock
 
-from gotenberg_client._client import GotenbergClient
-from gotenberg_client._convert.chromium import Margin
+from gotenberg_client import GotenbergClient
 from gotenberg_client.options import A4
+from gotenberg_client.options import Margin
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
@@ -60,9 +63,9 @@ class TestConvertChromiumHtmlRoute:
 
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
-        [(PdfAFormat.A1a, "1A"), (PdfAFormat.A2b, "2B"), (PdfAFormat.A3b, "3B")],
+        [(PdfAFormat.A2b, "2B"), (PdfAFormat.A3b, "3B")],
     )
-    def test_convert_pdfa_1a_format(self, client: GotenbergClient, gt_format: PdfAFormat, pike_format: str):
+    def test_convert_pdfa_format(self, client: GotenbergClient, gt_format: PdfAFormat, pike_format: str):
         test_file = SAMPLE_DIR / "basic.html"
 
         with client.chromium.html_to_pdf() as route:

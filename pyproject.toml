@@ -28,7 +28,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "httpx[http2] ~= 0.25; python_version >= '3.9'",
+  "httpx[http2] ~= 0.27; python_version >= '3.9'",
   "httpx[http2] ~= 0.24; python_version < '3.9'",
   "typing-extensions; python_version < '3.11'"
 ]
@@ -53,11 +53,13 @@ exclude = [
 
 [tool.hatch.envs.default]
 dependencies = [
-  "coverage[toml] >= 7.3",
+  "coverage[toml] ~= 7.4",
   "pytest >= 7.4",
   "pytest-sugar",
-  "pytest-httpx ~= 0.26; python_version >= '3.9'",
+  "pytest-env",
+  "pytest-httpx ~= 0.30; python_version >= '3.9'",
   "pytest-httpx ~= 0.22; python_version < '3.9'",
+  "pytest-xdist",
   "pikepdf",
   "python-magic",
 ]
@@ -88,7 +90,7 @@ cov = [
 template = "pre-commit"
 detached = true
 dependencies = [
-  "pre-commit>=3.5.0",
+  "pre-commit ~= 3.6.0",
 ]
 
 [tool.hatch.envs.pre-commit.scripts]
@@ -99,9 +101,9 @@ update = ["pre-commit autoupdate"]
 template = "docs"
 detached = true
 dependencies = [
-  "mkdocs-material[imaging]~=9.5.2",
-  "mike~=2.0.0",
-  "mkdocs-minify-plugin~=0.7.1"
+  "mkdocs-material[imaging] ~= 9.5.2",
+  "mike ~= 2.0.0",
+  "mkdocs-minify-plugin ~= 0.7.1"
 ]
 
 [tool.hatch.envs.docs.scripts]
@@ -110,7 +112,7 @@ build = ["mkdocs build"]
 serve = [
   "mkdocs serve"
 ]
-mike-help = ["mike serve --help"]
+mike-help = ["mike deploy --help"]
 deploy = [
   "mike deploy --push --branch gh-pages --remote origin --update-aliases latest {args}",
   "mike set-default --branch gh-pages --remote origin --push latest"
@@ -119,9 +121,9 @@ deploy = [
 [tool.hatch.envs.lint]
 detached = true
 dependencies = [
-  "black>=23.9.1",
-  "mypy>=1.6.0",
-  "ruff>=0.1.0",
+  "black ~= 24.2.0",
+  "mypy ~= 1.8.0",
+  "ruff ~= 0.3.0",
   "httpx",
 ]
 
@@ -132,12 +134,12 @@ typing = [
   ]
 style = [
   "ruff --version",
-  "ruff {args:.}",
+  "ruff check {args:.}",
   "black --check --diff {args:.}",
 ]
 fmt = [
   "black {args:.}",
-  "ruff {args:.}",
+  "ruff check {args:.}",
   "style",
 ]
 all = [
@@ -155,6 +157,8 @@ fix = true
 output-format = "grouped"
 target-version = "py38"
 line-length = 120
+
+[tool.ruff.lint]
 # https://docs.astral.sh/ruff/rules/
 extend-select = [
   "A",
@@ -217,21 +221,24 @@ ignore = [
   "TD002", "TD003"
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-single-line = true
 known-first-party = ["gotenberg_client"]
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = ["tests"]
-addopts = "--pythonwarnings=all"
+addopts = "--pythonwarnings=all -n auto --maxprocesses 8"
+
+[tool.pytest_env]
+#SAVE_TEST_OUTPUT = 1
 
 [tool.coverage.run]
 source_pkgs = ["gotenberg_client", "tests"]

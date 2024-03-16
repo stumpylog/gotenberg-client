@@ -1,6 +1,9 @@
+# SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 from httpx import codes
 
-from gotenberg_client._client import GotenbergClient
+from gotenberg_client import GotenbergClient
 from tests.conftest import SAMPLE_DIR
 
 

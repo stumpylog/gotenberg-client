@@ -12,5 +12,14 @@ services:
     restart: unless-stopped
     command:
       - "gotenberg"
-      - "--log-level=warn"
+      - "--log-level=info"
       - "--log-format=text"
+  nginx-webserver:
+    image: docker.io/nginx:1-alpine
+    hostname: nginx-webserver
+    container_name: nginx-webserver
+    ports:
+      - "8888:80"
+    restart: unless-stopped
+    volumes:
+      - ./content:/usr/share/nginx/html:ro

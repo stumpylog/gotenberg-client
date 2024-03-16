@@ -28,7 +28,39 @@ class UnreachableCodeError(Exception):
     pass
 
 
-class BaseRoute:
+class PdfFormatMixin:
+    """
+    https://gotenberg.dev/docs/routes#pdfa-chromium
+    https://gotenberg.dev/docs/routes#pdfa-libreoffice
+    """
+
+    def pdf_format(self, pdf_format: PdfAFormat) -> Self:
+        """
+        All routes provide the option to configure the output PDF as a
+        PDF/A format
+        """
+        self._form_data.update(pdf_format.to_form())  # type: ignore[attr-defined,misc]
+        return self
+
+
+class PfdUniversalAccessMixin:
+    """
+    https://gotenberg.dev/docs/routes#pdfa-chromium
+    https://gotenberg.dev/docs/routes#pdfa-libreoffice
+    https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route
+    https://gotenberg.dev/docs/routes#merge-pdfs-route
+    """
+
+    def enable_universal_access(self) -> Self:
+        self._form_data.update({"pdfua": "true"})  # type: ignore[attr-defined,misc]
+        return self
+
+    def disable_universal_access(self) -> Self:
+        self._form_data.update({"pdfua": "true"})  # type: ignore[attr-defined,misc]
+        return self
+
+
+class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
     """
     The base implementation of a Gotenberg API route.  Anything settings or
     actions shared between all routes should be implemented here
@@ -181,18 +213,6 @@ class BaseRoute:
             logger.warning(f"New name {name}")
 
         self._file_map[name] = filepath
-
-    def pdf_format(self, pdf_format: PdfAFormat) -> Self:
-        """
-        All routes provide the option to configure the output PDF as a
-        PDF/A format
-        """
-        self._form_data.update(pdf_format.to_form())
-        return self
-
-    def universal_access_pdf(self, *, pdf_ua: bool) -> Self:
-        self._form_data.update({"pdfua": str(pdf_ua).lower()})
-        return self
 
     def trace(self, trace_id: str) -> Self:
         self._headers["Gotenberg-Trace"] = trace_id

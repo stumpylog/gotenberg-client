@@ -5,11 +5,13 @@ from pathlib import Path
 from typing import List
 
 from gotenberg_client._base import BaseApi
-from gotenberg_client._convert.common import ConvertBaseRoute
+from gotenberg_client._base import BaseRoute
+from gotenberg_client._convert.common import PageOrientMixin
+from gotenberg_client._convert.common import PageRangeMixin
 from gotenberg_client._typing_compat import Self
 
 
-class LibreOfficeConvertRoute(ConvertBaseRoute):
+class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseRoute):
     """
     https://gotenberg.dev/docs/routes#convert-with-libreoffice
     """

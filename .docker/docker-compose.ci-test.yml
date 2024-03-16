@@ -5,7 +5,7 @@
 version: "3"
 services:
   gotenberg-client-test-server:
-    image: docker.io/gotenberg/gotenberg:7.10.1
+    image: docker.io/gotenberg/gotenberg:8.2.2
     hostname: gotenberg-client-test-server
     container_name: gotenberg-client-test-server
     network_mode: host
@@ -14,3 +14,12 @@ services:
       - "gotenberg"
       - "--log-level=warn"
       - "--log-format=text"
+  nginx-webserver:
+    image: docker.io/nginx:1-alpine
+    hostname: nginx-webserver
+    container_name: nginx-webserver
+    ports:
+      - "8888:80"
+    restart: unless-stopped
+    volumes:
+      - ./content:/usr/share/nginx/html:ro
