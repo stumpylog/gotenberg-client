@@ -269,4 +269,4 @@ jobs:
           path: dist
       -
         name: Publish build to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.12
+        uses: pypa/gh-action-pypi-publish@v1.8.14
