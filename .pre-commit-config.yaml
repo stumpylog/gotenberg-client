@@ -5,7 +5,7 @@
 repos:
   # General hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: check-docstring-first
       - id: check-json
@@ -19,7 +19,7 @@ repos:
         exclude_types:
           - svg
           - pofile
-        exclude: "(^LICENSE$)"
+        exclude: "(^LICENSE$|^docs/changelog.md$)"
       - id: mixed-line-ending
         args:
           - "--fix=lf"
@@ -36,17 +36,17 @@ repos:
           - javascript
           - ts
           - markdown
-        exclude: "(^Pipfile\\.lock$)"
+        exclude: "(^docs/changelog.md$)"
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
       - id: codespell
   # Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.3.0'
+    rev: 'v0.3.7'
     hooks:
       - id: ruff
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.2.0
+    rev: 24.4.0
     hooks:
       - id: black

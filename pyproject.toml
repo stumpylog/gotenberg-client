@@ -90,7 +90,7 @@ cov = [
 template = "pre-commit"
 detached = true
 dependencies = [
-  "pre-commit ~= 3.6.0",
+  "pre-commit ~= 3.7.0",
 ]
 
 [tool.hatch.envs.pre-commit.scripts]
@@ -101,7 +101,7 @@ update = ["pre-commit autoupdate"]
 template = "docs"
 detached = true
 dependencies = [
-  "mkdocs-material[imaging] ~= 9.5.2",
+  "mkdocs-material[imaging] ~= 9.5.18",
   "mike ~= 2.0.0",
   "mkdocs-minify-plugin ~= 0.7.1"
 ]
