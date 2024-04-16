@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `codespell` pre-commit hook
+- Link to the full documentation from the README
 
 ### Breaking Change
 

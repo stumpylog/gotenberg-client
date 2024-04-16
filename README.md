@@ -52,6 +52,8 @@ endpoint. All the routes use the same format and general idea.
 - Files will be PDF or ZIP, depending on what endpoint and its configuration. Endpoints which handle
   multiple files, but don't merge them, return a ZIP archive of the resulting PDFs
 
+For more detailed examples, check the [documentation](https://stumpylog.github.io/gotenberg-client/)
+
 ### Examples
 
 Converting a single HTML file into a PDF:
