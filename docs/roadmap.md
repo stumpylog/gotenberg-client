@@ -6,3 +6,7 @@ Currently, the response returned is a basic httpx.Response. It could be useful t
 
 - Ability to iterate through the zip file contents in some way
 - Ability to write the response to some given output location?
+
+## Missing Routes/Options
+
+- Missing the configuration of the units of page size, currently it is always inches

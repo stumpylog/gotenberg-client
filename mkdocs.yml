@@ -9,6 +9,7 @@ repo_url: https://github.com/stumpylog/gotenberg-client
 nav:
   - "index.md"
   - "usage.md"
+  - "routes.md"
   - "roadmap.md"
   - "changelog.md"
 

@@ -13,6 +13,7 @@ from gotenberg_client._convert.common import CustomHTTPHeaderMixin
 from gotenberg_client._convert.common import EmulatedMediaMixin
 from gotenberg_client._convert.common import HeaderFooterMixin
 from gotenberg_client._convert.common import InvalidStatusCodesMixin
+from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PagePropertiesMixin
 from gotenberg_client._convert.common import PerformanceModeMixin
 from gotenberg_client._convert.common import RenderControlMixin
@@ -40,7 +41,14 @@ class _RouteWithResources(BaseRoute):
         return self
 
 
-class HtmlRoute(PagePropertiesMixin, HeaderFooterMixin, RenderControlMixin, _RouteWithResources, _FileBasedRoute):
+class HtmlRoute(
+    PagePropertiesMixin,
+    HeaderFooterMixin,
+    RenderControlMixin,
+    PageOrientMixin,
+    _RouteWithResources,
+    _FileBasedRoute,
+):
     """
     https://gotenberg.dev/docs/routes#html-file-into-pdf-route
     """
@@ -53,6 +61,7 @@ class UrlRoute(
     ConsoleExceptionMixin,
     EmulatedMediaMixin,
     CustomHTTPHeaderMixin,
+    PageOrientMixin,
     BaseRoute,
 ):
     """
@@ -89,6 +98,7 @@ class ScreenshotRoute(
     InvalidStatusCodesMixin,
     ConsoleExceptionMixin,
     PerformanceModeMixin,
+    PageOrientMixin,
     BaseRoute,
 ):
     """

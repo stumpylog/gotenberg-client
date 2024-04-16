@@ -89,3 +89,6 @@ Once all configuration is completed, call `.run()`. This actually sends the info
 Gotenberg with all form data as has been configured. At the moment, it returns the full
 [`httpx.Response`](https://www.python-httpx.org/api/#response), with the content of the response
 being the resulting PDF or zip file, depending on the route and configurations.
+
+For more details, see the [routes](routes.md) page for a detailed breakdown of the implemented routes, and the
+linkage to the Gotenberg route documentation.
