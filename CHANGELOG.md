@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Development tools updated
+- Bump codecov/codecov-action from 3 to 4 by @dependabot (#11)
+- Bump release-flow/keep-a-changelog-action from 2 to 3 by @dependabot (#12)
+- Bump pypa/gh-action-pypi-publish from 1.8.11 to 1.8.12 by @dependabot (#13)
+- Bump pre-commit/action from 3.0.0 to 3.0.1 by @dependabot (#14)
+- Bump pypa/gh-action-pypi-publish from 1.8.12 to 1.8.14 by @dependabot (#15)
 
 ## [0.5.0] - 2024-01-11
 
