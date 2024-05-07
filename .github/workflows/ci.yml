@@ -33,16 +33,19 @@ jobs:
       -
         name: Install Hatch
         run: |
-          pip3 --quiet install --upgrade hatch
+          pip3 --quiet install --upgrade hatch uv
+          hatch --version
+          uv --version
       -
         name: Lint project
         run: |
-          hatch run lint:all
+          hatch fmt --check
       -
         name: Check files with pre-commit
         uses: pre-commit/action@v3.0.1
+
   test:
-    name: Python ${{ matrix.python-version }}
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,7 +55,7 @@ jobs:
       fail-fast: false
       matrix:
         # No pikepdf wheels for pypy3.8
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', 'pypy3.9']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', 'pypy3.9', 'pypy3.10']
 
     steps:
     -
@@ -79,11 +82,18 @@ jobs:
     -
       name: Install Hatch
       run: |
-        python3 -m pip install --upgrade pip
-        pip install --upgrade hatch
+          pip3 --quiet install --upgrade hatch uv
+          hatch --version
+          uv --version
+    -
+        name: Show environment
+        run: |
+          hatch test --show --python ${{ matrix.python-version }}
     -
       name: Run tests
-      run: hatch run cov
+      run: |
+        hatch test --cover --python ${{ matrix.python-version }}
+        ls -ahl .
     -
       name: Upload coverage to Codecov
       if: matrix.python-version == '3.10'
@@ -97,50 +107,7 @@ jobs:
       run: |
         docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml logs
         docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml down
-  test-edge:
-    name: Test Gotenberg :edge
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    needs:
-      - lint
-    steps:
-    -
-      uses: actions/checkout@v4
-    -
-      name: Start containers
-      run: |
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml pull --quiet
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml up --detach
-        echo "Wait for container to be started"
-        sleep 5
-        docker inspect gotenberg-client-test-edge-server
-    -
-      name: Install poppler-utils
-      run: |
-        sudo apt-get update
-        sudo apt-get install --yes --no-install-recommends poppler-utils
-    -
-      name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-        cache: 'pip'
-    -
-      name: Install Hatch
-      run: |
-        python3 -m pip install --upgrade pip
-        pip install --upgrade hatch
-    -
-      name: Run tests
-      continue-on-error: true
-      run: hatch run cov
-    -
-      name: Stop containers
-      if: always()
-      run: |
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml logs
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml down
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -160,7 +127,9 @@ jobs:
       -
         name: Install Hatch
         run: |
-          pip3 --quiet install --upgrade hatch
+          pip3 --quiet install --upgrade hatch uv
+          hatch --version
+          uv --version
       -
         name: Build
         run: |
