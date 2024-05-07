@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `codespell` pre-commit hook
 - Link to the full documentation from the README
+- Documentation of all implemented routes ([#16](https://github.com/stumpylog/gotenberg-client/pull/16))
 
 ### Breaking Change
 
@@ -29,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump pre-commit/action from 3.0.0 to 3.0.1 by @dependabot (#14)
 - Bump pypa/gh-action-pypi-publish from 1.8.12 to 1.8.14 by @dependabot (#15)
 - Use hatch commands for testing and linting ([#17](https://github.com/stumpylog/gotenberg-client/pull/17))
+- Update testing Docker image to Gotenberg 8.5.0 ([#18](https://github.com/stumpylog/gotenberg-client/pull/18))
 
 ## [0.5.0] - 2024-01-11
 
