@@ -52,38 +52,70 @@ exclude = [
 ]
 
 [tool.hatch.envs.default]
+installer = "uv"
+
+[tool.hatch.envs.hatch-static-analysis]
+# https://hatch.pypa.io/latest/config/internal/static-analysis/
+dependencies = ["ruff ~= 0.4.2"]
+config-path = "none"
+
+[tool.hatch.envs.hatch-test]
+# https://hatch.pypa.io/latest/config/internal/testing/
+parallel = true
+randomize = true
 dependencies = [
+  "coverage-enable-subprocess == 1.0",
   "coverage[toml] ~= 7.4",
-  "pytest >= 7.4",
+  "pytest < 8.0; python_version < '3.9'",
+  "pytest ~= 8.1; python_version >= '3.9'",
+  "pytest-mock ~= 3.12",
+  "pytest-randomly ~= 3.15",
+  "pytest-rerunfailures ~= 14.0",
+  "pytest-xdist[psutil] ~= 3.5",
+]
+extra-dependencies = [
   "pytest-sugar",
-  "pytest-env",
   "pytest-httpx ~= 0.30; python_version >= '3.9'",
   "pytest-httpx ~= 0.22; python_version < '3.9'",
-  "pytest-xdist",
   "pikepdf",
   "python-magic",
 ]
+extra-args = ["--maxprocesses=8", "--pythonwarnings=all", ]
 
-[tool.hatch.envs.default.scripts]
-version = "python3 --version"
-pip-list = "pip list"
-test = "pytest {args:tests}"
-test-cov = "coverage run -m pytest {args:tests}"
-cov-clear = "coverage erase"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
+[tool.hatch.envs.hatch-test.scripts]
+run = [
+  "python3 --version",
+  "pytest{env:HATCH_TEST_ARGS:} {args}"]
+
+run-cov = [
+  "python3 --version",
+  "coverage erase",
+  "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
 ]
-cov-html = "coverage html"
-cov-json = "coverage json"
-cov = [
-  "version",
-  "pip-list",
-  "cov-clear",
-  "test-cov",
-  "cov-report",
-  "cov-json",
-  "cov-html"
+cov-combine = ["coverage combine"]
+cov-report = [
+  "coverage report",
+  "coverage json",
+  "coverage html"
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9", "pypy3.10"]
+
+#
+# Custom Environments
+#
+[tool.hatch.envs.typing]
+detached = true
+dependencies = [
+  "mypy ~= 1.10.0",
+  "httpx",
+]
+
+[tool.hatch.envs.typing.scripts]
+run = [
+  "mypy --version",
+  "mypy --install-types --non-interactive {args:src/tika_client}"
 ]
 
 [tool.hatch.envs.pre-commit]
@@ -118,41 +150,8 @@ deploy = [
   "mike set-default --branch gh-pages --remote origin --push latest"
 ]
 
-[tool.hatch.envs.lint]
-detached = true
-dependencies = [
-  "black ~= 24.2.0",
-  "mypy ~= 1.8.0",
-  "ruff ~= 0.3.0",
-  "httpx",
-]
-
-[tool.hatch.envs.lint.scripts]
-typing = [
-  "mypy --version",
-  "mypy --install-types --non-interactive {args:src/gotenberg_client}"
-  ]
-style = [
-  "ruff --version",
-  "ruff check {args:.}",
-  "black --check --diff {args:.}",
-]
-fmt = [
-  "black {args:.}",
-  "ruff check {args:.}",
-  "style",
-]
-all = [
-  "style",
-  "typing",
-]
-
-[tool.black]
-target-version = ["py38"]
-line-length = 120
-skip-string-normalization = true
-
 [tool.ruff]
+# https://docs.astral.sh/ruff/settings/
 fix = true
 output-format = "grouped"
 target-version = "py38"
@@ -235,7 +234,6 @@ ban-relative-imports = "all"
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = ["tests"]
-addopts = "--pythonwarnings=all -n auto --maxprocesses 8"
 
 [tool.pytest_env]
 #SAVE_TEST_OUTPUT = 1
