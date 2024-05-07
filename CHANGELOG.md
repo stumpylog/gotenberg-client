@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump pypa/gh-action-pypi-publish from 1.8.11 to 1.8.12 by @dependabot (#13)
 - Bump pre-commit/action from 3.0.0 to 3.0.1 by @dependabot (#14)
 - Bump pypa/gh-action-pypi-publish from 1.8.12 to 1.8.14 by @dependabot (#15)
+- Use hatch commands for testing and linting ([#17](https://github.com/stumpylog/gotenberg-client/pull/17))
 
 ## [0.5.0] - 2024-01-11
 
