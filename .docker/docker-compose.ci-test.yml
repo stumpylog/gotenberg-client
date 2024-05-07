@@ -5,7 +5,7 @@
 version: "3"
 services:
   gotenberg-client-test-server:
-    image: docker.io/gotenberg/gotenberg:8.2.2
+    image: docker.io/gotenberg/gotenberg:8.5.0
     hostname: gotenberg-client-test-server
     container_name: gotenberg-client-test-server
     network_mode: host
