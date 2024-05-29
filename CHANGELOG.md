@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use hatch commands for testing and linting ([#17](https://github.com/stumpylog/gotenberg-client/pull/17))
 - Update testing Docker image to Gotenberg 8.5.0 ([#18](https://github.com/stumpylog/gotenberg-client/pull/18))
 - chore: Formats JSON files with prettier ([#19](https://github.com/stumpylog/gotenberg-client/pull/19))
+- chore: Updates Gotenberg test image to 8.5.1([#20](https://github.com/stumpylog/gotenberg-client/pull/20))
 
 ## [0.5.0] - 2024-01-11
 
