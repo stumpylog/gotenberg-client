@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Change
+
+- Only Gotenberg 8 is now supported
+
 ### Fixed
 
 - The documentation site's changelog was not updating with the changes
@@ -17,20 +21,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Link to the full documentation from the README
 - Documentation of all implemented routes ([#16](https://github.com/stumpylog/gotenberg-client/pull/16))
 
-### Breaking Change
-
-- Only Gotenberg 8 is now supported
-
 ### Changed
 
-- Development tools updated
-- Bump codecov/codecov-action from 3 to 4 by @dependabot (#11)
-- Bump release-flow/keep-a-changelog-action from 2 to 3 by @dependabot (#12)
-- Bump pypa/gh-action-pypi-publish from 1.8.11 to 1.8.12 by @dependabot (#13)
-- Bump pre-commit/action from 3.0.0 to 3.0.1 by @dependabot (#14)
-- Bump pypa/gh-action-pypi-publish from 1.8.12 to 1.8.14 by @dependabot (#15)
+- Bump codecov/codecov-action from 3 to 4 by @dependabot ([#11](https://github.com/stumpylog/gotenberg-client/pull/11))
+- Bump release-flow/keep-a-changelog-action from 2 to 3 by @dependabot ([#12](https://github.com/stumpylog/gotenberg-client/pull/12))
+- Bump pypa/gh-action-pypi-publish from 1.8.11 to 1.8.12 by @dependabot ([#13](https://github.com/stumpylog/gotenberg-client/pull/13))
+- Bump pre-commit/action from 3.0.0 to 3.0.1 by @dependabot ([#14](https://github.com/stumpylog/gotenberg-client/pull/14))
+- Bump pypa/gh-action-pypi-publish from 1.8.12 to 1.8.14 by @dependabot ([#15](https://github.com/stumpylog/gotenberg-client/pull/15))
 - Use hatch commands for testing and linting ([#17](https://github.com/stumpylog/gotenberg-client/pull/17))
 - Update testing Docker image to Gotenberg 8.5.0 ([#18](https://github.com/stumpylog/gotenberg-client/pull/18))
+- chore: Formats JSON files with prettier ([#19](https://github.com/stumpylog/gotenberg-client/pull/19))
 
 ## [0.5.0] - 2024-01-11
 
