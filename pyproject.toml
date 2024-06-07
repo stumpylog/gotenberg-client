@@ -133,8 +133,8 @@ update = ["pre-commit autoupdate"]
 template = "docs"
 detached = true
 dependencies = [
-  "mkdocs-material[imaging] ~= 9.5.18",
-  "mike ~= 2.0.0",
+  "mkdocs-material[imaging] ~= 9.5.26",
+  "mike ~= 2.1.0",
   "mkdocs-minify-plugin ~= 0.7.1"
 ]
 
