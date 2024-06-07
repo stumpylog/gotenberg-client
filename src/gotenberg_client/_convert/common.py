@@ -12,7 +12,7 @@ from warnings import warn
 from gotenberg_client._base import BaseRoute
 from gotenberg_client._typing_compat import Self
 from gotenberg_client.options import EmulatedMediaType
-from gotenberg_client.options import Margin
+from gotenberg_client.options import PageMarginsType
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PageSize
 
@@ -34,7 +34,7 @@ class MarginMixin:
     https://gotenberg.dev/docs/routes#page-properties-chromium
     """
 
-    def margins(self, margins: Margin) -> Self:
+    def margins(self, margins: PageMarginsType) -> Self:
         self._form_data.update(margins.to_form())  # type: ignore[attr-defined,misc]
         return self
 

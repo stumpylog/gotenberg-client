@@ -11,7 +11,9 @@ from pytest_httpx import HTTPXMock
 
 from gotenberg_client import GotenbergClient
 from gotenberg_client.options import A4
-from gotenberg_client.options import Margin
+from gotenberg_client.options import MarginType
+from gotenberg_client.options import MarginUnitType
+from gotenberg_client.options import PageMarginsType
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
@@ -100,12 +102,23 @@ class TestConvertChromiumHtmlRouteMocked:
         test_file = SAMPLE_DIR / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
-            _ = route.index(test_file).margins(Margin(1, 2, 3, 4)).run()
+            _ = (
+                route.index(test_file)
+                .margins(
+                    PageMarginsType(
+                        MarginType(1, MarginUnitType.Centimeters),
+                        MarginType(2, MarginUnitType.Percent),
+                        MarginType(3, MarginUnitType.Millimeters),
+                        MarginType(4),
+                    ),
+                )
+                .run()
+            )
 
         request = httpx_mock.get_request()
-        verify_stream_contains("marginTop", "1", request.stream)
-        verify_stream_contains("marginBottom", "2", request.stream)
-        verify_stream_contains("marginLeft", "3", request.stream)
+        verify_stream_contains("marginTop", "1cm", request.stream)
+        verify_stream_contains("marginBottom", "2pc", request.stream)
+        verify_stream_contains("marginLeft", "3mm", request.stream)
         verify_stream_contains("marginRight", "4", request.stream)
 
     def test_convert_render_control(self, client: GotenbergClient, httpx_mock: HTTPXMock):

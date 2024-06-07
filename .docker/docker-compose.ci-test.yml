@@ -21,5 +21,7 @@ services:
     ports:
       - "8888:80"
     restart: unless-stopped
+    environment:
+      NGINX_ENTRYPOINT_QUIET_LOGS: 1
     volumes:
       - ./content:/usr/share/nginx/html:ro
