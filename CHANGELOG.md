@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `codespell` pre-commit hook
 - Link to the full documentation from the README
 - Documentation of all implemented routes ([#16](https://github.com/stumpylog/gotenberg-client/pull/16))
+- Page margins may now specify the units of the margin ([#21](https://github.com/stumpylog/gotenberg-client/pull/21))
 
 ### Changed
 

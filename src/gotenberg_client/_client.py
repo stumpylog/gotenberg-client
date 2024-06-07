@@ -15,7 +15,7 @@ from gotenberg_client._convert.pdfa import PdfAApi
 from gotenberg_client._health import HealthCheckApi
 from gotenberg_client._merge import MergeApi
 from gotenberg_client._typing_compat import Self
-from gotenberg_client.options import HttpMethods
+from gotenberg_client.options import HttpMethodsType
 
 
 class GotenbergClient:
@@ -63,13 +63,13 @@ class GotenbergClient:
         """
         self.add_headers({"Gotenberg-Webhook-Error-Url": url})
 
-    def set_webhook_http_method(self, method: HttpMethods = "PUT") -> None:
+    def set_webhook_http_method(self, method: HttpMethodsType = "PUT") -> None:
         """
         Sets the HTTP method Gotenberg will use to call the hooks
         """
         self.add_headers({"Gotenberg-Webhook-Method": method})
 
-    def set_error_webhook_http_method(self, method: HttpMethods = "PUT") -> None:
+    def set_error_webhook_http_method(self, method: HttpMethodsType = "PUT") -> None:
         """
         Sets the HTTP method Gotenberg will use to call the hooks
         """

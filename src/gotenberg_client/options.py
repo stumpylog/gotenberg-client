@@ -74,24 +74,45 @@ Tabloid: Final = PageSize(width=11, height=17)
 Ledge: Final = PageSize(width=17, height=11)
 
 
+class MarginUnitType(str, enum.Enum):
+    Undefined = "none"
+    Points = "pt"
+    Pixels = "px"
+    Inches = "in"
+    Millimeters = "mm"
+    Centimeters = "cm"
+    Percent = "pc"
+
+
 @dataclasses.dataclass
-class Margin:
-    top: Optional[Union[float, int]] = None
-    bottom: Optional[Union[float, int]] = None
-    left: Optional[Union[float, int]] = None
-    right: Optional[Union[float, int]] = None
+class MarginType:
+    value: Union[float, int]
+    unit: MarginUnitType = MarginUnitType.Undefined
+
+
+@dataclasses.dataclass
+class PageMarginsType:
+    top: Optional[MarginType] = None
+    bottom: Optional[MarginType] = None
+    left: Optional[MarginType] = None
+    right: Optional[MarginType] = None
 
     def to_form(self) -> Dict[str, str]:
-        data = optional_to_form(self.top, "marginTop")
-        data.update(optional_to_form(self.bottom, "marginBottom"))
-        data.update(optional_to_form(self.left, "marginLeft"))
-        data.update(optional_to_form(self.right, "marginRight"))
-        return data
+        form_data = {}
+        values: list[tuple[MarginType | None, str]] = [
+            (self.top, "marginTop"),
+            (self.bottom, "marginBottom"),
+            (self.left, "marginLeft"),
+            (self.right, "marginRight"),
+        ]
+        for attr, name in values:
+            if attr is not None:
+                if attr.unit == MarginUnitType.Undefined:
+                    form_data.update(optional_to_form(attr.value, name))
+                else:
+                    form_data.update(optional_to_form(f"{attr.value}{attr.unit.value}", name))
 
-
-Gotenberg_Default_Margins: Final = Margin(0.39, 0.39, 0.39, 0.39)
-Word_Default_Margins: Final = Margin(top=1.0, bottom=1.0, left=1.0, right=1.0)
-Word_Narrow_Margins: Final = Margin(top=0.5, bottom=0.5, left=0.5, right=0.5)
+        return form_data
 
 
 @enum.unique
@@ -108,4 +129,4 @@ class EmulatedMediaType(str, enum.Enum):
             raise NotImplementedError(self.value)
 
 
-HttpMethods = Literal["POST", "PATCH", "PUT"]
+HttpMethodsType = Literal["POST", "PATCH", "PUT"]
