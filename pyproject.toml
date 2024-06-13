@@ -146,7 +146,7 @@ serve = [
 ]
 mike-help = ["mike deploy --help"]
 deploy = [
-  "mike deploy --push --branch gh-pages --remote origin --update-aliases latest {args}",
+  "mike deploy --push --branch gh-pages --remote origin --update-aliases {args} latest",
   "mike set-default --branch gh-pages --remote origin --push latest"
 ]
 
