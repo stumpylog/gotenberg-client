@@ -115,7 +115,7 @@ dependencies = [
 [tool.hatch.envs.typing.scripts]
 run = [
   "mypy --version",
-  "mypy --install-types --non-interactive {args:src/tika_client}"
+  "mypy --install-types --non-interactive {args:src/gotenberg_client}"
 ]
 
 [tool.hatch.envs.pre-commit]
@@ -255,7 +255,7 @@ tests = ["tests", "*/gotenberg_client/tests"]
 [tool.coverage.report]
 exclude_lines = [
   "no cov",
-  "if __name__ == .__main__.:",
+  "if __name__ == '__main__':",
   "if TYPE_CHECKING:",
   "if SAVE_OUTPUTS:",
 ]

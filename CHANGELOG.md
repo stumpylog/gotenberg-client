@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `mike` deployment mis-ordered the version and alias, this has been corrected
+- `mypy` wasn't running correctly or in CI
 
 ## [0.6.0] - 2024-06-13
 

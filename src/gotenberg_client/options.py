@@ -110,7 +110,8 @@ class PageMarginsType:
                 if attr.unit == MarginUnitType.Undefined:
                     form_data.update(optional_to_form(attr.value, name))
                 else:
-                    form_data.update(optional_to_form(f"{attr.value}{attr.unit.value}", name))
+                    # mypy claims the string is of type "Any"
+                    form_data.update(optional_to_form(f"{attr.value}{attr.unit.value}", name))  # type: ignore[misc]
 
         return form_data
 
