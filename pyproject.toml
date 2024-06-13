@@ -1,3 +1,6 @@
+#
+# Project Configuration
+#
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -15,9 +18,12 @@ authors = [
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
   "Environment :: Web Environment",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
@@ -42,6 +48,9 @@ Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.m
 [project.optional-dependencies]
 magic = ["python-magic"]
 
+#
+# Hatch Configuration
+#
 [tool.hatch.version]
 path = "src/gotenberg_client/__about__.py"
 
@@ -150,6 +159,9 @@ deploy = [
   "mike set-default --branch gh-pages --remote origin --push latest"
 ]
 
+#
+# Tool Configuration
+#
 [tool.ruff]
 # https://docs.astral.sh/ruff/settings/
 fix = true
