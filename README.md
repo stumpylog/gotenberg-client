@@ -52,6 +52,8 @@ endpoint. All the routes use the same format and general idea.
 - Files will be PDF or ZIP, depending on what endpoint and its configuration. Endpoints which handle
   multiple files, but don't merge them, return a ZIP archive of the resulting PDFs
 
+For more detailed examples, check the [documentation](https://stumpylog.github.io/gotenberg-client/)
+
 ### Examples
 
 Converting a single HTML file into a PDF:
@@ -84,7 +86,7 @@ from gotenberg_client.options import PdfAFormat
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
-      response = route.index("my-index.html").resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A1a).run()
+      response = route.index("my-index.html").resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A2b).run()
       Path("my-index.pdf").write_bytes(response.content)
 ```
 

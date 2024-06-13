@@ -1,46 +1,36 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-import json
 import logging
 from pathlib import Path
-from typing import Dict
-from typing import Final
 from typing import List
-from typing import Union
+from typing import Literal
 
 from gotenberg_client._base import BaseApi
-from gotenberg_client._convert.common import ConvertBaseRoute
+from gotenberg_client._base import BaseRoute
+from gotenberg_client._convert.common import ConsoleExceptionMixin
+from gotenberg_client._convert.common import CustomHTTPHeaderMixin
+from gotenberg_client._convert.common import EmulatedMediaMixin
+from gotenberg_client._convert.common import HeaderFooterMixin
+from gotenberg_client._convert.common import InvalidStatusCodesMixin
+from gotenberg_client._convert.common import PageOrientMixin
+from gotenberg_client._convert.common import PagePropertiesMixin
+from gotenberg_client._convert.common import PerformanceModeMixin
+from gotenberg_client._convert.common import RenderControlMixin
 from gotenberg_client._typing_compat import Self
-from gotenberg_client.options import EmulatedMediaType
-from gotenberg_client.options import Margin
-from gotenberg_client.options import PageSize
+from gotenberg_client._utils import FORCE_MULTIPART
+from gotenberg_client._utils import ForceMultipartDict
 
 logger = logging.getLogger()
 
 
-# See https://github.com/psf/requests/issues/1081#issuecomment-428504128
-class ForceMultipartDict(Dict):
-    def __bool__(self) -> bool:
-        return True
-
-
-FORCE_MULTIPART: Final = ForceMultipartDict()
-
-
-class ChromiumBaseRoute(ConvertBaseRoute):
-    """
-    https://gotenberg.dev/docs/routes#convert-with-chromium
-    """
-
-    def header(self, header: Path) -> Self:
-        self._add_file_map(header, "header.html")
+class _FileBasedRoute(BaseRoute):
+    def index(self, index: Path) -> Self:
+        self._add_file_map(index, "index.html")
         return self
 
-    def footer(self, footer: Path) -> Self:
-        self._add_file_map(footer, "footer.html")
-        return self
 
+class _RouteWithResources(BaseRoute):
     def resource(self, resource: Path) -> Self:
         self._add_file_map(resource)
         return self
@@ -50,88 +40,30 @@ class ChromiumBaseRoute(ConvertBaseRoute):
             self.resource(x)
         return self
 
-    def size(self, size: PageSize) -> Self:
-        self._form_data.update(size.to_form())
-        return self
 
-    page_size = size
-
-    def margins(self, margins: Margin) -> Self:
-        self._form_data.update(margins.to_form())
-        return self
-
-    def prefer_css_page_size(self) -> Self:
-        self._form_data.update({"preferCssPageSize": "true"})
-        return self
-
-    def prefer_set_page_size(self) -> Self:
-        self._form_data.update({"preferCssPageSize": "false"})
-        return self
-
-    def background_graphics(self) -> Self:
-        self._form_data.update({"printBackground": "true"})
-        return self
-
-    def no_background_graphics(self) -> Self:
-        self._form_data.update({"printBackground": "false"})
-        return self
-
-    def hide_background(self) -> Self:
-        self._form_data.update({"omitBackground": "true"})
-        return self
-
-    def show_background(self) -> Self:
-        self._form_data.update({"omitBackground": "false"})
-        return self
-
-    def scale(self, scale: Union[int, float]) -> Self:
-        self._form_data.update({"scale": str(scale)})
-        return self
-
-    def render_wait(self, wait: Union[int, float]) -> Self:
-        self._form_data.update({"waitDelay": str(wait)})
-        return self
-
-    def render_expr(self, expr: str) -> Self:
-        self._form_data.update({"waitForExpression": expr})
-        return self
-
-    def media_type(self, media_type: EmulatedMediaType) -> Self:
-        self._form_data.update(media_type.to_form())
-        return self
-
-    def user_agent(self, agent: str) -> Self:
-        self._form_data.update({"userAgent": agent})
-        return self
-
-    def headers(self, headers: Dict[str, str]) -> Self:
-        json_str = json.dumps(headers)
-        # TODO: Need to check this
-        self._form_data.update({"extraHttpHeaders": json_str})
-        return self
-
-    def fail_on_exceptions(self) -> Self:
-        self._form_data.update({"failOnConsoleExceptions": "true"})
-        return self
-
-    def dont_fail_on_exceptions(self) -> Self:
-        self._form_data.update({"failOnConsoleExceptions": "false"})
-        return self
-
-
-class _FileBasedRoute(ChromiumBaseRoute):
-    def index(self, index: Path) -> Self:
-        self._add_file_map(index, "index.html")
-        return self
-
-
-class HtmlRoute(_FileBasedRoute):
+class HtmlRoute(
+    PagePropertiesMixin,
+    HeaderFooterMixin,
+    RenderControlMixin,
+    PageOrientMixin,
+    _RouteWithResources,
+    _FileBasedRoute,
+):
     """
     https://gotenberg.dev/docs/routes#html-file-into-pdf-route
     """
 
 
-class UrlRoute(ChromiumBaseRoute):
+class UrlRoute(
+    PagePropertiesMixin,
+    HeaderFooterMixin,
+    RenderControlMixin,
+    ConsoleExceptionMixin,
+    EmulatedMediaMixin,
+    CustomHTTPHeaderMixin,
+    PageOrientMixin,
+    BaseRoute,
+):
     """
     https://gotenberg.dev/docs/routes#url-into-pdf-route
     """
@@ -144,7 +76,7 @@ class UrlRoute(ChromiumBaseRoute):
         return FORCE_MULTIPART
 
 
-class MarkdownRoute(_FileBasedRoute):
+class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, _RouteWithResources, _FileBasedRoute):
     """
     https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route
     """
@@ -159,10 +91,70 @@ class MarkdownRoute(_FileBasedRoute):
         return self
 
 
+class ScreenshotRoute(
+    RenderControlMixin,
+    EmulatedMediaMixin,
+    CustomHTTPHeaderMixin,
+    InvalidStatusCodesMixin,
+    ConsoleExceptionMixin,
+    PerformanceModeMixin,
+    PageOrientMixin,
+    BaseRoute,
+):
+    """
+    https://gotenberg.dev/docs/routes#screenshots-route
+    """
+
+    _QUALITY_MAX = 100
+    _QUALITY_MIN = 0
+
+    def output_format(self, output_format: Literal["png", "jpeg", "webp"] = "png") -> Self:
+        self._form_data.update({"format": output_format})
+        return self
+
+    def quality(self, quality: int) -> Self:
+        if quality > self._QUALITY_MAX:
+            logger.warning(f"quality {quality} is above {self._QUALITY_MAX}, resetting to {self._QUALITY_MAX}")
+            quality = self._QUALITY_MAX
+        elif quality < self._QUALITY_MIN:
+            logger.warning(f"quality {quality} is below {self._QUALITY_MIN}, resetting to {self._QUALITY_MIN}")
+            quality = self._QUALITY_MIN
+        self._form_data.update({"quality": str(quality)})
+        return self
+
+    def optimize_speed(self) -> Self:
+        self._form_data.update({"optimizeForSpeed": "true"})
+        return self
+
+    def optimize_size(self) -> Self:
+        self._form_data.update({"optimizeForSpeed": "false"})
+        return self
+
+
+class ScreenshotRouteUrl(ScreenshotRoute):
+    def url(self, url: str) -> Self:
+        self._form_data.update({"url": url})
+        return self
+
+    def _get_files(self) -> ForceMultipartDict:
+        return FORCE_MULTIPART
+
+
+class ScreenshotRouteHtml(_FileBasedRoute, _RouteWithResources, ScreenshotRoute):
+    pass
+
+
+class ScreenshotRouteMarkdown(_FileBasedRoute, _RouteWithResources, ScreenshotRoute):
+    pass
+
+
 class ChromiumApi(BaseApi):
     _URL_CONVERT_ENDPOINT = "/forms/chromium/convert/url"
     _HTML_CONVERT_ENDPOINT = "/forms/chromium/convert/html"
     _MARKDOWN_CONVERT_ENDPOINT = "/forms/chromium/convert/markdown"
+    _SCREENSHOT_URL = "/forms/chromium/screenshot/url"
+    _SCREENSHOT_HTML = "/forms/chromium/screenshot/html"
+    _SCREENSHOT_MARK_DOWN = "/forms/chromium/screenshot/markdown"
 
     def html_to_pdf(self) -> HtmlRoute:
         return HtmlRoute(self._client, self._HTML_CONVERT_ENDPOINT)
@@ -172,3 +164,12 @@ class ChromiumApi(BaseApi):
 
     def markdown_to_pdf(self) -> MarkdownRoute:
         return MarkdownRoute(self._client, self._MARKDOWN_CONVERT_ENDPOINT)
+
+    def screenshot_url(self) -> ScreenshotRouteUrl:
+        return ScreenshotRouteUrl(self._client, self._SCREENSHOT_URL)
+
+    def screenshot_html(self) -> ScreenshotRouteHtml:
+        return ScreenshotRouteHtml(self._client, self._SCREENSHOT_HTML)
+
+    def screenshot_markdown(self) -> ScreenshotRouteMarkdown:
+        return ScreenshotRouteMarkdown(self._client, self._SCREENSHOT_MARK_DOWN)

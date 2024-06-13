@@ -4,8 +4,15 @@
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Dict
+from typing import Final
 from typing import Optional
 from typing import Union
+
+
+# See https://github.com/psf/requests/issues/1081#issuecomment-428504128
+class ForceMultipartDict(Dict):
+    def __bool__(self) -> bool:
+        return True
 
 
 def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> Dict[str, str]:
@@ -40,3 +47,5 @@ def guess_mime_type_magic(url: Path) -> Optional[str]:
 
 # Use the best option
 guess_mime_type = guess_mime_type_magic if find_spec("magic") is not None else guess_mime_type_stdlib
+
+FORCE_MULTIPART: Final = ForceMultipartDict()

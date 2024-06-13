@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -6,7 +9,7 @@ import pikepdf
 import pytest
 from httpx import codes
 
-from gotenberg_client._client import GotenbergClient
+from gotenberg_client import GotenbergClient
 from gotenberg_client._utils import guess_mime_type_stdlib
 from gotenberg_client.options import PdfAFormat
 from tests.conftest import SAMPLE_DIR
@@ -106,7 +109,7 @@ class TestLibreOfficeConvert:
 
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
-        [(PdfAFormat.A1a, "1A"), (PdfAFormat.A2b, "2B"), (PdfAFormat.A3b, "3B")],
+        [(PdfAFormat.A2b, "2B"), (PdfAFormat.A3b, "3B")],
     )
     def test_libre_office_convert_xlsx_format_pdfa(
         self,
