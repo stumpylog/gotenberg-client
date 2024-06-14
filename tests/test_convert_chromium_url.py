@@ -209,6 +209,7 @@ class TestConvertChromiumUrlMocked:
             request.stream,
         )
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_convert_url_user_agent(
         self,
         client: GotenbergClient,
