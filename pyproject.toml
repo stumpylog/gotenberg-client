@@ -273,12 +273,6 @@ exclude_lines = [
 ]
 
 [tool.mypy]
-exclude = [
-  "tests/test_convert_chromium_html.py",
-  "tests/test_convert_chromium_url.py",
-  "tests/test_convert_chromium_markdown.py",
-  "tests/conftest.py",
-]
 disallow_any_expr = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true

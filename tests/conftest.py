@@ -6,6 +6,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import Final
+from typing import Generator
 
 import pytest
 
@@ -23,6 +24,6 @@ if SAVE_OUTPUTS:
 
 
 @pytest.fixture()
-def client() -> GotenbergClient:
+def client() -> Generator[GotenbergClient, None, None]:
     with GotenbergClient(host=GOTENBERG_URL, log_level=logging.INFO) as client:
         yield client
