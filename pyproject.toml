@@ -251,7 +251,7 @@ testpaths = ["tests"]
 #SAVE_TEST_OUTPUT = 1
 
 [tool.coverage.run]
-source_pkgs = ["src/gotenberg_client", "gotenberg_client", "tests"]
+source_pkgs = ["gotenberg_client", "tests"]
 branch = true
 parallel = true
 omit = [
