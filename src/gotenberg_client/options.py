@@ -97,13 +97,6 @@ class PageMarginsType:
     left: Optional[MarginType] = None
     right: Optional[MarginType] = None
 
-
-class Margin:
-    top: Optional[MarginType] = None
-    bottom: Optional[MarginType] = None
-    left: Optional[MarginType] = None
-    right: Optional[MarginType] = None
-
     def to_form(self) -> Dict[str, str]:
         form_data = {}
         values: list[tuple[MarginType | None, str]] = [
