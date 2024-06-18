@@ -10,16 +10,18 @@ from types import TracebackType
 from typing import Dict
 from typing import Optional
 from typing import Type
-from typing import Union
 
 from httpx import Client
 from httpx import HTTPStatusError
 from httpx import Response
 from httpx._types import RequestFiles
 
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._types import Self
+from gotenberg_client._types import WaitTimeType
 from gotenberg_client._utils import guess_mime_type
 from gotenberg_client.options import PdfAFormat
+from gotenberg_client.responses import SingleFileResponse
+from gotenberg_client.responses import ZipFileResponse
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +62,7 @@ class PfdUniversalAccessMixin:
         return self
 
 
-class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
+class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
     """
     The base implementation of a Gotenberg API route.  Anything settings or
     actions shared between all routes should be implemented here
@@ -104,22 +106,21 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         """
         self.reset()
 
-    def run(self) -> Response:
+    def _base_run(self) -> Response:
         """
         Executes the configured route against the server and returns the resulting
         Response.
-        TODO: It would be nice to return a simpler response to the user
         """
         resp = self._client.post(url=self._route, headers=self._headers, data=self._form_data, files=self._get_files())
         resp.raise_for_status()
         return resp
 
-    def run_with_retry(
+    def _base_run_with_retry(
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
+        initial_retry_wait: WaitTimeType = 5.0,
+        retry_scale: WaitTimeType = 2.0,
     ) -> Response:
         """
         For whatever reason, Gotenberg often returns HTTP 503 errors, even with the same files.
@@ -144,7 +145,7 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
             current_retry_count = current_retry_count + 1
 
             try:
-                return self.run()
+                return self._base_run()
             except HTTPStatusError as e:
                 logger.warning(f"HTTP error: {e}", stacklevel=1)
 
@@ -221,6 +222,50 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
     def output_name(self, filename: str) -> Self:
         self._headers["Gotenberg-Output-Filename"] = filename
         return self
+
+
+class BaseSingleFileResponseRoute(_BaseRoute):
+    def run(self) -> SingleFileResponse:
+        response = super()._base_run()
+
+        return SingleFileResponse(response.status_code, response.headers, response.content)
+
+    def run_with_retry(
+        self,
+        *,
+        max_retry_count: int = 5,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
+    ) -> SingleFileResponse:
+        response = super()._base_run_with_retry(
+            max_retry_count=max_retry_count,
+            initial_retry_wait=initial_retry_wait,
+            retry_scale=retry_scale,
+        )
+
+        return SingleFileResponse(response.status_code, response.headers, response.content)
+
+
+class BaseZipFileResponseRoute(_BaseRoute):
+    def run(self) -> ZipFileResponse:  # pragma: no cover
+        response = super()._base_run()
+
+        return ZipFileResponse(response.status_code, response.headers, response.content)
+
+    def run_with_retry(
+        self,
+        *,
+        max_retry_count: int = 5,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
+    ) -> ZipFileResponse:
+        response = super()._base_run_with_retry(
+            max_retry_count=max_retry_count,
+            initial_retry_wait=initial_retry_wait,
+            retry_scale=retry_scale,
+        )
+
+        return ZipFileResponse(response.status_code, response.headers, response.content)
 
 
 class BaseApi:

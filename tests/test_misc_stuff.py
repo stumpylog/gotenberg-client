@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import shutil
-import tempfile
 import uuid
 from json import dumps
 from json import loads
@@ -14,7 +13,9 @@ from httpx import Request
 from httpx import codes
 from pytest_httpx import HTTPXMock
 
+from gotenberg_client import CannotExtractHereError
 from gotenberg_client import GotenbergClient
+from gotenberg_client import ZipFileResponse
 from tests.conftest import SAMPLE_DIR
 
 
@@ -59,7 +60,7 @@ class TestMiscFunctionality:
         assert "Content-Disposition" in resp.headers
         assert f"{filename}.pdf" in resp.headers["Content-Disposition"]
 
-    def test_libre_office_convert_cyrillic(self, client: GotenbergClient):
+    def test_libre_office_convert_cyrillic(self, client: GotenbergClient, temporary_dir: Path):
         """
         Gotenberg versions before 8.0.0 could not internally handle filenames with
         non-ASCII characters.  This replicates such a thing against 1 endpoint to
@@ -67,18 +68,27 @@ class TestMiscFunctionality:
         """
         test_file = SAMPLE_DIR / "sample.odt"
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            copy = shutil.copy(
-                test_file,
-                Path(temp_dir) / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
-            )
+        copy = shutil.copy(
+            test_file,
+            temporary_dir / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
+        )
 
-            with client.libre_office.to_pdf() as route:
-                resp = route.convert(copy).run_with_retry()
+        with client.libre_office.to_pdf() as route:
+            resp = route.convert(copy).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
+
+    def test_extract_to_not_existing(self) -> None:
+        resp = ZipFileResponse(200, {}, b"")
+
+        output = Path("does-not-exist")
+
+        assert not output.exists()
+
+        with pytest.raises(CannotExtractHereError):
+            resp.extract_to(output)
 
 
 class TestServerErrorRetry:
@@ -141,7 +151,7 @@ class TestWebhookHeaders:
         client.add_webhook_url("http://myapi:3000/on-success")
         client.set_webhook_http_method("POST")
         client.add_error_webhook_url("http://myapi:3000/on-error")
-        client.set_error_webhook_http_method("GET")
+        client.set_error_webhook_http_method("PATCH")
 
         test_file = SAMPLE_DIR / "basic.html"
         with client.chromium.html_to_pdf() as route:
@@ -156,7 +166,7 @@ class TestWebhookHeaders:
         assert "Gotenberg-Webhook-Method" in request.headers
         assert request.headers["Gotenberg-Webhook-Method"] == "POST"
         assert "Gotenberg-Webhook-Error-Method" in request.headers
-        assert request.headers["Gotenberg-Webhook-Error-Method"] == "GET"
+        assert request.headers["Gotenberg-Webhook-Error-Method"] == "PATCH"
 
     def test_webhook_extra_headers(self, client: GotenbergClient, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST", status_code=codes.OK)

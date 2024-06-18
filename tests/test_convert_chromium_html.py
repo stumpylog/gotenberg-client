@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-import tempfile
 from pathlib import Path
 
 import pikepdf
@@ -33,7 +32,7 @@ class TestConvertChromiumHtmlRoute:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_basic_convert.pdf").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_basic_convert.pdf")
 
     def test_convert_with_header_footer(self, client: GotenbergClient):
         test_file = SAMPLE_DIR / "basic.html"
@@ -61,13 +60,19 @@ class TestConvertChromiumHtmlRoute:
         assert resp.headers["Content-Type"] == "application/pdf"
 
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_convert_additional_files.pdf").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_convert_additional_files.pdf")
 
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
         [(PdfAFormat.A2b, "2B"), (PdfAFormat.A3b, "3B")],
     )
-    def test_convert_pdfa_format(self, client: GotenbergClient, gt_format: PdfAFormat, pike_format: str):
+    def test_convert_pdfa_format(
+        self,
+        client: GotenbergClient,
+        temporary_dir: Path,
+        gt_format: PdfAFormat,
+        pike_format: str,
+    ):
         test_file = SAMPLE_DIR / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
@@ -77,12 +82,11 @@ class TestConvertChromiumHtmlRoute:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            output = Path(temp_dir) / "test_convert_pdfa_format.pdf"
-            output.write_bytes(resp.content)
-            with pikepdf.open(output) as pdf:
-                meta = pdf.open_metadata()
-                assert meta.pdfa_status == pike_format
+        output = temporary_dir / "test_convert_pdfa_format.pdf"
+        resp.to_file(output)
+        with pikepdf.open(output) as pdf:
+            meta = pdf.open_metadata()
+            assert meta.pdfa_status == pike_format
 
 
 class TestConvertChromiumHtmlRouteMocked:

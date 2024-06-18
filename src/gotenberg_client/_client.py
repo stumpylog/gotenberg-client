@@ -14,8 +14,8 @@ from gotenberg_client._convert.libre_office import LibreOfficeApi
 from gotenberg_client._convert.pdfa import PdfAApi
 from gotenberg_client._health import HealthCheckApi
 from gotenberg_client._merge import MergeApi
-from gotenberg_client._typing_compat import Self
-from gotenberg_client.options import HttpMethodsType
+from gotenberg_client._types import HttpMethodsType
+from gotenberg_client._types import Self
 
 
 class GotenbergClient:

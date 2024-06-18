@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import Dict
 from typing import Final
 from typing import Optional
-from typing import Union
+
+from gotenberg_client._types import FormFieldType
 
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128
@@ -15,7 +16,7 @@ class ForceMultipartDict(Dict):
         return True
 
 
-def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> Dict[str, str]:
+def optional_to_form(value: Optional[FormFieldType], name: str) -> Dict[str, str]:
     """
     Quick helper to convert an optional type into a form data field
     with the given name or no changes if the value is None

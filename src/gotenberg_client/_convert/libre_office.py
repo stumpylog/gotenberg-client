@@ -3,18 +3,28 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 from typing import List
+from typing import Union
+
+from httpx import Client
 
 from gotenberg_client._base import BaseApi
-from gotenberg_client._base import BaseRoute
+from gotenberg_client._base import BaseSingleFileResponseRoute
 from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PageRangeMixin
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._types import Self
+from gotenberg_client._types import WaitTimeType
+from gotenberg_client.responses import SingleFileResponse
+from gotenberg_client.responses import ZipFileResponse
 
 
-class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseRoute):
+class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileResponseRoute):
     """
     https://gotenberg.dev/docs/routes#convert-with-libreoffice
     """
+
+    def __init__(self, client: Client, api_route: str) -> None:
+        super().__init__(client, api_route)
+        self._result_is_zip = False
 
     def convert(self, file_path: Path) -> Self:
         """
@@ -30,6 +40,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseRoute):
         """
         for x in file_paths:
             self.convert(x)
+        self._result_is_zip = True
         return self
 
     def merge(self) -> Self:
@@ -37,6 +48,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseRoute):
         Merge the resulting PDFs into one
         """
         self._form_data.update({"merge": "true"})
+        self._result_is_zip = False
         return self
 
     def no_merge(self) -> Self:
@@ -44,7 +56,32 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseRoute):
         Don't merge the resulting PDFs
         """
         self._form_data.update({"merge": "false"})
+        self._result_is_zip = True
         return self
+
+    def run(self) -> Union[SingleFileResponse, ZipFileResponse]:  # type: ignore[override]
+        resp = super().run()
+
+        if self._result_is_zip:  # pragma: no cover
+            return ZipFileResponse(resp.status_code, resp.headers, resp.content)
+        return resp
+
+    def run_with_retry(  # type: ignore[override]
+        self,
+        *,
+        max_retry_count: int = 5,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
+    ) -> Union[SingleFileResponse, ZipFileResponse]:
+        resp = super().run_with_retry(
+            max_retry_count=max_retry_count,
+            initial_retry_wait=initial_retry_wait,
+            retry_scale=retry_scale,
+        )
+
+        if self._result_is_zip:
+            return ZipFileResponse(resp.status_code, resp.headers, resp.content)
+        return resp
 
 
 class LibreOfficeApi(BaseApi):

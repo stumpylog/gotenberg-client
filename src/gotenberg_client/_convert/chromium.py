@@ -7,7 +7,7 @@ from typing import List
 from typing import Literal
 
 from gotenberg_client._base import BaseApi
-from gotenberg_client._base import BaseRoute
+from gotenberg_client._base import BaseSingleFileResponseRoute
 from gotenberg_client._convert.common import ConsoleExceptionMixin
 from gotenberg_client._convert.common import CustomHTTPHeaderMixin
 from gotenberg_client._convert.common import EmulatedMediaMixin
@@ -17,20 +17,20 @@ from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PagePropertiesMixin
 from gotenberg_client._convert.common import PerformanceModeMixin
 from gotenberg_client._convert.common import RenderControlMixin
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._types import Self
 from gotenberg_client._utils import FORCE_MULTIPART
 from gotenberg_client._utils import ForceMultipartDict
 
 logger = logging.getLogger()
 
 
-class _FileBasedRoute(BaseRoute):
+class _FileBasedRoute(BaseSingleFileResponseRoute):
     def index(self, index: Path) -> Self:
         self._add_file_map(index, "index.html")
         return self
 
 
-class _RouteWithResources(BaseRoute):
+class _RouteWithResources(BaseSingleFileResponseRoute):
     def resource(self, resource: Path) -> Self:
         self._add_file_map(resource)
         return self
@@ -62,7 +62,7 @@ class UrlRoute(
     EmulatedMediaMixin,
     CustomHTTPHeaderMixin,
     PageOrientMixin,
-    BaseRoute,
+    BaseSingleFileResponseRoute,
 ):
     """
     https://gotenberg.dev/docs/routes#url-into-pdf-route
@@ -99,7 +99,7 @@ class ScreenshotRoute(
     ConsoleExceptionMixin,
     PerformanceModeMixin,
     PageOrientMixin,
-    BaseRoute,
+    BaseSingleFileResponseRoute,
 ):
     """
     https://gotenberg.dev/docs/routes#screenshots-route

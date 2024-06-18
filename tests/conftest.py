@@ -4,6 +4,7 @@
 import logging
 import os
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Final
 from typing import Generator
@@ -27,3 +28,12 @@ if SAVE_OUTPUTS:
 def client() -> Generator[GotenbergClient, None, None]:
     with GotenbergClient(host=GOTENBERG_URL, log_level=logging.INFO) as client:
         yield client
+
+
+@pytest.fixture()
+def temporary_dir() -> Generator[Path, None, None]:
+    """
+    Creates and cleans up a temporary directory for tests
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        yield Path(tmp_dir).resolve()

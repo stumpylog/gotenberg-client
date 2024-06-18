@@ -65,7 +65,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = ["ruff ~= 0.4.2"]
+dependencies = ["ruff ~= 0.4.9"]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]
@@ -119,12 +119,15 @@ detached = true
 dependencies = [
   "mypy ~= 1.10.0",
   "httpx",
+  "pytest",
+  "pikepdf",
+  "pytest-httpx"
 ]
 
 [tool.hatch.envs.typing.scripts]
 run = [
   "mypy --version",
-  "mypy --install-types --non-interactive {args:src/gotenberg_client}"
+  "mypy --install-types --non-interactive ."
 ]
 
 [tool.hatch.envs.pre-commit]
@@ -273,6 +276,9 @@ exclude_lines = [
 ]
 
 [tool.mypy]
+exclude = [
+  "tests/*",
+]
 disallow_any_expr = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true

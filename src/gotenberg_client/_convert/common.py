@@ -6,11 +6,12 @@ import logging
 from pathlib import Path
 from typing import Dict
 from typing import Iterable
-from typing import Union
 from warnings import warn
 
-from gotenberg_client._base import BaseRoute
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._base import BaseSingleFileResponseRoute
+from gotenberg_client._types import PageScaleType
+from gotenberg_client._types import Self
+from gotenberg_client._types import WaitTimeType
 from gotenberg_client.options import EmulatedMediaType
 from gotenberg_client.options import PageMarginsType
 from gotenberg_client.options import PageOrientation
@@ -107,7 +108,7 @@ class ScaleMixin:
     https://gotenberg.dev/docs/routes#page-properties-chromium
     """
 
-    def scale(self, scale: Union[int, float]) -> Self:
+    def scale(self, scale: PageScaleType) -> Self:
         self._form_data.update({"scale": str(scale)})  # type: ignore[attr-defined,misc]
         return self
 
@@ -131,7 +132,7 @@ class PagePropertiesMixin(
     PageRangeMixin,
     ScaleMixin,
     SinglePageMixin,
-    BaseRoute,
+    BaseSingleFileResponseRoute,
 ):
     """
     https://gotenberg.dev/docs/routes#page-properties-chromium
@@ -157,7 +158,7 @@ class RenderControlMixin:
     https://gotenberg.dev/docs/routes#wait-before-rendering-chromium
     """
 
-    def render_wait(self, wait: Union[int, float]) -> Self:
+    def render_wait(self, wait: WaitTimeType) -> Self:
         self._form_data.update({"waitDelay": str(wait)})  # type: ignore[attr-defined,misc]
         return self
 

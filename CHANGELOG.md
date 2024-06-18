@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `mike` deployment mis-ordered the version and alias, this has been corrected
 - `mypy` wasn't running correctly or in CI
 
+### Added
+
+- Al routes now return a stronger typed response than just an `httpx.Response` ([#23](https://github.com/stumpylog/gotenberg-client/pull/23))
+
 ## [0.6.0] - 2024-06-13
 
 ### Breaking Change

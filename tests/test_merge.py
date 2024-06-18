@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import shutil
-import tempfile
 from pathlib import Path
 
 import pikepdf
@@ -25,6 +24,7 @@ class TestMergePdfs:
     def test_merge_files_pdf_a(
         self,
         client: GotenbergClient,
+        temporary_dir: Path,
         gt_format: PdfAFormat,
         pike_format: str,
     ):
@@ -40,19 +40,19 @@ class TestMergePdfs:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            output = Path(temp_dir) / "test_merge_files_pdf_a.pdf"
-            output.write_bytes(resp.content)
-            with pikepdf.open(output) as pdf:
-                meta = pdf.open_metadata()
-                assert meta.pdfa_status == pike_format
+        output = temporary_dir / "test_merge_files_pdf_a.pdf"
+        resp.to_file(output)
+        with pikepdf.open(output) as pdf:
+            meta = pdf.open_metadata()
+            assert meta.pdfa_status == pike_format
 
         if SAVE_OUTPUTS:
-            (SAVE_DIR / f"test_libre_office_convert_xlsx_format_{pike_format}.pdf").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / f"test_libre_office_convert_xlsx_format_{pike_format}.pdf")
 
     def test_merge_multiple_file(
         self,
         client: GotenbergClient,
+        temporary_dir: Path,
     ):
         if shutil.which("pdftotext") is None:  # pragma: no cover
             pytest.skip("No pdftotext executable found")
@@ -67,15 +67,15 @@ class TestMergePdfs:
                 assert "Content-Type" in resp.headers
                 assert resp.headers["Content-Type"] == "application/pdf"
 
-                with tempfile.NamedTemporaryFile(mode="wb") as tmp:
-                    tmp.write(resp.content)
+                out_file = temporary_dir / "test.pdf"
+                resp.to_file(out_file)
 
-                    text = extract_text(Path(tmp.name))
-                    lines = text.split("\n")
-                    # Extra is empty line
-                    assert len(lines) == 3
-                    assert "first PDF to be merged." in lines[0]
-                    assert "second PDF to be merged." in lines[1]
+                text = extract_text(out_file)
+                lines = text.split("\n")
+                # Extra is empty line
+                assert len(lines) == 3
+                assert "first PDF to be merged." in lines[0]
+                assert "second PDF to be merged." in lines[1]
 
-                if SAVE_OUTPUTS:
-                    (SAVE_DIR / "test_pdf_a_multiple_file.pdf").write_bytes(resp.content)
+            if SAVE_OUTPUTS:
+                resp.to_file(SAVE_DIR / "test_pdf_a_multiple_file.pdf")
