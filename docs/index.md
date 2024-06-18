@@ -76,3 +76,21 @@ try:
 finally:
   client.close()
 ```
+
+## API Responses
+
+The response from any `.run()` or `.run_with_retry()` will be either a `SingleFileResponse` or `ZipFileResponse`.
+There provide a slimmed down set of fields from an `httpx.Response`, including the headers, the status code and
+the response content. They also provide two convenience methods:
+
+- `to_file` - Accepts a path and writes the content of the response to it
+- `extract_to` - Only on a `ZipFileResponse`, extracts the zip into the given directory (which must exist)
+
+Determining which response is a little complicated, as Gotenberg can produce a single PDF from multiple files or
+a zip file containing multiple PDFs, depending on how the route is configured and how many files were provided.
+
+For example, the LibreOffice convert route may:
+
+- Produce a single PDF when a single office document is provided
+- Produce a zipped response when multiple office documents are provided
+- Produce a single PDF when multiple office documents are provided AND the route is asked to merge the result

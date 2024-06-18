@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import dataclasses
 import zipfile
+from functools import cached_property
 from io import BytesIO
 from pathlib import Path
 from typing import Union
@@ -29,6 +30,10 @@ class _BaseApiResponse:
         Writes the response content to a given file.
         """
         file_path.write_bytes(self.content)
+
+    @cached_property
+    def is_zip(self) -> bool:
+        return "Content-Type" in self.headers and self.headers["Content-Type"] == "application/zip"
 
 
 @dataclasses.dataclass

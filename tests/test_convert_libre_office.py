@@ -77,6 +77,7 @@ class TestLibreOfficeConvert:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/zip"
         assert isinstance(resp, ZipFileResponse)
+        assert resp.is_zip
 
         resp.extract_to(temporary_dir)
 

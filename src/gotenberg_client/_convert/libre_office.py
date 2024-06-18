@@ -79,7 +79,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
             retry_scale=retry_scale,
         )
 
-        if self._merged_result:
+        if self._result_is_zip:
             return ZipFileResponse(resp.status_code, resp.headers, resp.content)
         return resp
 
