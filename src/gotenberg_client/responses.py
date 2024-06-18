@@ -5,6 +5,7 @@ import dataclasses
 import zipfile
 from io import BytesIO
 from pathlib import Path
+from typing import Union
 
 from httpx import Headers
 
@@ -21,7 +22,7 @@ class _BaseApiResponse:
 
     status_code: int
     headers: Headers
-    content: bytes | bytearray
+    content: Union[bytes, bytearray]
 
 
 @dataclasses.dataclass

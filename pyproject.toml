@@ -120,7 +120,8 @@ dependencies = [
   "mypy ~= 1.10.0",
   "httpx",
   "pytest",
-  "pikepdf"
+  "pikepdf",
+  "pytest-httpx"
 ]
 
 [tool.hatch.envs.typing.scripts]
@@ -276,7 +277,7 @@ exclude_lines = [
 
 [tool.mypy]
 exclude = [
-  "tests/conftest.py",
+  "tests/*",
 ]
 disallow_any_expr = true
 disallow_untyped_defs = true

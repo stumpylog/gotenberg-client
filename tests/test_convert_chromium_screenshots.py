@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import Literal
+
 import pytest
 from httpx import codes
 
@@ -25,7 +27,7 @@ class TestChromiumScreenshots:
         "image_format",
         ["png", "webp", "jpeg"],
     )
-    def test_screenshot_formats(self, client: GotenbergClient, image_format: str):
+    def test_screenshot_formats(self, client: GotenbergClient, image_format: Literal["png", "webp", "jpeg"]):
         with client.chromium.screenshot_url() as route:
             resp = route.url("http://localhost:8888").output_format(image_format).run_with_retry()
 

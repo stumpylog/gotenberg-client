@@ -141,7 +141,7 @@ class TestWebhookHeaders:
         client.add_webhook_url("http://myapi:3000/on-success")
         client.set_webhook_http_method("POST")
         client.add_error_webhook_url("http://myapi:3000/on-error")
-        client.set_error_webhook_http_method("GET")
+        client.set_error_webhook_http_method("PATCH")
 
         test_file = SAMPLE_DIR / "basic.html"
         with client.chromium.html_to_pdf() as route:
@@ -156,7 +156,7 @@ class TestWebhookHeaders:
         assert "Gotenberg-Webhook-Method" in request.headers
         assert request.headers["Gotenberg-Webhook-Method"] == "POST"
         assert "Gotenberg-Webhook-Error-Method" in request.headers
-        assert request.headers["Gotenberg-Webhook-Error-Method"] == "GET"
+        assert request.headers["Gotenberg-Webhook-Error-Method"] == "PATCH"
 
     def test_webhook_extra_headers(self, client: GotenbergClient, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST", status_code=codes.OK)
