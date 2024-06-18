@@ -110,7 +110,6 @@ class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         """
         Executes the configured route against the server and returns the resulting
         Response.
-        TODO: It would be nice to return a simpler response to the user
         """
         resp = self._client.post(url=self._route, headers=self._headers, data=self._form_data, files=self._get_files())
         resp.raise_for_status()

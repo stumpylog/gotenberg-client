@@ -22,7 +22,7 @@ from gotenberg_client import GotenbergClient
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.index("my-index.html").run()
-      Path("my-index.pdf").write_bytes(response.content)
+      response.to_file(Path("my-index.pdf"))
 ```
 
 Converting an HTML file with additional resources into a PDF:
@@ -33,7 +33,7 @@ from gotenberg_client import GotenbergClient
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.index("my-index.html").resource("image.png").resource("style.css").run()
-      Path("my-index.pdf").write_bytes(response.content)
+      response.to_file(Path("my-index.pdf"))
 ```
 
 Converting an HTML file with additional resources into a PDF/A1a format:
@@ -45,7 +45,7 @@ from gotenberg_client.options import PdfAFormat
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.index("my-index.html").resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A2b).run()
-      Path("my-index.pdf").write_bytes(response.content)
+      response.to_file(Path("my-index.pdf"))
 ```
 
 Converting a URL into PDF, in landscape format
@@ -57,7 +57,7 @@ from gotenberg_client.options import PageOrientation
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.url("https://hello.world").orient(PageOrientation.Landscape).run()
-      Path("my-world.pdf").write_bytes(response.content)
+      response.to_file(Path("my-world.pdf"))
 ```
 
 To ensure the proper clean up of all used resources, both the client and the route(s) should be

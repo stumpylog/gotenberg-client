@@ -2,5 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from gotenberg_client._client import GotenbergClient
+from gotenberg_client.responses import SingleFileResponse
+from gotenberg_client.responses import ZipFileResponse
 
-__all__ = ["GotenbergClient"]
+__all__ = ["GotenbergClient", "SingleFileResponse", "ZipFileResponse"]

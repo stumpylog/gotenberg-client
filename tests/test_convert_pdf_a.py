@@ -36,13 +36,13 @@ class TestPdfAConvert:
 
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir) / "test_libre_office_convert_xlsx_format_pdfa.pdf"
-            output.write_bytes(resp.content)
+            resp.to_file(output)
             with pikepdf.open(output) as pdf:
                 meta = pdf.open_metadata()
                 assert meta.pdfa_status == pike_format
 
         if SAVE_OUTPUTS:
-            (SAVE_DIR / f"test_pdf_a_single_file{pike_format}.pdf").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / f"test_pdf_a_single_file{pike_format}.pdf")
 
     @pytest.mark.parametrize("gt_format", [PdfAFormat.A2b, PdfAFormat.A3b])
     def test_pdf_a_multiple_file(

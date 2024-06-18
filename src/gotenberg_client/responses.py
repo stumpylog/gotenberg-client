@@ -24,14 +24,16 @@ class _BaseApiResponse:
     headers: Headers
     content: Union[bytes, bytearray]
 
-
-@dataclasses.dataclass
-class SingleFileResponse(_BaseApiResponse):
     def to_file(self, file_path: Path) -> None:
         """
         Writes the response content to a given file.
         """
         file_path.write_bytes(self.content)
+
+
+@dataclasses.dataclass
+class SingleFileResponse(_BaseApiResponse):
+    pass
 
 
 @dataclasses.dataclass

@@ -33,7 +33,7 @@ class TestConvertChromiumHtmlRoute:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_basic_convert.pdf").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_basic_convert.pdf")
 
     def test_convert_with_header_footer(self, client: GotenbergClient):
         test_file = SAMPLE_DIR / "basic.html"
@@ -61,7 +61,7 @@ class TestConvertChromiumHtmlRoute:
         assert resp.headers["Content-Type"] == "application/pdf"
 
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_convert_additional_files.pdf").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_convert_additional_files.pdf")
 
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
@@ -79,7 +79,7 @@ class TestConvertChromiumHtmlRoute:
 
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir) / "test_convert_pdfa_format.pdf"
-            output.write_bytes(resp.content)
+            resp.to_file(output)
             with pikepdf.open(output) as pdf:
                 meta = pdf.open_metadata()
                 assert meta.pdfa_status == pike_format

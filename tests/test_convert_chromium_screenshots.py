@@ -21,7 +21,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_basic_screenshot.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_basic_screenshot.png")
 
     @pytest.mark.parametrize(
         "image_format",
@@ -35,7 +35,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == f"image/{image_format}"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / f"test_screenshot_formats.{image_format}").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_basic_screenshot.png")
 
     def test_screenshot_quality_valid(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -45,7 +45,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_quality_valid.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_screenshot_quality_valid.png")
 
     def test_screenshot_quality_too_low(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -55,7 +55,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_quality_too_low.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_screenshot_quality_too_low.png")
 
     def test_screenshot_quality_too_high(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -65,7 +65,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_quality_too_high.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_screenshot_quality_too_high.png")
 
     def test_screenshot_optimize_speed(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -75,7 +75,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_optimize_speed.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_screenshot_optimize_speed.png")
 
     def test_screenshot_optimize_quality(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -85,7 +85,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_optimize_quality.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_screenshot_optimize_quality.png")
 
     def test_network_idle_on(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -95,7 +95,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_optimize_quality.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_network_idle_on.png")
 
     def test_network_idle_off(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -105,7 +105,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_optimize_quality.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_network_idle_off.png")
 
     def test_status_codes(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -115,7 +115,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_optimize_quality.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_status_codes.png")
 
     def test_status_codes_empty(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -125,7 +125,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            (SAVE_DIR / "test_screenshot_optimize_quality.png").write_bytes(resp.content)
+            resp.to_file(SAVE_DIR / "test_status_codes_empty.png")
 
 
 class TestChromiumScreenshotsFromMarkdown:
