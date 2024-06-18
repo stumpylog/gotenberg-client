@@ -8,6 +8,7 @@ from httpx import Client
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseZipFileResponseRoute
+from gotenberg_client._types import Self
 
 
 class MergeRoute(BaseZipFileResponseRoute):
@@ -19,7 +20,7 @@ class MergeRoute(BaseZipFileResponseRoute):
         super().__init__(client, api_route)
         self._next = 1
 
-    def merge(self, files: List[Path]) -> "MergeRoute":
+    def merge(self, files: List[Path]) -> Self:
         """
         Adds the given files into the file mapping.  This method will maintain the
         ordering of the list.  Calling this method multiple times may not merge

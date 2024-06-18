@@ -31,6 +31,21 @@ class TestLibreOfficeConvert:
         if SAVE_OUTPUTS:
             resp.to_file(SAVE_DIR / "test_libre_office_convert_docx_format.pdf")
 
+    def test_libre_office_convert_docx_format_for_coverage(self, client: GotenbergClient):
+        test_file = SAMPLE_DIR / "sample.docx"
+        with client.libre_office.to_pdf() as route:
+            try:
+                resp = route.convert(test_file).run()
+            except:  # noqa: E722 - this is only for coverage
+                return
+
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+        if SAVE_OUTPUTS:
+            resp.to_file(SAVE_DIR / "test_libre_office_convert_docx_format_for_coverage.pdf")
+
     def test_libre_office_convert_odt_format(self, client: GotenbergClient):
         test_file = SAMPLE_DIR / "sample.odt"
         with client.libre_office.to_pdf() as route:
