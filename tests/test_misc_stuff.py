@@ -13,7 +13,9 @@ from httpx import Request
 from httpx import codes
 from pytest_httpx import HTTPXMock
 
+from gotenberg_client import CannotExtractHereError
 from gotenberg_client import GotenbergClient
+from gotenberg_client import ZipFileResponse
 from tests.conftest import SAMPLE_DIR
 
 
@@ -77,6 +79,16 @@ class TestMiscFunctionality:
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
+
+    def test_extract_to_not_existing(self) -> None:
+        resp = ZipFileResponse(200, {}, b"")
+
+        output = Path("does-not-exist")
+
+        assert not output.exists()
+
+        with pytest.raises(CannotExtractHereError):
+            resp.extract_to(output)
 
 
 class TestServerErrorRetry:
