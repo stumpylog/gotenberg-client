@@ -247,7 +247,7 @@ class BaseSingleFileResponseRoute(_BaseRoute):
 
 
 class BaseZipFileResponseRoute(_BaseRoute):
-    def run(self) -> ZipFileResponse:
+    def run(self) -> ZipFileResponse:  # pragma: no cover
         response = super()._base_run()
 
         return ZipFileResponse(response.status_code, response.headers, response.content)
