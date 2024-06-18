@@ -47,7 +47,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
         Merge the resulting PDFs into one
         """
         self._form_data.update({"merge": "true"})
-        self._merged_result = False
+        self._merged_result = True
         return self
 
     def no_merge(self) -> Self:
