@@ -17,7 +17,7 @@ from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PagePropertiesMixin
 from gotenberg_client._convert.common import PerformanceModeMixin
 from gotenberg_client._convert.common import RenderControlMixin
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._types import Self
 from gotenberg_client._utils import FORCE_MULTIPART
 from gotenberg_client._utils import ForceMultipartDict
 

@@ -6,7 +6,7 @@ from typing import List
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._types import Self
 
 
 class PdfAConvertRoute(BaseSingleFileResponseRoute):

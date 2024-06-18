@@ -10,14 +10,14 @@ from types import TracebackType
 from typing import Dict
 from typing import Optional
 from typing import Type
-from typing import Union
 
 from httpx import Client
 from httpx import HTTPStatusError
 from httpx import Response
 from httpx._types import RequestFiles
 
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._types import Self
+from gotenberg_client._types import WaitTimeType
 from gotenberg_client._utils import guess_mime_type
 from gotenberg_client.options import PdfAFormat
 from gotenberg_client.responses import SingleFileResponse
@@ -119,8 +119,8 @@ class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
+        initial_retry_wait: WaitTimeType = 5.0,
+        retry_scale: WaitTimeType = 2.0,
     ) -> Response:
         """
         For whatever reason, Gotenberg often returns HTTP 503 errors, even with the same files.
@@ -234,8 +234,8 @@ class BaseSingleFileResponseRoute(_BaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5,
-        retry_scale: float | int = 2,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
     ) -> SingleFileResponse:
         response = super()._base_run_with_retry(
             max_retry_count=max_retry_count,
@@ -256,8 +256,8 @@ class BaseZipFileResponseRoute(_BaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5,
-        retry_scale: float | int = 2,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
     ) -> ZipFileResponse:
         response = super()._base_run_with_retry(
             max_retry_count=max_retry_count,

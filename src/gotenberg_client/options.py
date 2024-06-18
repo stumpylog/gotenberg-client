@@ -5,11 +5,11 @@ import dataclasses
 import enum
 from typing import Dict
 from typing import Final
-from typing import Literal
 from typing import Optional
-from typing import Union
 from warnings import warn
 
+from gotenberg_client._types import MarginSizeType
+from gotenberg_client._types import PageSizeType
 from gotenberg_client._utils import optional_to_form
 
 
@@ -51,8 +51,8 @@ class PageOrientation(enum.Enum):
 
 @dataclasses.dataclass
 class PageSize:
-    width: Optional[Union[float, int]] = None
-    height: Optional[Union[float, int]] = None
+    width: Optional[PageSizeType] = None
+    height: Optional[PageSizeType] = None
 
     def to_form(self) -> Dict[str, str]:
         data = optional_to_form(self.width, "paperWidth")
@@ -86,7 +86,7 @@ class MarginUnitType(str, enum.Enum):
 
 @dataclasses.dataclass
 class MarginType:
-    value: Union[float, int]
+    value: MarginSizeType
     unit: MarginUnitType = MarginUnitType.Undefined
 
 
@@ -96,6 +96,13 @@ class PageMarginsType:
     bottom: Optional[MarginType] = None
     left: Optional[MarginType] = None
     right: Optional[MarginType] = None
+
+
+class Margin:
+    top: Optional[MarginSizeType] = None
+    bottom: Optional[MarginSizeType] = None
+    left: Optional[MarginSizeType] = None
+    right: Optional[MarginSizeType] = None
 
     def to_form(self) -> Dict[str, str]:
         form_data = {}
@@ -128,6 +135,3 @@ class EmulatedMediaType(str, enum.Enum):
             return {"emulatedMediaType": "screen"}
         else:  # pragma: no cover
             raise NotImplementedError(self.value)
-
-
-HttpMethodsType = Literal["POST", "PATCH", "PUT"]

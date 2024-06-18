@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -122,6 +121,7 @@ class TestLibreOfficeConvert:
     def test_libre_office_convert_xlsx_format_pdfa(
         self,
         client: GotenbergClient,
+        temporary_dir: Path,
         gt_format: PdfAFormat,
         pike_format: str,
     ):
@@ -133,12 +133,11 @@ class TestLibreOfficeConvert:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            output = Path(temp_dir) / "test_libre_office_convert_xlsx_format_pdfa.pdf"
-            resp.to_file(output)
-            with pikepdf.open(output) as pdf:
-                meta = pdf.open_metadata()
-                assert meta.pdfa_status == pike_format
+        output = temporary_dir / "test_libre_office_convert_xlsx_format_pdfa.pdf"
+        resp.to_file(output)
+        with pikepdf.open(output) as pdf:
+            meta = pdf.open_metadata()
+            assert meta.pdfa_status == pike_format
 
         if SAVE_OUTPUTS:
             resp.to_file(SAVE_DIR / f"test_libre_office_convert_xlsx_format_pdfa-{pike_format}.pdf")

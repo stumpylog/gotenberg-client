@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import shutil
-import tempfile
 import uuid
 from json import dumps
 from json import loads
@@ -59,7 +58,7 @@ class TestMiscFunctionality:
         assert "Content-Disposition" in resp.headers
         assert f"{filename}.pdf" in resp.headers["Content-Disposition"]
 
-    def test_libre_office_convert_cyrillic(self, client: GotenbergClient):
+    def test_libre_office_convert_cyrillic(self, client: GotenbergClient, temporary_dir: Path):
         """
         Gotenberg versions before 8.0.0 could not internally handle filenames with
         non-ASCII characters.  This replicates such a thing against 1 endpoint to
@@ -67,14 +66,13 @@ class TestMiscFunctionality:
         """
         test_file = SAMPLE_DIR / "sample.odt"
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            copy = shutil.copy(
-                test_file,
-                Path(temp_dir) / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
-            )
+        copy = shutil.copy(
+            test_file,
+            temporary_dir / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
+        )
 
-            with client.libre_office.to_pdf() as route:
-                resp = route.convert(copy).run_with_retry()
+        with client.libre_office.to_pdf() as route:
+            resp = route.convert(copy).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers

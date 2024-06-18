@@ -11,7 +11,8 @@ from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
 from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PageRangeMixin
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._types import Self
+from gotenberg_client._types import WaitTimeType
 from gotenberg_client.responses import SingleFileResponse
 from gotenberg_client.responses import ZipFileResponse
 
@@ -68,8 +69,8 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5,
-        retry_scale: float | int = 2,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
     ) -> Union[SingleFileResponse, ZipFileResponse]:
         resp = super().run_with_retry(
             max_retry_count=max_retry_count,
