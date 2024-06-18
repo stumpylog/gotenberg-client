@@ -5,11 +5,11 @@ from pathlib import Path
 from typing import List
 
 from gotenberg_client._base import BaseApi
-from gotenberg_client._base import BaseRoute
+from gotenberg_client._base import BaseSingleFileResponseRoute
 from gotenberg_client._typing_compat import Self
 
 
-class PdfAConvertRoute(BaseRoute):
+class PdfAConvertRoute(BaseSingleFileResponseRoute):
     """
     https://gotenberg.dev/docs/routes#convert-into-pdfa-route
     """

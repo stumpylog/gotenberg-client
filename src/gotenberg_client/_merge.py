@@ -7,10 +7,10 @@ from typing import List
 from httpx import Client
 
 from gotenberg_client._base import BaseApi
-from gotenberg_client._base import BaseRoute
+from gotenberg_client._base import BaseZipFileResponseRoute
 
 
-class MergeRoute(BaseRoute):
+class MergeRoute(BaseZipFileResponseRoute):
     """
     Handles the merging of a given set of files
     """

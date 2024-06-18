@@ -9,7 +9,7 @@ from typing import Iterable
 from typing import Union
 from warnings import warn
 
-from gotenberg_client._base import BaseRoute
+from gotenberg_client._base import BaseSingleFileResponseRoute
 from gotenberg_client._typing_compat import Self
 from gotenberg_client.options import EmulatedMediaType
 from gotenberg_client.options import PageMarginsType
@@ -131,7 +131,7 @@ class PagePropertiesMixin(
     PageRangeMixin,
     ScaleMixin,
     SinglePageMixin,
-    BaseRoute,
+    BaseSingleFileResponseRoute,
 ):
     """
     https://gotenberg.dev/docs/routes#page-properties-chromium
