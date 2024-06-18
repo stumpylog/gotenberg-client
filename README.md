@@ -119,6 +119,13 @@ finally:
   client.close()
 ```
 
+The response from any `.run()` or `.run_with_retry()` will be either a `SingleFileResponse` or `ZipFileResponse`.
+There provide a slimmed down set of fields from an `httpx.Response`, including the headers, the status code and
+the response content. They also provide two convenience methods:
+
+- `to_file` - Accepts a path and writes the content of the response to it
+- `extract_to` - Only on a `ZipFileResponse`, extracts the zip into the given directory (which must exist)
+
 ## License
 
 `gotenberg-client` is distributed under the terms of the [MPL 2.0](https://spdx.org/licenses/MPL-2.0.html) license.
