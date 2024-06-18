@@ -44,7 +44,7 @@ repos:
       - id: codespell
   # Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.4.6'
+    rev: 'v0.4.9'
     hooks:
       # Run the linter.
       - id: ruff

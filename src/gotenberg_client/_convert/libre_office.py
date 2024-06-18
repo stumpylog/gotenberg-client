@@ -59,14 +59,14 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
         self._result_is_zip = True
         return self
 
-    def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
+    def run(self) -> Union[SingleFileResponse, ZipFileResponse]:  # type: ignore[override]
         resp = super().run()
 
         if self._result_is_zip:
             return ZipFileResponse(resp.status_code, resp.headers, resp.content)
         return resp
 
-    def run_with_retry(
+    def run_with_retry(  # type: ignore[override]
         self,
         *,
         max_retry_count: int = 5,
