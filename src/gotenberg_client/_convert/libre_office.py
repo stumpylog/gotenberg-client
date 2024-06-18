@@ -61,7 +61,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
     def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
         resp = super().run()
 
-        if self._merged_result:
+        if not self._merged_result:
             return ZipFileResponse(resp.status_code, resp.headers, resp.content)
         return resp
 
