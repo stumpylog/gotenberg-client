@@ -48,7 +48,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
         Merge the resulting PDFs into one
         """
         self._form_data.update({"merge": "true"})
-        self._result_is_zip = True
+        self._result_is_zip = False
         return self
 
     def no_merge(self) -> Self:
@@ -56,7 +56,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
         Don't merge the resulting PDFs
         """
         self._form_data.update({"merge": "false"})
-        self._result_is_zip = False
+        self._result_is_zip = True
         return self
 
     def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
