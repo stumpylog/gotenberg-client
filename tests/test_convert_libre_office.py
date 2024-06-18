@@ -31,7 +31,7 @@ class TestLibreOfficeConvert:
         if SAVE_OUTPUTS:
             resp.to_file(SAVE_DIR / "test_libre_office_convert_docx_format.pdf")
 
-    def test_libre_office_convert_docx_format_for_coverage(self, client: GotenbergClient):
+    def test_libre_office_convert_docx_format_for_coverage(self, client: GotenbergClient):  # pragma: no cover
         test_file = SAMPLE_DIR / "sample.docx"
         with client.libre_office.to_pdf() as route:
             try:
