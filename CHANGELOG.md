@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Wrong paper size preset for A4.
+
+- Wrong paper size preset for A4 ([#24](https://github.com/stumpylog/gotenberg-client/pull/24))
 
 ## [0.6.0] - 2024-06-13
 
