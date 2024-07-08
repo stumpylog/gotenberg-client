@@ -98,8 +98,8 @@ class TestConvertChromiumHtmlRouteMocked:
             _ = route.index(test_file).size(A4).run()
 
         request = httpx_mock.get_request()
-        verify_stream_contains("paperWidth", "8.5", request.stream)
-        verify_stream_contains("paperHeight", "11", request.stream)
+        verify_stream_contains("paperWidth", "8.27", request.stream)
+        verify_stream_contains("paperHeight", "11.7", request.stream)
 
     def test_convert_margin(self, client: GotenbergClient, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")

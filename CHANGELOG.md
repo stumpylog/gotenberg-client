@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `mike` deployment mis-ordered the version and alias, this has been corrected
-- `mypy` wasn't running correctly or in CI
+- `mypy` wasn't running correctly in CI
+- Wrong paper size preset for A4 ([#24](https://github.com/stumpylog/gotenberg-client/pull/24))
 
 ### Added
 
