@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - All routes now return a stronger typed response than just an `httpx.Response` ([#23](https://github.com/stumpylog/gotenberg-client/pull/23))
 
+### Changed
+
+- Bump pypa/gh-action-pypi-publish from 1.8.14 to 1.9.0 by @dependabot ([#25](https://github.com/stumpylog/gotenberg-client/pull/25))
+
 ## [0.6.0] - 2024-06-13
 
 ### Breaking Change
