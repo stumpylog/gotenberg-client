@@ -5,6 +5,10 @@ import logging
 from pathlib import Path
 from typing import List
 from typing import Literal
+from typing import Optional
+from typing import Tuple
+
+from httpx import Client
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
@@ -26,18 +30,93 @@ logger = logging.getLogger()
 
 class _FileBasedRoute(BaseSingleFileResponseRoute):
     def index(self, index: Path) -> Self:
-        self._add_file_map(index, "index.html")
+        """
+        Adds the given HTML file as the index file.
+
+        The file name will be ignored and cannot be configured
+        """
+        self._add_file_map(index, name="index.html")
+        return self
+
+    def string_index(self, index: str) -> Self:
+        """
+        Provides the given string data as the index HTML for conversion.
+
+        Args:
+            index (str): The HTML content to be used as the index file.
+
+        Returns:
+            Self: This object itself for method chaining.
+        """
+
+        self._add_in_memory_file(index, name="index.html", mime_type="text/html")
         return self
 
 
 class _RouteWithResources(BaseSingleFileResponseRoute):
-    def resource(self, resource: Path) -> Self:
-        self._add_file_map(resource)
+    def resource(self, resource: Path, *, name: Optional[str] = None) -> Self:
+        """
+        Adds additional resources for the index HTML file to reference.
+
+        The filename may optionally be overridden if the HTML refers to the file with a different name
+        """
+        self._add_file_map(resource, name=name)
+        return self
+
+    def string_resource(self, resource: str, name: str, mime_type: Optional[str] = None) -> Self:
+        """
+        Adds a string resource to the conversion process.
+
+        The provided string data will be made available to the index HTML file during conversion,
+        using the specified name and MIME type.
+
+        Args:
+            resource (str): The string data to be added as a resource.
+            name (str): The name to assign to the resource.
+            mime_type (Optional[str]): The MIME type of the resource (optional).
+
+        Returns:
+            Self: This object itself for method chaining.
+        """
+
+        self._add_in_memory_file(resource, name=name, mime_type=mime_type)
         return self
 
     def resources(self, resources: List[Path]) -> Self:
+        """
+        Adds multiple resource files for the index HTML file to reference.
+
+        At this time, the name cannot be set
+        """
         for x in resources:
             self.resource(x)
+        return self
+
+    def string_resources(
+        self,
+        resources: List[Tuple[str, str, Optional[str]]],
+    ) -> Self:
+        """
+        Process string resources.
+
+        This method takes a list of resource tuples and processes them.
+
+        Args:
+            resources: A list of resource tuples.
+                Each tuple contains:
+                - str: Resource Data - The content or data of the resource.
+                - str: Resource Filename - The filename of the resource for reference in the index
+                - Optional[str]: Resource mimetype - The MIME type of the resource, if available.
+
+        Returns:
+            Self: Returns the instance of the class for method chaining.
+
+        Note:
+            The third element of each tuple (Resource Mime-Type) is optional.
+        """
+        for resource, name, mime_type in resources:
+            self._add_in_memory_file(resource, name=name, mime_type=mime_type)
+
         return self
 
 
@@ -94,15 +173,14 @@ class UrlRoute(
         self._form_data["url"] = url
         return self
 
-    def _get_files(self) -> ForceMultipartDict:
+    def _get_all_resources(self) -> ForceMultipartDict:
         """
         Returns an empty ForceMultipartDict.
 
         This route does not require any file uploads, so an empty dictionary
         is returned as Gotenberg still requires multipart/form-data
         """
-
-        return FORCE_MULTIPART  # Assuming FORCE_MULTIPART is a pre-defined empty dictionary
+        return FORCE_MULTIPART
 
 
 class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, _RouteWithResources, _FileBasedRoute):
@@ -177,6 +255,9 @@ class ScreenshotRoute(
 
     _QUALITY_MAX = 100
     _QUALITY_MIN = 0
+
+    def __init__(self, client: Client, api_route: str) -> None:
+        super().__init__(client, api_route)
 
     def output_format(self, output_format: Literal["png", "jpeg", "webp"] = "png") -> Self:
         """
@@ -257,14 +338,13 @@ class ScreenshotRouteUrl(ScreenshotRoute):
         self._form_data.update({"url": url})
         return self
 
-    def _get_files(self) -> ForceMultipartDict:
+    def _get_all_resources(self) -> ForceMultipartDict:
         """
         Returns an empty ForceMultipartDict.
 
         This route does not require any file uploads, so an empty dictionary
         is returned.
         """
-
         return FORCE_MULTIPART
 
 

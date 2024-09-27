@@ -62,6 +62,16 @@ class TestConvertChromiumHtmlRoute:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
+    def test_convert_html_from_string(self, client: GotenbergClient, basic_html_file: Path):
+        html_str = basic_html_file.read_text()
+
+        with client.chromium.html_to_pdf() as route:
+            resp = route.string_index(html_str).run_with_retry()
+
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
         [(PdfAFormat.A2b, "2B"), (PdfAFormat.A3b, "3B")],
@@ -86,6 +96,26 @@ class TestConvertChromiumHtmlRoute:
         with pikepdf.open(output) as pdf:
             meta = pdf.open_metadata()
             assert meta.pdfa_status == pike_format
+
+    def test_convert_additional_file_bytes_io_with_name(
+        self,
+        client: GotenbergClient,
+        complex_html_file: Path,
+        img_gif_file: Path,
+        font_file: Path,
+        css_style_file: Path,
+    ):
+        with client.chromium.html_to_pdf() as route:
+            resp = (
+                route.index(complex_html_file)
+                .resources([img_gif_file, font_file])
+                .string_resource(css_style_file.read_text(), name="style.css", mime_type="text/css")
+                .run_with_retry()
+            )
+
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
 
 
 class TestConvertChromiumHtmlRouteMocked:

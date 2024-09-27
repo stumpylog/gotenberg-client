@@ -60,7 +60,7 @@ class MergeRoute(BaseZipFileResponseRoute):
         """
         for filepath in files:
             # Include index to enforce ordering
-            self._add_file_map(filepath, f"{self._next}_{filepath.name}")
+            self._add_file_map(filepath, name=f"{self._next}_{filepath.name}")
             self._next += 1
         return self
 
