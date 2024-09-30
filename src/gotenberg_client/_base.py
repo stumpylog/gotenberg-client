@@ -154,12 +154,12 @@ class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
 
                 # Don't do the extra waiting, return right away
                 if current_retry_count >= max_retry_count:
-                    raise MaxRetriesExceededError from e
+                    raise MaxRetriesExceededError(response=e.response) from e
 
             except Exception as e:  # pragma: no cover
                 logger.warning(f"Unexpected error: {e}", stacklevel=1)
                 if current_retry_count > -max_retry_count:
-                    raise MaxRetriesExceededError from e
+                    raise
 
             sleep(retry_time)
             retry_time = retry_time * retry_scale
