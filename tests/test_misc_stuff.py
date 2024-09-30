@@ -8,13 +8,13 @@ from json import loads
 from pathlib import Path
 
 import pytest
-from httpx import HTTPStatusError
 from httpx import Request
 from httpx import codes
 from pytest_httpx import HTTPXMock
 
 from gotenberg_client import CannotExtractHereError
 from gotenberg_client import GotenbergClient
+from gotenberg_client import MaxRetriesExceededError
 from gotenberg_client import ZipFileResponse
 from tests.conftest import SAMPLE_DIR
 
@@ -107,7 +107,7 @@ class TestServerErrorRetry:
         test_file = SAMPLE_DIR / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
-            with pytest.raises(HTTPStatusError) as exc_info:
+            with pytest.raises(MaxRetriesExceededError) as exc_info:
                 _ = route.index(test_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == codes.SERVICE_UNAVAILABLE
 
@@ -118,7 +118,7 @@ class TestServerErrorRetry:
         test_file = SAMPLE_DIR / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
-            with pytest.raises(HTTPStatusError) as exc_info:
+            with pytest.raises(MaxRetriesExceededError) as exc_info:
                 _ = route.index(test_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == codes.NOT_FOUND
 
