@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - All routes now return a stronger typed response than just an `httpx.Response` ([#23](https://github.com/stumpylog/gotenberg-client/pull/23))
+- All public methods now include docstrings ([#33](https://github.com/stumpylog/gotenberg-client/pull/33))
 
 ### Changed
 
