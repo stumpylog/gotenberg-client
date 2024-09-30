@@ -47,7 +47,7 @@ class PdfAFormat(enum.Enum):
         format_name = format_mapping.get(self)
         if format_name is not None:
             # Warn about deprecated format usage (ideally move outside this method)
-            if self is PdfAFormat.A1a:
+            if self is PdfAFormat.A1a:  # pragma: no cover
                 import warnings
 
                 warnings.warn(

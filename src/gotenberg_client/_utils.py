@@ -36,7 +36,7 @@ def optional_to_form(value: Optional[FormFieldType], name: str) -> Dict[str, str
         return {name: str(value).lower()}
 
 
-def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:
+def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:  # pragma: no cover
     """
     Guesses the MIME type of a URL using the standard library.
 
