@@ -101,6 +101,11 @@ def ods_sample_file(sample_directory: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
+def pdf_sample_one_file(sample_directory: Path) -> Path:
+    return sample_directory / "sample1.pdf"
+
+
+@pytest.fixture(scope="session")
 def output_file_save_directory() -> Path:
     return Path(__file__).parent.resolve() / "outputs"
 
