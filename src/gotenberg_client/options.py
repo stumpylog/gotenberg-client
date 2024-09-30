@@ -172,7 +172,7 @@ class MarginType:
             The margin value is formatted as a string with the unit appended.
         """
 
-        if self.unit is MarginUnitType.Undefined:
+        if self.unit == MarginUnitType.Undefined:
             return optional_to_form(self.value, name)
         else:
             return optional_to_form(f"{self.value}{self.unit}", name)
