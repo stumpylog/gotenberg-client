@@ -175,7 +175,7 @@ class MarginType:
         if self.unit == MarginUnitType.Undefined:
             return optional_to_form(self.value, name)
         else:
-            return optional_to_form(f"{self.value}{self.unit}", name)
+            return optional_to_form(f"{self.value}{self.unit.value}", name)
 
 
 @dataclasses.dataclass
