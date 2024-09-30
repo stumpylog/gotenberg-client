@@ -64,11 +64,11 @@ def guess_mime_type_magic(url: Union[str, Path]) -> Optional[str]:
         The guessed MIME type, or None if it could not be determined.
     """
 
-    import magic
+    import magic  # type: ignore[import-not-found]
 
     try:
         return magic.from_file(str(url), mime=True)  # type: ignore[misc]
-    except magic.MagicException:
+    except magic.MagicException:  # type: ignore[misc]
         # Handle libmagic exceptions gracefully
         return None
 
