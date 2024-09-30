@@ -10,9 +10,6 @@ from httpx import codes
 
 from gotenberg_client import GotenbergClient
 from gotenberg_client.options import PdfAFormat
-from tests.conftest import SAVE_OUTPUTS
-from tests.conftest import output_file_save_directory
-from tests.conftest import sample_directory
 from tests.utils import extract_text
 
 
@@ -24,6 +21,7 @@ class TestMergePdfs:
     def test_merge_files_pdf_a(
         self,
         client: GotenbergClient,
+        sample_directory: Path,
         tmp_path: Path,
         gt_format: PdfAFormat,
         pike_format: str,
@@ -46,12 +44,10 @@ class TestMergePdfs:
             meta = pdf.open_metadata()
             assert meta.pdfa_status == pike_format
 
-        if SAVE_OUTPUTS:
-            resp.to_file(output_file_save_directory / f"test_libre_office_convert_xlsx_format_{pike_format}.pdf")
-
     def test_merge_multiple_file(
         self,
         client: GotenbergClient,
+        sample_directory: Path,
         tmp_path: Path,
     ):
         if shutil.which("pdftotext") is None:  # pragma: no cover
@@ -76,6 +72,3 @@ class TestMergePdfs:
                 assert len(lines) == 3
                 assert "first PDF to be merged." in lines[0]
                 assert "second PDF to be merged." in lines[1]
-
-            if SAVE_OUTPUTS:
-                resp.to_file(output_file_save_directory / "test_pdf_a_multiple_file.pdf")
