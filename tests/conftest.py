@@ -32,7 +32,7 @@ def output_file_save_directory() -> Path:
 
 @pytest.fixture(scope="session")
 def save_output_files(output_file_save_directory: Path) -> bool:
-    val = "SAVE_TEST_OUTPUT" in os.environ
+    val = True
     if val:
         shutil.rmtree(output_file_save_directory, ignore_errors=True)
         output_file_save_directory.mkdir()
