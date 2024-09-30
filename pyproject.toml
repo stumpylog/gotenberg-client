@@ -84,7 +84,7 @@ dependencies = [
 ]
 extra-dependencies = [
   "pytest-sugar",
-  "pytest-httpx ~= 0.30; python_version >= '3.9'",
+  "pytest-httpx == 0.30.0; python_version >= '3.9'",
   "pytest-httpx ~= 0.22; python_version < '3.9'",
   "pikepdf",
   "python-magic",
@@ -121,7 +121,7 @@ dependencies = [
   "httpx",
   "pytest",
   "pikepdf",
-  "pytest-httpx"
+  "pytest-httpx == 0.30.0"
 ]
 
 [tool.hatch.envs.typing.scripts]
