@@ -24,13 +24,13 @@ if SAVE_OUTPUTS:
     SAVE_DIR.mkdir()
 
 
-@pytest.fixture()
+@pytest.fixture
 def client() -> Generator[GotenbergClient, None, None]:
     with GotenbergClient(host=GOTENBERG_URL, log_level=logging.INFO) as client:
         yield client
 
 
-@pytest.fixture()
+@pytest.fixture
 def temporary_dir() -> Generator[Path, None, None]:
     """
     Creates and cleans up a temporary directory for tests

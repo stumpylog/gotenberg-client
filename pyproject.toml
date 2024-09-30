@@ -65,7 +65,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = ["ruff ~= 0.4.9"]
+dependencies = ["ruff ~= 0.6.8"]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]
@@ -74,13 +74,13 @@ parallel = true
 randomize = true
 dependencies = [
   "coverage-enable-subprocess == 1.0",
-  "coverage[toml] ~= 7.4",
+  "coverage[toml] ~= 7.6",
   "pytest < 8.0; python_version < '3.9'",
-  "pytest ~= 8.1; python_version >= '3.9'",
-  "pytest-mock ~= 3.12",
+  "pytest ~= 8.3; python_version >= '3.9'",
+  "pytest-mock ~= 3.14",
   "pytest-randomly ~= 3.15",
   "pytest-rerunfailures ~= 14.0",
-  "pytest-xdist[psutil] ~= 3.5",
+  "pytest-xdist[psutil] ~= 3.6",
 ]
 extra-dependencies = [
   "pytest-sugar",
@@ -117,7 +117,7 @@ python = ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9", "pypy3.10"]
 [tool.hatch.envs.typing]
 detached = true
 dependencies = [
-  "mypy ~= 1.10.0",
+  "mypy ~= 1.11",
   "httpx",
   "pytest",
   "pikepdf",
@@ -134,7 +134,7 @@ run = [
 template = "pre-commit"
 detached = true
 dependencies = [
-  "pre-commit ~= 3.7.0",
+  "pre-commit ~= 3.8",
 ]
 
 [tool.hatch.envs.pre-commit.scripts]
@@ -145,9 +145,9 @@ update = ["pre-commit autoupdate"]
 template = "docs"
 detached = true
 dependencies = [
-  "mkdocs-material[imaging] ~= 9.5.26",
-  "mike ~= 2.1.0",
-  "mkdocs-minify-plugin ~= 0.7.1"
+  "mkdocs-material[imaging] ~= 9.5",
+  "mike ~= 2.1",
+  "mkdocs-minify-plugin ~= 0.8"
 ]
 
 [tool.hatch.envs.docs.scripts]

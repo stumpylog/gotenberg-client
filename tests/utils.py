@@ -36,8 +36,8 @@ def extract_text(pdf_path: Path) -> str:
     with tempfile.NamedTemporaryFile(
         mode="w+",
     ) as tmp:
-        subprocess.run(
-            [  # noqa: S603
+        subprocess.run(  # noqa: S603
+            [
                 pdf_to_text,
                 "-q",
                 "-layout",
