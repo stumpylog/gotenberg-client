@@ -44,21 +44,18 @@ class PdfAFormat(enum.Enum):
             PdfAFormat.A3b: "PDF/A-3b",
         }
 
-        format_name = format_mapping.get(self)
-        if format_name is not None:
-            # Warn about deprecated format usage (ideally move outside this method)
-            if self is PdfAFormat.A1a:  # pragma: no cover
-                import warnings
+        format_name = format_mapping[self]
+        # Warn about deprecated format usage (ideally move outside this method)
+        if self is PdfAFormat.A1a:  # pragma: no cover
+            import warnings
 
-                warnings.warn(
-                    "PDF Format PDF/A-1a is deprecated",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return {}
-            return {"pdfa": format_name}
-        else:
-            raise NotImplementedError(f"Unsupported PDF/A format: {self.value}")  # noqa: EM102
+            warnings.warn(
+                "PDF Format PDF/A-1a is deprecated",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return {}
+        return {"pdfa": format_name}
 
 
 @enum.unique

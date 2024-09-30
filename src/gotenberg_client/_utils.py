@@ -68,7 +68,7 @@ def guess_mime_type_magic(url: Union[str, Path]) -> Optional[str]:
 
     try:
         return magic.from_file(str(url), mime=True)  # type: ignore[misc]
-    except magic.MagicException:  # type: ignore[misc]
+    except Exception:  # pragma: no cover
         # Handle libmagic exceptions gracefully
         return None
 
