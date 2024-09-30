@@ -15,15 +15,14 @@ from gotenberg_client.options import MarginUnitType
 from gotenberg_client.options import PageMarginsType
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PdfAFormat
-from tests.conftest import SAMPLE_DIR
-from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
+from tests.conftest import output_file_save_directory
 from tests.utils import verify_stream_contains
 
 
 class TestConvertChromiumHtmlRoute:
-    def test_basic_convert(self, client: GotenbergClient):
-        test_file = SAMPLE_DIR / "basic.html"
+    def test_basic_convert(self, client: GotenbergClient, sample_directory: Path, output_saver_factory):
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             resp = route.index(test_file).run_with_retry()
@@ -31,13 +30,13 @@ class TestConvertChromiumHtmlRoute:
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
-        if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_basic_convert.pdf")
 
-    def test_convert_with_header_footer(self, client: GotenbergClient):
-        test_file = SAMPLE_DIR / "basic.html"
-        header_file = SAMPLE_DIR / "header.html"
-        footer_file = SAMPLE_DIR / "footer.html"
+        output_saver_factory(resp)
+
+    def test_convert_with_header_footer(self, client: GotenbergClient, sample_directory: Path):
+        test_file = sample_directory / "basic.html"
+        header_file = sample_directory / "header.html"
+        footer_file = sample_directory / "footer.html"
 
         with client.chromium.html_to_pdf() as route:
             resp = route.index(test_file).header(header_file).footer(footer_file).run_with_retry()
@@ -46,11 +45,11 @@ class TestConvertChromiumHtmlRoute:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
-    def test_convert_additional_files(self, client: GotenbergClient):
-        test_file = SAMPLE_DIR / "complex.html"
-        img = SAMPLE_DIR / "img.gif"
-        font = SAMPLE_DIR / "font.woff"
-        style = SAMPLE_DIR / "style.css"
+    def test_convert_additional_files(self, client: GotenbergClient, sample_directory: Path):
+        test_file = sample_directory / "complex.html"
+        img = sample_directory / "img.gif"
+        font = sample_directory / "font.woff"
+        style = sample_directory / "style.css"
 
         with client.chromium.html_to_pdf() as route:
             resp = route.index(test_file).resource(img).resource(font).resource(style).run_with_retry()
@@ -60,7 +59,7 @@ class TestConvertChromiumHtmlRoute:
         assert resp.headers["Content-Type"] == "application/pdf"
 
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_convert_additional_files.pdf")
+            resp.to_file(output_file_save_directory / "test_convert_additional_files.pdf")
 
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
@@ -69,11 +68,12 @@ class TestConvertChromiumHtmlRoute:
     def test_convert_pdfa_format(
         self,
         client: GotenbergClient,
-        temporary_dir: Path,
+        sample_directory: Path,
+        tmp_path: Path,
         gt_format: PdfAFormat,
         pike_format: str,
     ):
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             resp = route.index(test_file).pdf_format(gt_format).run_with_retry()
@@ -82,7 +82,7 @@ class TestConvertChromiumHtmlRoute:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
-        output = temporary_dir / "test_convert_pdfa_format.pdf"
+        output = tmp_path / "test_convert_pdfa_format.pdf"
         resp.to_file(output)
         with pikepdf.open(output) as pdf:
             meta = pdf.open_metadata()
@@ -90,9 +90,9 @@ class TestConvertChromiumHtmlRoute:
 
 
 class TestConvertChromiumHtmlRouteMocked:
-    def test_convert_page_size(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_convert_page_size(self, client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).size(A4).run()
@@ -101,9 +101,9 @@ class TestConvertChromiumHtmlRouteMocked:
         verify_stream_contains("paperWidth", "8.27", request.stream)
         verify_stream_contains("paperHeight", "11.7", request.stream)
 
-    def test_convert_margin(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_convert_margin(self, client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             _ = (
@@ -125,9 +125,9 @@ class TestConvertChromiumHtmlRouteMocked:
         verify_stream_contains("marginLeft", "3mm", request.stream)
         verify_stream_contains("marginRight", "4", request.stream)
 
-    def test_convert_render_control(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_convert_render_control(self, client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).render_wait(500.0).run()
@@ -142,11 +142,12 @@ class TestConvertChromiumHtmlRouteMocked:
     def test_convert_orientation(
         self,
         client: GotenbergClient,
+        sample_directory: Path,
         httpx_mock: HTTPXMock,
         orientation: PageOrientation,
     ):
         httpx_mock.add_response(method="POST")
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).orient(orientation).run()

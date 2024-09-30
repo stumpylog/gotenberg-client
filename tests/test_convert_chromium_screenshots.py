@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+from pathlib import Path
 from typing import Literal
 
 import pytest
 from httpx import codes
 
 from gotenberg_client import GotenbergClient
-from tests.conftest import SAMPLE_DIR
-from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
+from tests.conftest import output_file_save_directory
 
 
 class TestChromiumScreenshots:
@@ -21,7 +21,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_basic_screenshot.png")
+            resp.to_file(output_file_save_directory / "test_basic_screenshot.png")
 
     @pytest.mark.parametrize(
         "image_format",
@@ -35,7 +35,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == f"image/{image_format}"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_basic_screenshot.png")
+            resp.to_file(output_file_save_directory / "test_basic_screenshot.png")
 
     def test_screenshot_quality_valid(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -45,7 +45,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_screenshot_quality_valid.png")
+            resp.to_file(output_file_save_directory / "test_screenshot_quality_valid.png")
 
     def test_screenshot_quality_too_low(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -55,7 +55,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_screenshot_quality_too_low.png")
+            resp.to_file(output_file_save_directory / "test_screenshot_quality_too_low.png")
 
     def test_screenshot_quality_too_high(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -65,7 +65,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_screenshot_quality_too_high.png")
+            resp.to_file(output_file_save_directory / "test_screenshot_quality_too_high.png")
 
     def test_screenshot_optimize_speed(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -75,7 +75,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_screenshot_optimize_speed.png")
+            resp.to_file(output_file_save_directory / "test_screenshot_optimize_speed.png")
 
     def test_screenshot_optimize_quality(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -85,7 +85,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_screenshot_optimize_quality.png")
+            resp.to_file(output_file_save_directory / "test_screenshot_optimize_quality.png")
 
     def test_network_idle_on(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -95,7 +95,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_network_idle_on.png")
+            resp.to_file(output_file_save_directory / "test_network_idle_on.png")
 
     def test_network_idle_off(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -105,7 +105,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_network_idle_off.png")
+            resp.to_file(output_file_save_directory / "test_network_idle_off.png")
 
     def test_status_codes(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -115,7 +115,7 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_status_codes.png")
+            resp.to_file(output_file_save_directory / "test_status_codes.png")
 
     def test_status_codes_empty(self, client: GotenbergClient):
         with client.chromium.screenshot_url() as route:
@@ -125,13 +125,13 @@ class TestChromiumScreenshots:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / "test_status_codes_empty.png")
+            resp.to_file(output_file_save_directory / "test_status_codes_empty.png")
 
 
 class TestChromiumScreenshotsFromMarkdown:
-    def test_markdown_screenshot(self, client: GotenbergClient):
-        test_file = SAMPLE_DIR / "basic.html"
-        md_files = [SAMPLE_DIR / "markdown1.md", SAMPLE_DIR / "markdown2.md"]
+    def test_markdown_screenshot(self, client: GotenbergClient, sample_directory: Path):
+        test_file = sample_directory / "basic.html"
+        md_files = [sample_directory / "markdown1.md", sample_directory / "markdown2.md"]
 
         with client.chromium.screenshot_markdown() as route:
             resp = route.index(test_file).resources(md_files).run_with_retry()
@@ -141,8 +141,8 @@ class TestChromiumScreenshotsFromMarkdown:
 
 
 class TestChromiumScreenshotsFromHtml:
-    def test_markdown_screenshot(self, client: GotenbergClient):
-        test_file = SAMPLE_DIR / "basic.html"
+    def test_markdown_screenshot(self, client: GotenbergClient, sample_directory: Path):
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.screenshot_html() as route:
             resp = route.index(test_file).run_with_retry()

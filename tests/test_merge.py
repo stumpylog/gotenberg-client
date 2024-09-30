@@ -10,9 +10,9 @@ from httpx import codes
 
 from gotenberg_client import GotenbergClient
 from gotenberg_client.options import PdfAFormat
-from tests.conftest import SAMPLE_DIR
-from tests.conftest import SAVE_DIR
 from tests.conftest import SAVE_OUTPUTS
+from tests.conftest import output_file_save_directory
+from tests.conftest import sample_directory
 from tests.utils import extract_text
 
 
@@ -24,13 +24,13 @@ class TestMergePdfs:
     def test_merge_files_pdf_a(
         self,
         client: GotenbergClient,
-        temporary_dir: Path,
+        tmp_path: Path,
         gt_format: PdfAFormat,
         pike_format: str,
     ):
         with client.merge.merge() as route:
             resp = (
-                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
+                route.merge([sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"])
                 .pdf_format(
                     gt_format,
                 )
@@ -40,19 +40,19 @@ class TestMergePdfs:
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
-        output = temporary_dir / "test_merge_files_pdf_a.pdf"
+        output = tmp_path / "test_merge_files_pdf_a.pdf"
         resp.to_file(output)
         with pikepdf.open(output) as pdf:
             meta = pdf.open_metadata()
             assert meta.pdfa_status == pike_format
 
         if SAVE_OUTPUTS:
-            resp.to_file(SAVE_DIR / f"test_libre_office_convert_xlsx_format_{pike_format}.pdf")
+            resp.to_file(output_file_save_directory / f"test_libre_office_convert_xlsx_format_{pike_format}.pdf")
 
     def test_merge_multiple_file(
         self,
         client: GotenbergClient,
-        temporary_dir: Path,
+        tmp_path: Path,
     ):
         if shutil.which("pdftotext") is None:  # pragma: no cover
             pytest.skip("No pdftotext executable found")
@@ -60,14 +60,14 @@ class TestMergePdfs:
             with client.merge.merge() as route:
                 # By default, these would not merge correctly, as it happens alphabetically
                 resp = route.merge(
-                    [SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"],
+                    [sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"],
                 ).run_with_retry()
 
                 assert resp.status_code == codes.OK
                 assert "Content-Type" in resp.headers
                 assert resp.headers["Content-Type"] == "application/pdf"
 
-                out_file = temporary_dir / "test.pdf"
+                out_file = tmp_path / "test.pdf"
                 resp.to_file(out_file)
 
                 text = extract_text(out_file)
@@ -78,4 +78,4 @@ class TestMergePdfs:
                 assert "second PDF to be merged." in lines[1]
 
             if SAVE_OUTPUTS:
-                resp.to_file(SAVE_DIR / "test_pdf_a_multiple_file.pdf")
+                resp.to_file(output_file_save_directory / "test_pdf_a_multiple_file.pdf")

@@ -17,7 +17,7 @@ from gotenberg_client import CannotExtractHereError
 from gotenberg_client import GotenbergClient
 from gotenberg_client import MaxRetriesExceededError
 from gotenberg_client import ZipFileResponse
-from tests.conftest import SAMPLE_DIR
+from tests.conftest import sample_directory
 
 
 class TestMiscFunctionality:
@@ -28,7 +28,7 @@ class TestMiscFunctionality:
         trace_id = str(uuid.uuid4())
         with client.merge.merge() as route:
             resp = (
-                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
+                route.merge([sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"])
                 .trace(
                     trace_id,
                 )
@@ -48,7 +48,7 @@ class TestMiscFunctionality:
         filename = "my-cool-file"
         with client.merge.merge() as route:
             resp = (
-                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
+                route.merge([sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"])
                 .output_name(
                     filename,
                 )
@@ -61,17 +61,17 @@ class TestMiscFunctionality:
         assert "Content-Disposition" in resp.headers
         assert f"{filename}.pdf" in resp.headers["Content-Disposition"]
 
-    def test_libre_office_convert_cyrillic(self, client: GotenbergClient, temporary_dir: Path):
+    def test_libre_office_convert_cyrillic(self, client: GotenbergClient, tmp_path: Path):
         """
         Gotenberg versions before 8.0.0 could not internally handle filenames with
         non-ASCII characters.  This replicates such a thing against 1 endpoint to
         verify the workaround inside this library
         """
-        test_file = SAMPLE_DIR / "sample.odt"
+        test_file = sample_directory / "sample.odt"
 
         copy = shutil.copy(
             test_file,
-            temporary_dir / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
+            tmp_path / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
         )
 
         with client.libre_office.to_pdf() as route:
@@ -105,7 +105,7 @@ class TestServerErrorRetry:
         # Response 5
         httpx_mock.add_response(method="POST", status_code=codes.SERVICE_UNAVAILABLE)
 
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             with pytest.raises(MaxRetriesExceededError) as exc_info:
@@ -116,7 +116,7 @@ class TestServerErrorRetry:
         # Response 1
         httpx_mock.add_response(method="POST", status_code=codes.NOT_FOUND)
 
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
             with pytest.raises(HTTPStatusError) as exc_info:
@@ -131,7 +131,7 @@ class TestWebhookHeaders:
         client.add_webhook_url("http://myapi:3000/on-success")
         client.add_error_webhook_url("http://myapi:3000/on-error")
 
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).run_with_retry()
 
@@ -154,7 +154,7 @@ class TestWebhookHeaders:
         client.add_error_webhook_url("http://myapi:3000/on-error")
         client.set_error_webhook_http_method("PATCH")
 
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).run_with_retry()
 
@@ -177,7 +177,7 @@ class TestWebhookHeaders:
 
         client.set_webhook_extra_headers(headers)
 
-        test_file = SAMPLE_DIR / "basic.html"
+        test_file = sample_directory / "basic.html"
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).run_with_retry()
 
