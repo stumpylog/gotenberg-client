@@ -16,6 +16,8 @@ from httpx import HTTPStatusError
 from httpx import Response
 from httpx._types import RequestFiles
 
+from gotenberg_client._errors import MaxRetriesExceededError
+from gotenberg_client._errors import UnreachableCodeError
 from gotenberg_client._types import Self
 from gotenberg_client._types import WaitTimeType
 from gotenberg_client._utils import guess_mime_type
@@ -24,10 +26,6 @@ from gotenberg_client.responses import SingleFileResponse
 from gotenberg_client.responses import ZipFileResponse
 
 logger = logging.getLogger(__name__)
-
-
-class UnreachableCodeError(Exception):
-    pass
 
 
 class PdfFormatMixin:
@@ -156,12 +154,12 @@ class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
 
                 # Don't do the extra waiting, return right away
                 if current_retry_count >= max_retry_count:
-                    raise
+                    raise MaxRetriesExceededError from e
 
             except Exception as e:  # pragma: no cover
                 logger.warning(f"Unexpected error: {e}", stacklevel=1)
                 if current_retry_count > -max_retry_count:
-                    raise
+                    raise MaxRetriesExceededError from e
 
             sleep(retry_time)
             retry_time = retry_time * retry_scale
@@ -226,6 +224,17 @@ class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
 
 class BaseSingleFileResponseRoute(_BaseRoute):
     def run(self) -> SingleFileResponse:
+        """
+        Execute the API request to Gotenberg.
+
+        This method sends the configured request to the Gotenberg service and returns the response.
+
+        Returns:
+            SingleFileResponse: An object containing the response from the Gotenberg API
+
+        Raises:
+            httpx.Error: Any errors from httpx will be raised
+        """
         response = super()._base_run()
 
         return SingleFileResponse(response.status_code, response.headers, response.content)
@@ -237,6 +246,25 @@ class BaseSingleFileResponseRoute(_BaseRoute):
         initial_retry_wait: WaitTimeType = 5,
         retry_scale: WaitTimeType = 2,
     ) -> SingleFileResponse:
+        """
+        Execute the API request with a retry mechanism.
+
+        This method attempts to run the API request and automatically retries in case of failures.
+        It uses an exponential backoff strategy for retries.
+
+        Args:
+            max_retry_count (int, optional): The maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (WaitTimeType, optional): The initial wait time between retries in seconds.
+                Defaults to 5. Can be int or float.
+            retry_scale (WaitTimeType, optional): The scale factor for the exponential backoff.
+                Defaults to 2. Can be int or float.
+
+        Returns:
+            SingleFileResponse: The response object containing the result of the API call.
+
+        Raises:
+            MaxRetriesExceededError: If the maximum number of retries is exceeded without a successful response.
+        """
         response = super()._base_run_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,
@@ -248,6 +276,17 @@ class BaseSingleFileResponseRoute(_BaseRoute):
 
 class BaseZipFileResponseRoute(_BaseRoute):
     def run(self) -> ZipFileResponse:  # pragma: no cover
+        """
+        Execute the API request to Gotenberg.
+
+        This method sends the configured request to the Gotenberg service and returns the response.
+
+        Returns:
+            ZipFileResponse: The zipped response with the files
+
+        Raises:
+            httpx.Error: Any errors from httpx will be raised
+        """
         response = super()._base_run()
 
         return ZipFileResponse(response.status_code, response.headers, response.content)
@@ -259,6 +298,25 @@ class BaseZipFileResponseRoute(_BaseRoute):
         initial_retry_wait: WaitTimeType = 5,
         retry_scale: WaitTimeType = 2,
     ) -> ZipFileResponse:
+        """
+        Execute the API request with a retry mechanism.
+
+        This method attempts to run the API request and automatically retries in case of failures.
+        It uses an exponential backoff strategy for retries.
+
+        Args:
+            max_retry_count (int, optional): The maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (WaitTimeType, optional): The initial wait time between retries in seconds.
+                Defaults to 5. Can be int or float.
+            retry_scale (WaitTimeType, optional): The scale factor for the exponential backoff.
+                Defaults to 2. Can be int or float.
+
+        Returns:
+            ZipFileResponse: The zipped response with the files
+
+        Raises:
+            MaxRetriesExceededError: If the maximum number of retries is exceeded without a successful response.
+        """
         response = super()._base_run_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,

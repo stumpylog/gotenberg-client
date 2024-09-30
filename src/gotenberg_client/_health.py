@@ -5,6 +5,7 @@ import dataclasses
 import datetime
 import enum
 import re
+from typing import Final
 from typing import Optional
 from typing import TypedDict
 from typing import no_type_check
@@ -118,14 +119,35 @@ class HealthStatus:
 
 class HealthCheckApi(BaseApi):
     """
-    Provides the route for health checks
+    Provides the route for health checks in the Gotenberg API.
+
+    This class encapsulates the functionality to perform health checks on the Gotenberg service.
+    It inherits from BaseApi, presumably providing common API functionality.
+
+    For more information on Gotenberg's health check endpoint, see:
+    https://gotenberg.dev/docs/routes#health
+
     """
 
-    _HEALTH_ENDPOINT = "/health"
+    _HEALTH_ENDPOINT: Final[str] = "/health"
 
     def health(self) -> HealthStatus:
+        """
+        Perform a health check on the Gotenberg service.
+
+        This method sends a GET request to the Gotenberg health check endpoint
+        and returns the parsed health status.
+
+        For more details on the health check API, see:
+        https://gotenberg.dev/docs/routes#health
+
+        Returns:
+            HealthStatus: An object representing the current health status of the Gotenberg service.
+
+        Raises:
+            httpx.HTTPStatusError: If the request to the health check endpoint fails.
+        """
         resp = self._client.get(self._HEALTH_ENDPOINT, headers={"Accept": "application/json"})
         resp.raise_for_status()
         json_data: _HealthCheckApiResponseType = resp.json()
-
         return HealthStatus(json_data)
