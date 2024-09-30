@@ -55,6 +55,7 @@ class PdfAFormat(enum.Enum):
                     DeprecationWarning,
                     stacklevel=2,
                 )
+                return {}
             return {"pdfa": format_name}
         else:
             raise NotImplementedError(f"Unsupported PDF/A format: {self.value}")  # noqa: EM102
@@ -78,12 +79,12 @@ class PageOrientation(enum.Enum):
             and the corresponding Gotenberg value ("landscape" or "portrait") as the value.
         """
 
-        orientation_mapping: Final[Dict[PageOrientation, str]] = {
-            PageOrientation.Landscape: "landscape",
-            PageOrientation.Portrait: "portrait",
+        orientation_mapping: Final[Dict[PageOrientation, Dict[str, str]]] = {
+            PageOrientation.Landscape: {"landscape": "true"},
+            PageOrientation.Portrait: {"landscape": "false"},
         }
 
-        return {"orientation": orientation_mapping[self]}
+        return orientation_mapping[self]
 
 
 @dataclasses.dataclass
