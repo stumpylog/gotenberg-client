@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump pypa/gh-action-pypi-publish from 1.8.14 to 1.9.0 by @dependabot ([#25](https://github.com/stumpylog/gotenberg-client/pull/25))
 - Bump pypa/gh-action-pypi-publish from 1.9.0 to 1.10.2 by @dependabot ([#31](https://github.com/stumpylog/gotenberg-client/pull/31))
+- CI testing now runs against Gotenberg 8.11 ([#32](https://github.com/stumpylog/gotenberg-client/pull/32))
 
 ## [0.6.0] - 2024-06-13
 
