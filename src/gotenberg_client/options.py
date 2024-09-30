@@ -175,7 +175,8 @@ class MarginType:
         if self.unit == MarginUnitType.Undefined:
             return optional_to_form(self.value, name)
         else:
-            return optional_to_form(f"{self.value}{self.unit.value}", name)
+            # Fail to see how mypy thinks this is "Any"
+            return optional_to_form(f"{self.value}{self.unit.value}", name)  # type: ignore[misc]
 
 
 @dataclasses.dataclass
