@@ -5,7 +5,7 @@
 repos:
   # General hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-docstring-first
       - id: check-json
@@ -45,9 +45,13 @@ repos:
       - id: codespell
   # Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.6.8'
+    rev: 'v0.6.9'
     hooks:
       # Run the linter.
       - id: ruff
       # Run the formatter.
       - id: ruff-format
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: "2.2.4"
+    hooks:
+      - id: pyproject-fmt
