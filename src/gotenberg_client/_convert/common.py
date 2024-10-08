@@ -145,11 +145,11 @@ class HeaderFooterMixin:
     """
 
     def header(self, header: Path) -> Self:
-        self._add_file_map(header, "header.html")  # type: ignore[attr-defined]
+        self._add_file_map(header, name="header.html")  # type: ignore[attr-defined]
         return self
 
     def footer(self, footer: Path) -> Self:
-        self._add_file_map(footer, "footer.html")  # type: ignore[attr-defined]
+        self._add_file_map(footer, name="footer.html")  # type: ignore[attr-defined]
         return self
 
 
