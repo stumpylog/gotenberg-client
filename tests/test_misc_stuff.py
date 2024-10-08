@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import shutil
-import tempfile
 import uuid
 from json import dumps
 from json import loads
@@ -14,19 +13,22 @@ from httpx import Request
 from httpx import codes
 from pytest_httpx import HTTPXMock
 
+from gotenberg_client import CannotExtractHereError
 from gotenberg_client import GotenbergClient
-from tests.conftest import SAMPLE_DIR
+from gotenberg_client import MaxRetriesExceededError
+from gotenberg_client import ZipFileResponse
 
 
 class TestMiscFunctionality:
     def test_trace_id_header(
         self,
         client: GotenbergClient,
+        sample_directory: Path,
     ):
         trace_id = str(uuid.uuid4())
         with client.merge.merge() as route:
             resp = (
-                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
+                route.merge([sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"])
                 .trace(
                     trace_id,
                 )
@@ -42,11 +44,12 @@ class TestMiscFunctionality:
     def test_output_filename(
         self,
         client: GotenbergClient,
+        sample_directory: Path,
     ):
         filename = "my-cool-file"
         with client.merge.merge() as route:
             resp = (
-                route.merge([SAMPLE_DIR / "z_first_merge.pdf", SAMPLE_DIR / "a_merge_second.pdf"])
+                route.merge([sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"])
                 .output_name(
                     filename,
                 )
@@ -59,30 +62,37 @@ class TestMiscFunctionality:
         assert "Content-Disposition" in resp.headers
         assert f"{filename}.pdf" in resp.headers["Content-Disposition"]
 
-    def test_libre_office_convert_cyrillic(self, client: GotenbergClient):
+    def test_libre_office_convert_cyrillic(self, client: GotenbergClient, odt_sample_file: Path, tmp_path: Path):
         """
         Gotenberg versions before 8.0.0 could not internally handle filenames with
         non-ASCII characters.  This replicates such a thing against 1 endpoint to
         verify the workaround inside this library
         """
-        test_file = SAMPLE_DIR / "sample.odt"
+        copy = shutil.copy(
+            odt_sample_file,
+            tmp_path / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
+        )
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            copy = shutil.copy(
-                test_file,
-                Path(temp_dir) / "Карточка партнера Тауберг Альфа.odt",  # noqa: RUF001
-            )
-
-            with client.libre_office.to_pdf() as route:
-                resp = route.convert(copy).run_with_retry()
+        with client.libre_office.to_pdf() as route:
+            resp = route.convert(copy).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
+    def test_extract_to_not_existing(self) -> None:
+        resp = ZipFileResponse(200, {}, b"")
+
+        output = Path("does-not-exist")
+
+        assert not output.exists()
+
+        with pytest.raises(CannotExtractHereError):
+            resp.extract_to(output)
+
 
 class TestServerErrorRetry:
-    def test_server_error_retry(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_server_error_retry(self, client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         # Response 1
         httpx_mock.add_response(method="POST", status_code=codes.INTERNAL_SERVER_ERROR)
         # Response 2
@@ -94,35 +104,30 @@ class TestServerErrorRetry:
         # Response 5
         httpx_mock.add_response(method="POST", status_code=codes.SERVICE_UNAVAILABLE)
 
-        test_file = SAMPLE_DIR / "basic.html"
-
         with client.chromium.html_to_pdf() as route:
-            with pytest.raises(HTTPStatusError) as exc_info:
-                _ = route.index(test_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
+            with pytest.raises(MaxRetriesExceededError) as exc_info:
+                _ = route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == codes.SERVICE_UNAVAILABLE
 
-    def test_not_a_server_error(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_not_a_server_error(self, client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         # Response 1
         httpx_mock.add_response(method="POST", status_code=codes.NOT_FOUND)
 
-        test_file = SAMPLE_DIR / "basic.html"
-
         with client.chromium.html_to_pdf() as route:
             with pytest.raises(HTTPStatusError) as exc_info:
-                _ = route.index(test_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
+                _ = route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == codes.NOT_FOUND
 
 
 class TestWebhookHeaders:
-    def test_webhook_basic_headers(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_webhook_basic_headers(self, client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST", status_code=codes.OK)
 
         client.add_webhook_url("http://myapi:3000/on-success")
         client.add_error_webhook_url("http://myapi:3000/on-error")
 
-        test_file = SAMPLE_DIR / "basic.html"
         with client.chromium.html_to_pdf() as route:
-            _ = route.index(test_file).run_with_retry()
+            _ = route.index(basic_html_file).run_with_retry()
 
         requests = httpx_mock.get_requests()
 
@@ -135,17 +140,16 @@ class TestWebhookHeaders:
         assert "Gotenberg-Webhook-Error-Url" in request.headers
         assert request.headers["Gotenberg-Webhook-Error-Url"] == "http://myapi:3000/on-error"
 
-    def test_webhook_http_methods(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_webhook_http_methods(self, client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST", status_code=codes.OK)
 
         client.add_webhook_url("http://myapi:3000/on-success")
         client.set_webhook_http_method("POST")
         client.add_error_webhook_url("http://myapi:3000/on-error")
-        client.set_error_webhook_http_method("GET")
+        client.set_error_webhook_http_method("PATCH")
 
-        test_file = SAMPLE_DIR / "basic.html"
         with client.chromium.html_to_pdf() as route:
-            _ = route.index(test_file).run_with_retry()
+            _ = route.index(basic_html_file).run_with_retry()
 
         requests = httpx_mock.get_requests()
 
@@ -156,9 +160,9 @@ class TestWebhookHeaders:
         assert "Gotenberg-Webhook-Method" in request.headers
         assert request.headers["Gotenberg-Webhook-Method"] == "POST"
         assert "Gotenberg-Webhook-Error-Method" in request.headers
-        assert request.headers["Gotenberg-Webhook-Error-Method"] == "GET"
+        assert request.headers["Gotenberg-Webhook-Error-Method"] == "PATCH"
 
-    def test_webhook_extra_headers(self, client: GotenbergClient, httpx_mock: HTTPXMock):
+    def test_webhook_extra_headers(self, client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST", status_code=codes.OK)
 
         headers = {"Token": "mytokenvalue"}
@@ -166,9 +170,8 @@ class TestWebhookHeaders:
 
         client.set_webhook_extra_headers(headers)
 
-        test_file = SAMPLE_DIR / "basic.html"
         with client.chromium.html_to_pdf() as route:
-            _ = route.index(test_file).run_with_retry()
+            _ = route.index(basic_html_file).run_with_retry()
 
         requests = httpx_mock.get_requests()
 

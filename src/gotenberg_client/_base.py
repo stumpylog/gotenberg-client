@@ -4,28 +4,28 @@
 import logging
 from contextlib import ExitStack
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from time import sleep
 from types import TracebackType
 from typing import Dict
 from typing import Optional
+from typing import Tuple
 from typing import Type
-from typing import Union
 
 from httpx import Client
 from httpx import HTTPStatusError
 from httpx import Response
 from httpx._types import RequestFiles
 
-from gotenberg_client._typing_compat import Self
+from gotenberg_client._errors import MaxRetriesExceededError
+from gotenberg_client._errors import UnreachableCodeError
+from gotenberg_client._types import Self
+from gotenberg_client._types import WaitTimeType
 from gotenberg_client._utils import guess_mime_type
 from gotenberg_client.options import PdfAFormat
+from gotenberg_client.responses import SingleFileResponse
+from gotenberg_client.responses import ZipFileResponse
 
 logger = logging.getLogger(__name__)
-
-
-class UnreachableCodeError(Exception):
-    pass
 
 
 class PdfFormatMixin:
@@ -60,7 +60,7 @@ class PfdUniversalAccessMixin:
         return self
 
 
-class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
+class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
     """
     The base implementation of a Gotenberg API route.  Anything settings or
     actions shared between all routes should be implemented here
@@ -74,6 +74,8 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         self._form_data: Dict[str, str] = {}
         # These are the names of files, mapping to their Path
         self._file_map: Dict[str, Path] = {}
+        # Additional in memory resources, mapping the referenced name to the content and an optional mimetype
+        self._in_memory_resources: Dict[str, Tuple[str, Optional[str]]] = {}
         # Any header that will also be sent
         self._headers: Dict[str, str] = {}
 
@@ -104,22 +106,26 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         """
         self.reset()
 
-    def run(self) -> Response:
+    def _base_run(self) -> Response:
         """
         Executes the configured route against the server and returns the resulting
         Response.
-        TODO: It would be nice to return a simpler response to the user
         """
-        resp = self._client.post(url=self._route, headers=self._headers, data=self._form_data, files=self._get_files())
+        resp = self._client.post(
+            url=self._route,
+            headers=self._headers,
+            data=self._form_data,
+            files=self._get_all_resources(),
+        )
         resp.raise_for_status()
         return resp
 
-    def run_with_retry(
+    def _base_run_with_retry(
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
+        initial_retry_wait: WaitTimeType = 5.0,
+        retry_scale: WaitTimeType = 2.0,
     ) -> Response:
         """
         For whatever reason, Gotenberg often returns HTTP 503 errors, even with the same files.
@@ -144,7 +150,7 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
             current_retry_count = current_retry_count + 1
 
             try:
-                return self.run()
+                return self._base_run()
             except HTTPStatusError as e:
                 logger.warning(f"HTTP error: {e}", stacklevel=1)
 
@@ -155,7 +161,7 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
 
                 # Don't do the extra waiting, return right away
                 if current_retry_count >= max_retry_count:
-                    raise
+                    raise MaxRetriesExceededError(response=e.response) from e
 
             except Exception as e:  # pragma: no cover
                 logger.warning(f"Unexpected error: {e}", stacklevel=1)
@@ -167,27 +173,35 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
 
         raise UnreachableCodeError  # pragma: no cover
 
-    def _get_files(self) -> RequestFiles:
+    def _get_all_resources(self) -> RequestFiles:
         """
         Deals with opening all provided files for multi-part uploads, including
         pushing their new contexts onto the stack to ensure resources like file
         handles are cleaned up
         """
-        files = {}
+        resources = {}
         for filename in self._file_map:
             file_path = self._file_map[filename]
 
             # Helpful but not necessary to provide the mime type when possible
             mime_type = guess_mime_type(file_path)
             if mime_type is not None:
-                files.update(
+                resources.update(
                     {filename: (filename, self._stack.enter_context(file_path.open("rb")), mime_type)},
                 )
             else:  # pragma: no cover
-                files.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})  # type: ignore [dict-item]
-        return files
+                resources.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})  # type: ignore [dict-item]
 
-    def _add_file_map(self, filepath: Path, name: Optional[str] = None) -> None:
+        for resource_name in self._in_memory_resources:
+            data, mime_type = self._in_memory_resources[resource_name]
+            if mime_type is not None:
+                resources.update({resource_name: (resource_name, data, mime_type)})  # type: ignore [dict-item]
+            else:
+                resources.update({resource_name: (resource_name, data)})  # type: ignore [dict-item]
+
+        return resources
+
+    def _add_file_map(self, filepath: Path, *, name: Optional[str] = None) -> None:
         """
         Small helper to handle bookkeeping of files for later opening.  The name is
         optional to support those things which are required to have a certain name
@@ -199,20 +213,13 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         if name in self._file_map:  # pragma: no cover
             logger.warning(f"{name} has already been provided, overwriting anyway")
 
-        try:
-            name.encode("utf8").decode("ascii")
-        except UnicodeDecodeError:
-            logger.warning(f"filename {name} includes non-ascii characters, compensating for Gotenberg")
-            tmp_dir = self._stack.enter_context(TemporaryDirectory())
-            # Filename can be fixed, the directory is random
-            new_path = Path(tmp_dir) / Path(name).with_name(f"clean-filename-copy{filepath.suffix}")
-            logger.warning(f"New path {new_path}")
-            new_path.write_bytes(filepath.read_bytes())
-            filepath = new_path
-            name = new_path.name
-            logger.warning(f"New name {name}")
-
         self._file_map[name] = filepath
+
+    def _add_in_memory_file(self, data: str, *, name: str, mime_type: Optional[str] = None) -> None:
+        if name in self._in_memory_resources:  # pragma: no cover
+            logger.warning(f"{name} has already been provided, overwriting anyway")
+
+        self._in_memory_resources[name] = (data, mime_type)
 
     def trace(self, trace_id: str) -> Self:
         self._headers["Gotenberg-Trace"] = trace_id
@@ -221,6 +228,113 @@ class BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
     def output_name(self, filename: str) -> Self:
         self._headers["Gotenberg-Output-Filename"] = filename
         return self
+
+
+class BaseSingleFileResponseRoute(_BaseRoute):
+    def __init__(self, client: Client, api_route: str) -> None:
+        super().__init__(client, api_route)
+
+    def run(self) -> SingleFileResponse:
+        """
+        Execute the API request to Gotenberg.
+
+        This method sends the configured request to the Gotenberg service and returns the response.
+
+        Returns:
+            SingleFileResponse: An object containing the response from the Gotenberg API
+
+        Raises:
+            httpx.Error: Any errors from httpx will be raised
+        """
+        response = super()._base_run()
+
+        return SingleFileResponse(response.status_code, response.headers, response.content)
+
+    def run_with_retry(
+        self,
+        *,
+        max_retry_count: int = 5,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
+    ) -> SingleFileResponse:
+        """
+        Execute the API request with a retry mechanism.
+
+        This method attempts to run the API request and automatically retries in case of failures.
+        It uses an exponential backoff strategy for retries.
+
+        Args:
+            max_retry_count (int, optional): The maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (WaitTimeType, optional): The initial wait time between retries in seconds.
+                Defaults to 5. Can be int or float.
+            retry_scale (WaitTimeType, optional): The scale factor for the exponential backoff.
+                Defaults to 2. Can be int or float.
+
+        Returns:
+            SingleFileResponse: The response object containing the result of the API call.
+
+        Raises:
+            MaxRetriesExceededError: If the maximum number of retries is exceeded without a successful response.
+        """
+        response = super()._base_run_with_retry(
+            max_retry_count=max_retry_count,
+            initial_retry_wait=initial_retry_wait,
+            retry_scale=retry_scale,
+        )
+
+        return SingleFileResponse(response.status_code, response.headers, response.content)
+
+
+class BaseZipFileResponseRoute(_BaseRoute):
+    def run(self) -> ZipFileResponse:  # pragma: no cover
+        """
+        Execute the API request to Gotenberg.
+
+        This method sends the configured request to the Gotenberg service and returns the response.
+
+        Returns:
+            ZipFileResponse: The zipped response with the files
+
+        Raises:
+            httpx.Error: Any errors from httpx will be raised
+        """
+        response = super()._base_run()
+
+        return ZipFileResponse(response.status_code, response.headers, response.content)
+
+    def run_with_retry(
+        self,
+        *,
+        max_retry_count: int = 5,
+        initial_retry_wait: WaitTimeType = 5,
+        retry_scale: WaitTimeType = 2,
+    ) -> ZipFileResponse:
+        """
+        Execute the API request with a retry mechanism.
+
+        This method attempts to run the API request and automatically retries in case of failures.
+        It uses an exponential backoff strategy for retries.
+
+        Args:
+            max_retry_count (int, optional): The maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (WaitTimeType, optional): The initial wait time between retries in seconds.
+                Defaults to 5. Can be int or float.
+            retry_scale (WaitTimeType, optional): The scale factor for the exponential backoff.
+                Defaults to 2. Can be int or float.
+
+        Returns:
+            ZipFileResponse: The zipped response with the files
+
+        Raises:
+            MaxRetriesExceededError: If the maximum number of retries is exceeded without a successful response.
+        """
+        response = super()._base_run_with_retry(
+            max_retry_count=max_retry_count,
+            initial_retry_wait=initial_retry_wait,
+            retry_scale=retry_scale,
+        )
+
+        return ZipFileResponse(response.status_code, response.headers, response.content)
 
 
 class BaseApi:

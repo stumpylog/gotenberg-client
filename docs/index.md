@@ -22,7 +22,7 @@ from gotenberg_client import GotenbergClient
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.index("my-index.html").run()
-      Path("my-index.pdf").write_bytes(response.content)
+      response.to_file(Path("my-index.pdf"))
 ```
 
 Converting an HTML file with additional resources into a PDF:
@@ -33,7 +33,7 @@ from gotenberg_client import GotenbergClient
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.index("my-index.html").resource("image.png").resource("style.css").run()
-      Path("my-index.pdf").write_bytes(response.content)
+      response.to_file(Path("my-index.pdf"))
 ```
 
 Converting an HTML file with additional resources into a PDF/A1a format:
@@ -45,7 +45,7 @@ from gotenberg_client.options import PdfAFormat
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.index("my-index.html").resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A2b).run()
-      Path("my-index.pdf").write_bytes(response.content)
+      response.to_file(Path("my-index.pdf"))
 ```
 
 Converting a URL into PDF, in landscape format
@@ -57,7 +57,7 @@ from gotenberg_client.options import PageOrientation
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.url("https://hello.world").orient(PageOrientation.Landscape).run()
-      Path("my-world.pdf").write_bytes(response.content)
+      response.to_file(Path("my-world.pdf"))
 ```
 
 To ensure the proper clean up of all used resources, both the client and the route(s) should be
@@ -76,3 +76,21 @@ try:
 finally:
   client.close()
 ```
+
+## API Responses
+
+The response from any `.run()` or `.run_with_retry()` will be either a `SingleFileResponse` or `ZipFileResponse`.
+There provide a slimmed down set of fields from an `httpx.Response`, including the headers, the status code and
+the response content. They also provide two convenience methods:
+
+- `to_file` - Accepts a path and writes the content of the response to it
+- `extract_to` - Only on a `ZipFileResponse`, extracts the zip into the given directory (which must exist)
+
+Determining which response is a little complicated, as Gotenberg can produce a single PDF from multiple files or
+a zip file containing multiple PDFs, depending on how the route is configured and how many files were provided.
+
+For example, the LibreOffice convert route may:
+
+- Produce a single PDF when a single office document is provided
+- Produce a zipped response when multiple office documents are provided
+- Produce a single PDF when multiple office documents are provided AND the route is asked to merge the result

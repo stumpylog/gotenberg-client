@@ -25,10 +25,10 @@ jobs:
       -
         uses: actions/checkout@v4
       -
-        name: Set up Python 3.10
+        name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           cache: 'pip'
       -
         name: Install Hatch
@@ -40,6 +40,10 @@ jobs:
         name: Lint project
         run: |
           hatch fmt --check
+      -
+        name: Check project typing
+        run: |
+          hatch run typing:run
       -
         name: Check files with pre-commit
         uses: pre-commit/action@v3.0.1
@@ -107,6 +111,56 @@ jobs:
       run: |
         docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml logs
         docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml down
+
+  test-edge:
+    name: Test Gotenberg :edge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs:
+      - lint
+    steps:
+    -
+      uses: actions/checkout@v4
+    -
+      name: Start containers
+      run: |
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml pull --quiet
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml up --detach
+        echo "Wait for container to be started"
+        sleep 5
+        docker inspect gotenberg-client-test-edge-server
+    -
+      name: Install poppler-utils
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends poppler-utils
+    -
+      name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+    -
+      name: Install Hatch
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install --upgrade hatch
+    -
+      name: Show environment
+      run: |
+        hatch test --show --python 3.11
+    -
+      name: Run tests
+      run: |
+        hatch test --cover --python 3.11
+        ls -ahl .
+    -
+      name: Stop containers
+      if: always()
+      run: |
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml logs
+        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml down
 
   build:
     name: Build
@@ -243,4 +297,4 @@ jobs:
           path: dist
       -
         name: Publish build to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.14
+        uses: pypa/gh-action-pypi-publish@v1.10.2

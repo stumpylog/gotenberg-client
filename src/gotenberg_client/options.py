@@ -5,56 +5,106 @@ import dataclasses
 import enum
 from typing import Dict
 from typing import Final
-from typing import Literal
 from typing import Optional
-from typing import Union
-from warnings import warn
 
+from gotenberg_client._types import MarginSizeType
+from gotenberg_client._types import PageSizeType
 from gotenberg_client._utils import optional_to_form
 
 
 @enum.unique
 class PdfAFormat(enum.Enum):
-    A1a = enum.auto()
+    """
+    Represents different PDF/A archival formats supported by Gotenberg.
+
+    Documentation:
+      - https://gotenberg.dev/docs/routes#pdfa-chromium
+      - https://gotenberg.dev/docs/routes#pdfa-libreoffice
+      - https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route
+      - https://gotenberg.dev/docs/routes#merge-pdfs-route
+    """
+
+    A1a = enum.auto()  # Deprecated format (warning included)
     A2b = enum.auto()
     A3b = enum.auto()
 
     def to_form(self) -> Dict[str, str]:
-        format_name = None
-        if self.value == PdfAFormat.A1a.value:  # pragma: no cover
-            format_name = "PDF/A-1a"
-            warn("PDF Format PDF/A-1a is deprecated", DeprecationWarning, stacklevel=2)
+        """
+        Converts this PdfAFormat enum value to a dictionary suitable for form data.
+
+        Returns:
+            A dictionary containing a single key-value pair with the key "pdfa" and the corresponding format name
+            as the value.
+            If the format is not supported (e.g., A1a), raises an Exception.
+        """
+
+        format_mapping: Final[Dict[PdfAFormat, str]] = {
+            PdfAFormat.A1a: "PDF/A-1a",  # Include deprecated format with warning
+            PdfAFormat.A2b: "PDF/A-2b",
+            PdfAFormat.A3b: "PDF/A-3b",
+        }
+
+        format_name = format_mapping[self]
+        # Warn about deprecated format usage (ideally move outside this method)
+        if self is PdfAFormat.A1a:  # pragma: no cover
+            import warnings
+
+            warnings.warn(
+                "PDF Format PDF/A-1a is deprecated",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             return {}
-        elif self.value == PdfAFormat.A2b.value:
-            format_name = "PDF/A-2b"
-        elif self.value == PdfAFormat.A3b.value:
-            format_name = "PDF/A-3b"
-        if format_name is not None:
-            return {"pdfa": format_name}
-        else:  # pragma: no cover
-            raise NotImplementedError(self.value)
+        return {"pdfa": format_name}
 
 
 @enum.unique
 class PageOrientation(enum.Enum):
+    """
+    Represents the possible orientations for a page in Gotenberg.
+    """
+
     Landscape = enum.auto()
     Portrait = enum.auto()
 
     def to_form(self) -> Dict[str, str]:
-        if self.value == PageOrientation.Landscape.value:
-            return {"landscape": "true"}
-        elif self.value == PageOrientation.Portrait.value:
-            return {"landscape": "false"}
-        else:  # pragma: no cover
-            raise NotImplementedError(self.value)
+        """
+        Converts this PageOrientation enum value to a dictionary suitable for form data.
+
+        Returns:
+            A dictionary containing a single key-value pair with the key "orientation"
+            and the corresponding Gotenberg value ("landscape" or "portrait") as the value.
+        """
+
+        orientation_mapping: Final[Dict[PageOrientation, Dict[str, str]]] = {
+            PageOrientation.Landscape: {"landscape": "true"},
+            PageOrientation.Portrait: {"landscape": "false"},
+        }
+
+        return orientation_mapping[self]
 
 
 @dataclasses.dataclass
 class PageSize:
-    width: Optional[Union[float, int]] = None
-    height: Optional[Union[float, int]] = None
+    """
+    Represents the dimensions of a page in Gotenberg.
+
+    Attributes:
+        width (Optional[PageSizeType]): The width of the page.
+        height (Optional[PageSizeType]): The height of the page.
+    """
+
+    width: Optional[PageSizeType] = None
+    height: Optional[PageSizeType] = None
 
     def to_form(self) -> Dict[str, str]:
+        """
+        Converts this PageSize object to a dictionary suitable for form data.
+
+        Returns:
+            A dictionary containing the "paperWidth" and "paperHeight" keys with their corresponding values,
+            if they are not None.
+        """
         data = optional_to_form(self.width, "paperWidth")
         data.update(optional_to_form(self.height, "paperHeight"))
         return data
@@ -75,6 +125,19 @@ Ledge: Final = PageSize(width=17, height=11)
 
 
 class MarginUnitType(str, enum.Enum):
+    """
+    Represents the different units of measurement for page margins.
+
+    Attributes:
+        Undefined: Indicates that no unit is specified.
+        Points: Represents points (1/72 of an inch).
+        Pixels: Represents pixels.
+        Inches: Represents inches.
+        Millimeters: Represents millimeters.
+        Centimeters: Represents centimeters.
+        Percent: Represents a percentage relative to the page size.
+    """
+
     Undefined = "none"
     Points = "pt"
     Pixels = "px"
@@ -86,47 +149,89 @@ class MarginUnitType(str, enum.Enum):
 
 @dataclasses.dataclass
 class MarginType:
-    value: Union[float, int]
+    """
+    Represents a margin value with a specified unit of measurement.
+
+    Attributes:
+        value (MarginSizeType): The numerical value of the margin.
+        unit (MarginUnitType): The unit of measurement for the margin.
+    """
+
+    value: MarginSizeType
     unit: MarginUnitType = MarginUnitType.Undefined
+
+    def to_form(self, name: str) -> Dict[str, str]:
+        """
+        Converts this MarginType object to a dictionary suitable for form data.
+
+        Returns:
+            A dictionary containing the "margin" key with the formatted margin value as the value.
+            The margin value is formatted as a string with the unit appended.
+        """
+
+        if self.unit == MarginUnitType.Undefined:
+            return optional_to_form(self.value, name)
+        else:
+            # Fail to see how mypy thinks this is "Any"
+            return optional_to_form(f"{self.value}{self.unit.value}", name)  # type: ignore[misc]
 
 
 @dataclasses.dataclass
 class PageMarginsType:
+    """
+    Represents the margins for a page in Gotenberg.
+
+    Attributes:
+        top (Optional[MarginType]): The top margin of the page.
+        bottom (Optional[MarginType]): The bottom margin of the page.
+        left (Optional[MarginType]): The left margin of the page.
+        right (Optional[MarginType]): The right margin of the page.
+    """
+
     top: Optional[MarginType] = None
     bottom: Optional[MarginType] = None
     left: Optional[MarginType] = None
     right: Optional[MarginType] = None
 
     def to_form(self) -> Dict[str, str]:
+        """
+        Converts this PageMarginsType object to a dictionary suitable for form data.
+
+        Returns:
+            A dictionary containing key-value pairs for each margin property with their corresponding Gotenberg names
+            (e.g., "marginTop", "marginBottom", etc.) and the formatted margin values as strings.
+        """
+
         form_data = {}
-        values: list[tuple[MarginType | None, str]] = [
-            (self.top, "marginTop"),
-            (self.bottom, "marginBottom"),
-            (self.left, "marginLeft"),
-            (self.right, "marginRight"),
-        ]
-        for attr, name in values:
-            if attr is not None:
-                if attr.unit == MarginUnitType.Undefined:
-                    form_data.update(optional_to_form(attr.value, name))
-                else:
-                    form_data.update(optional_to_form(f"{attr.value}{attr.unit.value}", name))
+        margin_names = ["marginTop", "marginBottom", "marginLeft", "marginRight"]
+
+        for margin, name in zip([self.top, self.bottom, self.left, self.right], margin_names):
+            if margin:
+                form_data.update(margin.to_form(name))
 
         return form_data
 
 
 @enum.unique
 class EmulatedMediaType(str, enum.Enum):
+    """
+    Represents the different media types Gotenberg can emulate for rendering.
+
+    Attributes:
+        Print: Emulates print media for print-optimized output.
+        Screen: Emulates screen media for displaying on screens.
+    """
+
     Print = enum.auto()
     Screen = enum.auto()
 
     def to_form(self) -> Dict[str, str]:
-        if self.value == EmulatedMediaType.Print.value:
-            return {"emulatedMediaType": "print"}
-        elif self.value == EmulatedMediaType.Screen.value:
-            return {"emulatedMediaType": "screen"}
-        else:  # pragma: no cover
-            raise NotImplementedError(self.value)
+        """
+        Converts this EmulatedMediaType enum value to a dictionary suitable for form data.
 
+        Returns:
+            A dictionary containing a single key-value pair with the key "emulatedMediaType"
+            and the corresponding Gotenberg value ("print" or "screen") as the value.
+        """
 
-HttpMethodsType = Literal["POST", "PATCH", "PUT"]
+        return {"emulatedMediaType": self.name.lower()}

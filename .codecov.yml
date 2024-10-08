@@ -2,3 +2,15 @@ codecov:
   require_ci_to_pass: true
 comment:
   require_changes: true
+coverage:
+  status:
+    project:
+      default:
+        # https://docs.codecov.com/docs/commit-status#threshold
+        threshold: 1%
+    patch:
+      default:
+        # For the changed lines only, target 90% covered, but
+        # allow as low as 80%
+        target: 90%
+        threshold: 10%

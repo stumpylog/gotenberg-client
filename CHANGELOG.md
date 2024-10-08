@@ -5,11 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.0] - 2024-10-08
 
 ### Fixed
 
-- Wrong paper size preset for A4 ([#24](https://github.com/stumpylog/gotenberg-client/pull/24))
+- `mike` deployment mis-ordered the version and alias, this has been corrected
+- `mypy` wasn't running correctly in CI
+- Wrong paper size preset for A4 by [@mannerydhe](https://github.com/mannerydhe) ([#24](https://github.com/stumpylog/gotenberg-client/pull/24))
+
+### Added
+
+- All routes now return a stronger typed response than just an `httpx.Response` ([#23](https://github.com/stumpylog/gotenberg-client/pull/23))
+- All public methods now include docstrings ([#33](https://github.com/stumpylog/gotenberg-client/pull/33))
+- The Chromium based HTML and Markdown to PDF routes can now accept accept a `str`, containing either HTML text, Markdown or other text based resources for conversion ([#30](https://github.com/stumpylog/gotenberg-client/pull/30))
+  - See `string_index`, `string_resource` and `string_resources` for those routes
+
+### Changed
+
+- Bump pypa/gh-action-pypi-publish from 1.8.14 to 1.9.0 by @dependabot ([#25](https://github.com/stumpylog/gotenberg-client/pull/25))
+- Bump pypa/gh-action-pypi-publish from 1.9.0 to 1.10.2 by @dependabot ([#31](https://github.com/stumpylog/gotenberg-client/pull/31))
+- CI testing now runs against Gotenberg 8.11 ([#32](https://github.com/stumpylog/gotenberg-client/pull/32))
+- Development tool updates in `pyproject.toml` and pre-commit hook updates
+- Properly use `pytest` fixtures in all testing ([#34](https://github.com/stumpylog/gotenberg-client/pull/34))
+- Upgrade `pre-commit` to 4.0.1 ([#35](https://github.com/stumpylog/gotenberg-client/pull/35))
 
 ## [0.6.0] - 2024-06-13
 

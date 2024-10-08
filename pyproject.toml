@@ -1,23 +1,29 @@
+#
+# Project Configuration
+#
+
 [build-system]
-requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+requires = [ "hatchling" ]
 
 [project]
 name = "gotenberg-client"
-dynamic = ["version"]
-description = 'A Python client for interfacing with the Gotenberg API'
+description = "A Python client for interfacing with the Gotenberg API"
 readme = "README.md"
-requires-python = ">=3.8"
+keywords = [ "api", "client", "html", "pdf" ]
 license = "MPL-2.0"
-keywords = ["api", "pdf", "html", "client"]
 authors = [
   { name = "Trenton H", email = "rda0128ou@mozmail.com" },
 ]
+requires-python = ">=3.8"
 classifiers = [
   "Development Status :: 4 - Beta",
-  "Operating System :: OS Independent",
-  "Intended Audience :: Developers",
   "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
@@ -27,20 +33,22 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
+dynamic = [ "version" ]
 dependencies = [
-  "httpx[http2] ~= 0.27; python_version >= '3.9'",
-  "httpx[http2] ~= 0.24; python_version < '3.9'",
-  "typing-extensions; python_version < '3.11'"
+  "httpx[http2]~=0.24; python_version<'3.9'",
+  "httpx[http2]~=0.27; python_version>='3.9'",
+  "typing-extensions; python_version<'3.11'",
 ]
 
-[project.urls]
-Documentation = "https://stumpylog.github.io/gotenberg-client/"
-Issues = "https://github.com/stumpylog/gotenberg-client/issues"
-Source = "https://github.com/stumpylog/gotenberg-client/"
-Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.md"
+optional-dependencies.magic = [ "python-magic" ]
 
-[project.optional-dependencies]
-magic = ["python-magic"]
+#
+# Hatch Configuration
+#
+urls.Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.md"
+urls.Documentation = "https://stumpylog.github.io/gotenberg-client/"
+urls.Issues = "https://github.com/stumpylog/gotenberg-client/issues"
+urls.Source = "https://github.com/stumpylog/gotenberg-client/"
 
 [tool.hatch.version]
 path = "src/gotenberg_client/__about__.py"
@@ -48,7 +56,7 @@ path = "src/gotenberg_client/__about__.py"
 [tool.hatch.build.targets.sdist]
 exclude = [
   ".github",
-  ".docker"
+  ".docker",
 ]
 
 [tool.hatch.envs.default]
@@ -56,7 +64,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = ["ruff ~= 0.4.2"]
+dependencies = [ "ruff ~= 0.6" ]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]
@@ -65,42 +73,43 @@ parallel = true
 randomize = true
 dependencies = [
   "coverage-enable-subprocess == 1.0",
-  "coverage[toml] ~= 7.4",
+  "coverage[toml] ~= 7.6",
   "pytest < 8.0; python_version < '3.9'",
-  "pytest ~= 8.1; python_version >= '3.9'",
-  "pytest-mock ~= 3.12",
+  "pytest ~= 8.3; python_version >= '3.9'",
+  "pytest-mock ~= 3.14",
   "pytest-randomly ~= 3.15",
   "pytest-rerunfailures ~= 14.0",
-  "pytest-xdist[psutil] ~= 3.5",
+  "pytest-xdist[psutil] ~= 3.6",
 ]
 extra-dependencies = [
   "pytest-sugar",
-  "pytest-httpx ~= 0.30; python_version >= '3.9'",
+  "pytest-httpx == 0.30.0; python_version >= '3.9'",
   "pytest-httpx ~= 0.22; python_version < '3.9'",
   "pikepdf",
   "python-magic",
 ]
-extra-args = ["--maxprocesses=8", "--pythonwarnings=all", ]
+extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
 
 [tool.hatch.envs.hatch-test.scripts]
 run = [
   "python3 --version",
-  "pytest{env:HATCH_TEST_ARGS:} {args}"]
+  "pytest{env:HATCH_TEST_ARGS:} {args}",
+]
 
 run-cov = [
   "python3 --version",
   "coverage erase",
-  "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+  "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}",
 ]
-cov-combine = ["coverage combine"]
+cov-combine = [ "coverage combine" ]
 cov-report = [
   "coverage report",
   "coverage json",
-  "coverage html"
+  "coverage html",
 ]
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9", "pypy3.10"]
+python = [ "3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9", "pypy3.10" ]
 
 #
 # Custom Environments
@@ -108,58 +117,65 @@ python = ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9", "pypy3.10"]
 [tool.hatch.envs.typing]
 detached = true
 dependencies = [
-  "mypy ~= 1.10.0",
+  "mypy ~= 1.11",
   "httpx",
+  "pytest",
+  "pikepdf",
+  "pytest-httpx == 0.30.0",
 ]
 
 [tool.hatch.envs.typing.scripts]
 run = [
   "mypy --version",
-  "mypy --install-types --non-interactive {args:src/tika_client}"
+  "mypy --install-types --non-interactive .",
 ]
 
 [tool.hatch.envs.pre-commit]
 template = "pre-commit"
 detached = true
 dependencies = [
-  "pre-commit ~= 3.7.0",
+  "pre-commit ~= 4.0",
+  "pre-commit-uv",
 ]
 
 [tool.hatch.envs.pre-commit.scripts]
-check = ["pre-commit run --all-files"]
-update = ["pre-commit autoupdate"]
+check = [ "pre-commit run --all-files" ]
+update = [ "pre-commit autoupdate" ]
 
 [tool.hatch.envs.docs]
 template = "docs"
 detached = true
 dependencies = [
-  "mkdocs-material[imaging] ~= 9.5.26",
-  "mike ~= 2.1.0",
-  "mkdocs-minify-plugin ~= 0.7.1"
+  "mkdocs-material[imaging] ~= 9.5",
+  "mike ~= 2.1",
+  "mkdocs-minify-plugin ~= 0.8",
 ]
 
 [tool.hatch.envs.docs.scripts]
-new = ["mkdocs new ."]
-build = ["mkdocs build"]
+new = [ "mkdocs new ." ]
+build = [ "mkdocs build" ]
 serve = [
-  "mkdocs serve"
+  "mkdocs serve",
 ]
-mike-help = ["mike deploy --help"]
+mike-help = [ "mike deploy --help" ]
 deploy = [
-  "mike deploy --push --branch gh-pages --remote origin --update-aliases latest {args}",
-  "mike set-default --branch gh-pages --remote origin --push latest"
+  "mike deploy --push --branch gh-pages --remote origin --update-aliases {args} latest",
+  "mike set-default --branch gh-pages --remote origin --push latest",
 ]
 
+#
+# Tool Configuration
+#
+
 [tool.ruff]
-# https://docs.astral.sh/ruff/settings/
-fix = true
-output-format = "grouped"
 target-version = "py38"
 line-length = 120
 
-[tool.ruff.lint]
+# https://docs.astral.sh/ruff/settings/
+fix = true
+output-format = "grouped"
 # https://docs.astral.sh/ruff/rules/
-extend-select = [
+lint.extend-select = [
   "A",
   "ARG",
   "B",
@@ -181,15 +197,15 @@ extend-select = [
   "ISC",
   "N",
   "PERF",
-  "PIE",
   "PGH",
-  "PTH",
+  "PIE",
   "PL",
   "PLC",
   "PLE",
   "PLR",
   "PLW",
   "PT",
+  "PTH",
   "Q",
   "RSE",
   "RUF",
@@ -207,39 +223,43 @@ extend-select = [
   "W",
   "YTT",
 ]
-ignore = [
+lint.ignore = [
   # Allow non-abstract empty methods in abstract base classes
   "B027",
+  # Ignore complexity
+  "C901",
   # Allow boolean positional values in function calls, like `dict.get(... True)`
   "FBT003",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
   # Ignore checks for possible passwords
-  "S105", "S106", "S107",
-  # Ignore complexity
-  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  "S105",
+  "S106",
+  "S107",
   # Ignore no author and missing issue link in TODO tags
-  "TD002", "TD003"
+  "TD002",
+  "TD003",
 ]
-
-[tool.ruff.lint.isort]
-force-single-line = true
-known-first-party = ["gotenberg_client"]
-
-[tool.ruff.lint.flake8-tidy-imports]
-ban-relative-imports = "all"
-
-[tool.ruff.lint.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports
-"tests/**/*" = ["PLR2004", "S101", "TID252"]
+lint.per-file-ignores."tests/**/*" = [ "PLR2004", "S101", "TID252" ]
+# No relative imports
+lint.flake8-tidy-imports.ban-relative-imports = "all"
+# One import per line
+lint.isort.force-single-line = true
+# Recognize us please
+lint.isort.known-first-party = [ "gotenberg_client" ]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-testpaths = ["tests"]
+testpaths = [ "tests" ]
 
 [tool.pytest_env]
 #SAVE_TEST_OUTPUT = 1
 
 [tool.coverage.run]
-source_pkgs = ["gotenberg_client", "tests"]
+source_pkgs = [ "gotenberg_client", "tests" ]
 branch = true
 parallel = true
 omit = [
@@ -249,23 +269,20 @@ omit = [
 ]
 
 [tool.coverage.paths]
-gotenberg_client = ["src/gotenberg_client", "*/gotenberg_client/src/gotenberg_client"]
-tests = ["tests", "*/gotenberg_client/tests"]
+gotenberg_client = [ "src/gotenberg_client" ]
+tests = [ "tests" ]
 
 [tool.coverage.report]
 exclude_lines = [
   "no cov",
-  "if __name__ == .__main__.:",
+  "if __name__ == '__main__':",
   "if TYPE_CHECKING:",
   "if SAVE_OUTPUTS:",
 ]
 
 [tool.mypy]
 exclude = [
-  "tests/test_convert_chromium_html.py",
-  "tests/test_convert_chromium_url.py",
-  "tests/test_convert_chromium_markdown.py",
-  "tests/conftest.py",
+  "tests/*",
 ]
 disallow_any_expr = true
 disallow_untyped_defs = true

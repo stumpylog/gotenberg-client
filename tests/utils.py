@@ -11,12 +11,15 @@ from httpx._multipart import FileField
 from httpx._multipart import MultipartStream
 
 
-def verify_stream_contains(key: str, value: str, stream: MultipartStream):
+def verify_stream_contains(key: str, value: str, stream: MultipartStream) -> None:
     for item in stream.fields:
         if isinstance(item, FileField):
             continue
         elif isinstance(item, DataField) and item.name == key:
-            assert item.value == value, f"Key {item.value} /= {value}"
+            actual_value = item.value
+            if isinstance(actual_value, bytes):
+                actual_value = actual_value.decode("utf-8")
+            assert actual_value == value, f"Key '{actual_value}' /= {value}"
             return
 
     msg = f'Key "{key}" with value "{value}" not found in stream'
@@ -33,8 +36,8 @@ def extract_text(pdf_path: Path) -> str:
     with tempfile.NamedTemporaryFile(
         mode="w+",
     ) as tmp:
-        subprocess.run(
-            [  # noqa: S603
+        subprocess.run(  # noqa: S603
+            [
                 pdf_to_text,
                 "-q",
                 "-layout",

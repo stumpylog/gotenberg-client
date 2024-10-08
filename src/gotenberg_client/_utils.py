@@ -8,6 +8,8 @@ from typing import Final
 from typing import Optional
 from typing import Union
 
+from gotenberg_client._types import FormFieldType
+
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128
 class ForceMultipartDict(Dict):
@@ -15,10 +17,18 @@ class ForceMultipartDict(Dict):
         return True
 
 
-def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> Dict[str, str]:
+def optional_to_form(value: Optional[FormFieldType], name: str) -> Dict[str, str]:
     """
-    Quick helper to convert an optional type into a form data field
-    with the given name or no changes if the value is None
+    Converts an optional value to a form data field with the given name,
+    handling None values gracefully.
+
+    Args:
+        value: The optional value to be converted.
+        name: The name of the form data field.
+
+    Returns:
+        A dictionary containing the form data field with the given name and its converted value,
+        or an empty dictionary if the value is None.
     """
     if value is None:  # pragma: no cover
         return {}
@@ -26,23 +36,41 @@ def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -
         return {name: str(value).lower()}
 
 
-def guess_mime_type_stdlib(url: Path) -> Optional[str]:  # pragma: no cover
+def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:  # pragma: no cover
     """
-    Uses the standard library to guess a mimetype
+    Guesses the MIME type of a URL using the standard library.
+
+    Args:
+        url: The URL to guess the MIME type for.
+
+    Returns:
+        The guessed MIME type, or None if it could not be determined.
     """
+
     import mimetypes
 
-    mime_type, _ = mimetypes.guess_type(url)
+    mime_type, _ = mimetypes.guess_type(str(url))  # Ensure URL is a string
     return mime_type
 
 
-def guess_mime_type_magic(url: Path) -> Optional[str]:
+def guess_mime_type_magic(url: Union[str, Path]) -> Optional[str]:
     """
-    Uses libmagic to guess the mimetype
-    """
-    import magic  # type: ignore [import-not-found]
+    Guesses the MIME type of a file using libmagic.
 
-    return magic.from_file(url, mime=True)  # type: ignore [misc]
+    Args:
+        url: The path to the file or URL to guess the MIME type for.
+
+    Returns:
+        The guessed MIME type, or None if it could not be determined.
+    """
+
+    import magic  # type: ignore[import-not-found]
+
+    try:
+        return magic.from_file(str(url), mime=True)  # type: ignore[misc]
+    except Exception:  # pragma: no cover
+        # Handle libmagic exceptions gracefully
+        return None
 
 
 # Use the best option
