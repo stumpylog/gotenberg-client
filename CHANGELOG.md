@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `mike` deployment mis-ordered the version and alias, this has been corrected
 - `mypy` wasn't running correctly in CI
-- Wrong paper size preset for A4 ([#24](https://github.com/stumpylog/gotenberg-client/pull/24))
+- Wrong paper size preset for A4 by [@mannerydhe](https://github.com/mannerydhe) ([#24](https://github.com/stumpylog/gotenberg-client/pull/24))
 
 ### Added
 
@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI testing now runs against Gotenberg 8.11 ([#32](https://github.com/stumpylog/gotenberg-client/pull/32))
 - Development tool updates in `pyproject.toml` and pre-commit hook updates
 - Properly use `pytest` fixtures in all testing ([#34](https://github.com/stumpylog/gotenberg-client/pull/34))
+- Upgrade `pre-commit` to 4.0.1 ([#35](https://github.com/stumpylog/gotenberg-client/pull/35))
 
 ## [0.6.0] - 2024-06-13
 
