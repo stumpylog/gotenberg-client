@@ -1,12 +1,3 @@
 # Roadmap
 
-## Custom Response Class
-
-Currently, the response returned is a basic httpx.Response. It could be useful to abstract this in some manner, especially for responses which return a zip file.
-
-- Ability to iterate through the zip file contents in some way
-- Ability to write the response to some given output location?
-
-## Missing Routes/Options
-
-- Missing the configuration of the units of page size, currently it is always inches
+While I'm sure there's something out there, nothing is currently on the roadmap.
