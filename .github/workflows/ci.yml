@@ -65,14 +65,6 @@ jobs:
     -
       uses: actions/checkout@v4
     -
-      name: Start containers
-      run: |
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml pull --quiet
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml up --detach
-        echo "Wait for container to be started"
-        sleep 5
-        docker inspect gotenberg-client-test-server
-    -
       name: Install poppler-utils
       run: |
         sudo apt-get update
@@ -97,7 +89,6 @@ jobs:
       name: Run tests
       run: |
         hatch test --cover --python ${{ matrix.python-version }}
-        ls -ahl .
     -
       name: Upload coverage to Codecov
       if: matrix.python-version == '3.10'
@@ -105,12 +96,6 @@ jobs:
       with:
         # not required for public repos, but intermittently fails otherwise
         token: ${{ secrets.CODECOV_TOKEN }}
-    -
-      name: Stop containers
-      if: always()
-      run: |
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml logs
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test.yml down
 
   test-edge:
     name: Test Gotenberg :edge
@@ -119,17 +104,11 @@ jobs:
       contents: read
     needs:
       - lint
+    env:
+      GOTENBERG_CLIENT_EDGE_TEST: 1
     steps:
     -
       uses: actions/checkout@v4
-    -
-      name: Start containers
-      run: |
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml pull --quiet
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml up --detach
-        echo "Wait for container to be started"
-        sleep 5
-        docker inspect gotenberg-client-test-edge-server
     -
       name: Install poppler-utils
       run: |
@@ -154,13 +133,6 @@ jobs:
       name: Run tests
       run: |
         hatch test --cover --python 3.11
-        ls -ahl .
-    -
-      name: Stop containers
-      if: always()
-      run: |
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml logs
-        docker compose --file ${GITHUB_WORKSPACE}/.docker/docker-compose.ci-test-edge.yml down
 
   build:
     name: Build
