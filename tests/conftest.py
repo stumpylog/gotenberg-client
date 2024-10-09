@@ -54,23 +54,12 @@ def webserver_service_name() -> str:
 
 @pytest.fixture(scope="session")
 def gotenberg_host(docker_services, docker_ip: str, gotenberg_service_name: str) -> str:
-    def is_responsive(url):
-        import httpx
-
-        try:
-            response = httpx.get(url)
-        except httpx.HTTPError:
-            logger.exception("Error connecting to service")
-            return False
-        else:
-            return response.status_code == httpx.codes.OK
-
     url = f"http://{docker_ip}:{docker_services.port_for(gotenberg_service_name, 3000)}"
 
     docker_services.wait_until_responsive(
         timeout=30.0,
         pause=1,
-        check=lambda: is_responsive(url),
+        check=lambda: is_responsive(f"{url}/version"),
     )
     return url
 

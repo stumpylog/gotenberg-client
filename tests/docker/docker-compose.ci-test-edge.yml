@@ -15,6 +15,5 @@ services:
     image: docker.io/nginx:1-alpine
     ports:
       - "80/tcp"
-    restart: unless-stopped
     volumes:
       - ./content:/usr/share/nginx/html:ro
