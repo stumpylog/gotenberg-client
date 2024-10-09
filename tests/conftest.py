@@ -8,21 +8,80 @@ from pathlib import Path
 from typing import Generator
 from typing import Union
 
+import httpx
 import pytest
 
 from gotenberg_client import GotenbergClient
 from gotenberg_client import SingleFileResponse
 from gotenberg_client import ZipFileResponse
 
+logger = logging.getLogger("gotenberg-client.tests")
+
+
+def is_responsive(url):
+    try:
+        response = httpx.get(url)
+    except httpx.HTTPError:
+        logger.exception("Error connecting to service")
+        return False
+    else:
+        return response.status_code == httpx.codes.OK
+
 
 @pytest.fixture(scope="session")
-def gotenberg_host() -> str:
-    return os.getenv("GOTENBERG_URL", "http://localhost:3000")
+def docker_compose_file() -> Path:
+    if "GOTENBERG_CLIENT_EDGE_TEST" in os.environ:
+        return Path(__file__).parent / "docker" / "docker-compose.ci-test-edge.yml"
+    else:
+        return Path(__file__).parent / "docker" / "docker-compose.ci-test.yml"
 
 
 @pytest.fixture(scope="session")
-def web_server_host() -> str:
-    return os.getenv("WEBSERVER_HOST", "http://localhost:8888")
+def gotenberg_service_name() -> str:
+    if "GOTENBERG_CLIENT_EDGE_TEST" in os.environ:
+        return "gotenberg-client-test-edge-server"
+    else:
+        return "gotenberg-client-test-edge-server"
+
+
+@pytest.fixture(scope="session")
+def webserver_service_name() -> str:
+    if "GOTENBERG_CLIENT_EDGE_TEST" in os.environ:
+        return "nginx-webserver-edge"
+    else:
+        return "nginx-webserver"
+
+
+@pytest.fixture(scope="session")
+def webserver_docker_internal_url(webserver_service_name: str) -> str:
+    """
+    The URL by which Gotenberg can access the webserver
+    """
+    return f"http://{webserver_service_name}"
+
+
+@pytest.fixture(scope="session")
+def gotenberg_host(docker_services, docker_ip: str, gotenberg_service_name: str) -> str:
+    url = f"http://{docker_ip}:{docker_services.port_for(gotenberg_service_name, 3000)}"
+
+    docker_services.wait_until_responsive(
+        timeout=30.0,
+        pause=1,
+        check=lambda: is_responsive(f"{url}/version"),
+    )
+    return url
+
+
+@pytest.fixture(scope="session")
+def web_server_host(docker_services, docker_ip: str, webserver_service_name: str) -> str:
+    url = f"http://{docker_ip}:{docker_services.port_for(webserver_service_name, 80)}"
+
+    docker_services.wait_until_responsive(
+        timeout=30.0,
+        pause=1,
+        check=lambda: is_responsive(url),
+    )
+    return url
 
 
 @pytest.fixture(scope="session")

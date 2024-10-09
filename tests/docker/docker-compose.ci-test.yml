@@ -1,27 +1,24 @@
 # docker-compose file for running testing with gotenberg container
 # Can be used locally or by the CI to start the necessary container with the
 # correct networking for the tests
-
-version: "3"
+networks:
+  gotenberg-test-net:
 services:
-  gotenberg-client-test-server:
+  gotenberg-client-test-edge-server:
     image: docker.io/gotenberg/gotenberg:8.11.0
-    hostname: gotenberg-client-test-server
-    container_name: gotenberg-client-test-server
-    network_mode: host
-    restart: unless-stopped
+    networks:
+      - gotenberg-test-net
+    ports:
+      - "3000/tcp"
     command:
       - "gotenberg"
-      - "--log-level=warn"
+      - "--log-level=info"
       - "--log-format=text"
   nginx-webserver:
     image: docker.io/nginx:1-alpine
-    hostname: nginx-webserver
-    container_name: nginx-webserver
+    networks:
+      - gotenberg-test-net
     ports:
-      - "8888:80"
-    restart: unless-stopped
-    environment:
-      NGINX_ENTRYPOINT_QUIET_LOGS: 1
+      - "80/tcp"
     volumes:
       - ./content:/usr/share/nginx/html:ro

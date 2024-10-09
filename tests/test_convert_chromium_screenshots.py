@@ -10,10 +10,11 @@ from httpx import codes
 from gotenberg_client import GotenbergClient
 
 
+@pytest.mark.usefixtures("web_server_host")
 class TestChromiumScreenshots:
-    def test_basic_screenshot(self, client: GotenbergClient, web_server_host: str):
+    def test_basic_screenshot(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).run_with_retry()
+            resp = route.url(webserver_docker_internal_url).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
@@ -26,83 +27,83 @@ class TestChromiumScreenshots:
     def test_screenshot_formats(
         self,
         client: GotenbergClient,
-        web_server_host: str,
+        webserver_docker_internal_url: str,
         image_format: Literal["png", "webp", "jpeg"],
     ):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).output_format(image_format).run_with_retry()
+            resp = route.url(webserver_docker_internal_url).output_format(image_format).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == f"image/{image_format}"
 
-    def test_screenshot_quality_valid(self, client: GotenbergClient, web_server_host: str):
+    def test_screenshot_quality_valid(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).quality(80).run_with_retry()
+            resp = route.url(webserver_docker_internal_url).quality(80).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_screenshot_quality_too_low(self, client: GotenbergClient, web_server_host: str):
+    def test_screenshot_quality_too_low(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).quality(-10).run_with_retry()
+            resp = route.url(webserver_docker_internal_url).quality(-10).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_screenshot_quality_too_high(self, client: GotenbergClient, web_server_host: str):
+    def test_screenshot_quality_too_high(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).quality(101).run_with_retry()
+            resp = route.url(webserver_docker_internal_url).quality(101).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_screenshot_optimize_speed(self, client: GotenbergClient, web_server_host: str):
+    def test_screenshot_optimize_speed(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).optimize_speed().run_with_retry()
+            resp = route.url(webserver_docker_internal_url).optimize_speed().run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_screenshot_optimize_quality(self, client: GotenbergClient, web_server_host: str):
+    def test_screenshot_optimize_quality(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).optimize_size().run_with_retry()
+            resp = route.url(webserver_docker_internal_url).optimize_size().run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_network_idle_on(self, client: GotenbergClient, web_server_host: str):
+    def test_network_idle_on(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).skip_network_idle().run_with_retry()
+            resp = route.url(webserver_docker_internal_url).skip_network_idle().run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_network_idle_off(self, client: GotenbergClient, web_server_host: str):
+    def test_network_idle_off(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).use_network_idle().run_with_retry()
+            resp = route.url(webserver_docker_internal_url).use_network_idle().run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_status_codes(self, client: GotenbergClient, web_server_host: str):
+    def test_status_codes(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).fail_on_status_codes([499, 599]).run_with_retry()
+            resp = route.url(webserver_docker_internal_url).fail_on_status_codes([499, 599]).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "image/png"
 
-    def test_status_codes_empty(self, client: GotenbergClient, web_server_host: str):
+    def test_status_codes_empty(self, client: GotenbergClient, webserver_docker_internal_url: str):
         with client.chromium.screenshot_url() as route:
-            resp = route.url(web_server_host).fail_on_status_codes([]).run_with_retry()
+            resp = route.url(webserver_docker_internal_url).fail_on_status_codes([]).run_with_retry()
 
         assert resp.status_code == codes.OK
         assert "Content-Type" in resp.headers
