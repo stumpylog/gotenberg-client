@@ -53,6 +53,14 @@ def webserver_service_name() -> str:
 
 
 @pytest.fixture(scope="session")
+def webserver_docker_internal_url(webserver_service_name: str) -> str:
+    """
+    The URL by which Gotenberg can access the webserver
+    """
+    return f"http://{webserver_service_name}"
+
+
+@pytest.fixture(scope="session")
 def gotenberg_host(docker_services, docker_ip: str, gotenberg_service_name: str) -> str:
     url = f"http://{docker_ip}:{docker_services.port_for(gotenberg_service_name, 3000)}"
 
