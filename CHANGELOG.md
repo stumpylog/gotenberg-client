@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Official support and testing for Python 3.13 ([#25](https://github.com/stumpylog/tika-client/pull/25))
+
 ### Changed
 
 - Use `pytest-docker` to manage Docker image services ([#36](https://github.com/stumpylog/gotenberg-client/pull/36))
