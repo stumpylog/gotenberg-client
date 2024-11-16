@@ -95,11 +95,44 @@ These options are not yet implemented
 | `pdfa`           | `.pdf_format()`                                                               | `PdfAFormat` |       |
 | `pdfua`          | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A          |       |
 
-#### Metadata
+#### PDF Metadata Support
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#metadata-chromium)
 
-These options are not yet implemented
+Add metadata to your PDFs:
+
+```python
+from gotenberg_client import GotenbergClient
+from datetime import datetime
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.chromium.html_to_pdf() as route:
+        response = (route
+            .index("my-index.html")
+            .metadata(
+                title="My Document",
+                author="John Doe",
+                creation_date=datetime.now(),
+                keywords=["sample", "document"],
+                subject="Sample PDF Generation",
+                trapped="Unknown"
+            )
+            .run())
+```
+
+Supported metadata fields:
+- `title`: Document title
+- `author`: Document author
+- `subject`: Document subject
+- `keywords`: List of keywords
+- `creator`: Creating application
+- `creation_date`: Creation datetime
+- `modification_date`: Last modification datetime
+- `producer`: PDF producer
+- `trapped`: Trapping status ('True', 'False', 'Unknown')
+- `copyright`: Copyright information
+- `marked`: PDF marked status
+- `pdf_version`: PDF version number
 
 ## LibreOffice
 
