@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use `pytest-docker` to manage Docker image services ([#36](https://github.com/stumpylog/gotenberg-client/pull/36))
+- Bump Bump pypa/gh-action-pypi-publish from 1.10.2 to 1.12.2 by @dependabot ([#41](https://github.com/stumpylog/gotenberg-client/pull/41))
 
 ## [0.7.0] - 2024-10-08
 
