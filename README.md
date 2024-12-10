@@ -105,6 +105,7 @@ with GotenbergClient("http://localhost:3000") as client:
 Adding metadata to a PDF:
 
 This example shows how to add metadata to your generated PDF. All metadata fields are optional and include:
+
 - Document info (title, author, subject, keywords)
 - Dates (creation, modification)
 - Technical details (pdf version, creator, producer)

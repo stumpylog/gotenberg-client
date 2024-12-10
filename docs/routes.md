@@ -121,6 +121,7 @@ with GotenbergClient("http://localhost:3000") as client:
 ```
 
 Supported metadata fields:
+
 - `title`: Document title
 - `author`: Document author
 - `subject`: Document subject
