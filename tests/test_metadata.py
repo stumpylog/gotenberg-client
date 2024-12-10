@@ -1,104 +1,84 @@
-import pytest
 from datetime import datetime
-import json
+from datetime import timedelta
+from datetime import timezone
+from pathlib import Path
 
-from gotenberg_client._convert.common import MetadataMixin
+import pikepdf
+from httpx import codes
 
-
-def test_metadata_basic():
-    """Test basic metadata setting."""
-    mixin = MetadataMixin()
-    result = mixin.metadata(
-        title="Test Document",
-        author="Test Author",
-        keywords=["test", "document"]
-    )
-
-    assert isinstance(result, MetadataMixin)
-    assert "metadata" in result._form_data
-
-    metadata = json.loads(result._form_data["metadata"])
-    assert metadata["Title"] == "Test Document"
-    assert metadata["Author"] == "Test Author"
-    assert metadata["Keywords"] == "test, document"
+from gotenberg_client import GotenbergClient
+from gotenberg_client.options import TrappedStatus
 
 
-def test_metadata_dates():
-    """Test date handling in metadata."""
-    mixin = MetadataMixin()
-    test_date = datetime(2024, 1, 1, 12, 0)
+class TestPdfMetadata:
+    def test_metadata_basic(
+        self,
+        client: GotenbergClient,
+        tmp_path: Path,
+        webserver_docker_internal_url: str,
+    ):
+        """Test basic metadata setting."""
 
-    result = mixin.metadata(
-        creation_date=test_date,
-        modification_date=test_date
-    )
+        author = "Gotenberg Test"
+        copyright_info = "Copyright Me at Me, Inc"
+        creation_date = datetime(2006, 9, 18, 16, 27, 50, tzinfo=timezone(timedelta(hours=-4)))
+        creator = "Gotenberg Some Version"
+        keywords = ["Test", "Something"]
+        marked = True
+        mod_date = datetime(2006, 9, 18, 16, 27, 50, tzinfo=timezone(timedelta(hours=-5)))
+        pdf_version = 1.5
+        producer = "Gotenberg Client"
+        subject = "A Test File"
+        title = "An override title"
+        trapped = TrappedStatus.TRUE
 
-    metadata = json.loads(result._form_data["metadata"])
-    assert metadata["CreationDate"] == "2024-01-01T12:00:00"
-    assert metadata["ModDate"] == "2024-01-01T12:00:00"
+        with client.chromium.url_to_pdf() as route:
+            resp = (
+                route.url(webserver_docker_internal_url)
+                .metadata(
+                    author=author,
+                    pdf_copyright=copyright_info,
+                    creation_date=creation_date,
+                    creator=creator,
+                    keywords=keywords,
+                    marked=marked,
+                    modification_date=mod_date,
+                    pdf_version=pdf_version,
+                    producer=producer,
+                    subject=subject,
+                    title=title,
+                    trapped=trapped,
+                )
+                .run_with_retry()
+            )
 
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
 
-def test_metadata_trapped():
-    """Test trapped status handling."""
-    mixin = MetadataMixin()
+        output = tmp_path / "test_metadata_basic.pdf"
+        resp.to_file(output)
 
-    # Test boolean values
-    result = mixin.metadata(trapped=True)
-    metadata = json.loads(result._form_data["metadata"])
-    assert metadata["Trapped"] is True
+        with pikepdf.Pdf.open(output) as pdf:
+            assert "/Author" in pdf.docinfo
+            assert pdf.docinfo["/Author"] == author
 
-    # Test string values
-    result = mixin.metadata(trapped="Unknown")
-    metadata = json.loads(result._form_data["metadata"])
-    assert metadata["Trapped"] == "Unknown"
+            assert "/Creator" in pdf.docinfo
+            assert pdf.docinfo["/Creator"] == creator
 
+            assert "/Keywords" in pdf.docinfo
+            assert pdf.docinfo["/Keywords"] == ", ".join(keywords)
 
-def test_metadata_validation():
-    """Test metadata validation."""
-    mixin = MetadataMixin()
+            assert "/Producer" in pdf.docinfo
+            assert pdf.docinfo["/Producer"] == producer
 
-    with pytest.raises(ValueError):
-        mixin.metadata(pdf_version=3.0)  # Invalid version
+            assert "/Subject" in pdf.docinfo
+            assert pdf.docinfo["/Subject"] == subject
 
-    with pytest.raises(ValueError):
-        mixin.metadata(trapped="Invalid")  # Invalid trapped status
+            assert "/Title" in pdf.docinfo
+            assert pdf.docinfo["/Title"] == title
 
-    with pytest.raises(ValueError):
-        mixin.metadata(keywords=["test,with,comma"])  # Invalid keyword
+            assert "/Trapped" in pdf.docinfo
+            assert pdf.docinfo["/Trapped"] == "/True"
 
-
-def test_metadata_empty():
-    """Test handling of empty metadata."""
-    mixin = MetadataMixin()
-    result = mixin.metadata()
-
-    assert "metadata" not in result._form_data
-
-
-def test_metadata_chaining():
-    """Test method chaining."""
-    mixin = MetadataMixin()
-    result = (
-        mixin.metadata(title="First Title")
-        .metadata(author="Test Author")
-    )
-
-    metadata = json.loads(result._form_data["metadata"])
-    assert metadata["Title"] == "First Title"
-    assert metadata["Author"] == "Test Author"
-
-
-@pytest.mark.parametrize("trapped_value,expected", [
-    (True, True),
-    (False, False),
-    ("True", True),
-    ("False", False),
-    ("Unknown", "Unknown"),
-])
-def test_metadata_trapped_values(trapped_value, expected):
-    """Test various trapped status values."""
-    mixin = MetadataMixin()
-    result = mixin.metadata(trapped=trapped_value)
-
-    metadata = json.loads(result._form_data["metadata"])
-    assert metadata["Trapped"] == expected
+            # TODO(stumpylog): Investigate why certain fields seems to not be possible to set

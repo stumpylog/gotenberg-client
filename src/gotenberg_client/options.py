@@ -235,3 +235,12 @@ class EmulatedMediaType(str, enum.Enum):
         """
 
         return {"emulatedMediaType": self.name.lower()}
+
+
+@enum.unique
+class TrappedStatus(str, enum.Enum):
+    """Enum for valid trapped status values."""
+
+    TRUE = "True"
+    FALSE = "False"
+    UNKNOWN = "Unknown"

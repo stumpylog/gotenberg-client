@@ -17,11 +17,11 @@ from gotenberg_client._convert.common import CustomHTTPHeaderMixin
 from gotenberg_client._convert.common import EmulatedMediaMixin
 from gotenberg_client._convert.common import HeaderFooterMixin
 from gotenberg_client._convert.common import InvalidStatusCodesMixin
+from gotenberg_client._convert.common import MetadataMixin
 from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PagePropertiesMixin
 from gotenberg_client._convert.common import PerformanceModeMixin
 from gotenberg_client._convert.common import RenderControlMixin
-from gotenberg_client._convert.common import MetadataMixin
 from gotenberg_client._types import Self
 from gotenberg_client._utils import FORCE_MULTIPART
 from gotenberg_client._utils import ForceMultipartDict
@@ -143,8 +143,8 @@ class UrlRoute(
     EmulatedMediaMixin,
     CustomHTTPHeaderMixin,
     PageOrientMixin,
-    BaseSingleFileResponseRoute,
     MetadataMixin,
+    BaseSingleFileResponseRoute,
 ):
     """
     Represents the Gotenberg route for converting a URL to a PDF.

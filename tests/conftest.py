@@ -41,7 +41,7 @@ def gotenberg_service_name() -> str:
     if "GOTENBERG_CLIENT_EDGE_TEST" in os.environ:
         return "gotenberg-client-test-edge-server"
     else:
-        return "gotenberg-client-test-edge-server"
+        return "gotenberg-client-test-server"
 
 
 @pytest.fixture(scope="session")

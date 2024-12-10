@@ -23,3 +23,11 @@ class MaxRetriesExceededError(BaseClientError):
 
 class CannotExtractHereError(BaseClientError):
     pass
+
+
+class InvalidPdfRevisionError(BaseClientError):
+    pass
+
+
+class InvalidKeywordError(BaseClientError):
+    pass

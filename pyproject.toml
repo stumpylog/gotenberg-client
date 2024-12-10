@@ -65,7 +65,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = [ "ruff ~= 0.6" ]
+dependencies = [ "ruff ~= 0.8" ]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]
@@ -246,6 +246,7 @@ lint.ignore = [
 ]
 # Tests can use magic values, assertions, and relative imports
 lint.per-file-ignores."tests/**/*" = [ "PLR2004", "S101", "TID252" ]
+lint.per-file-ignores."tests/utils.py" = [ "S603" ]
 # No relative imports
 lint.flake8-tidy-imports.ban-relative-imports = "all"
 # One import per line

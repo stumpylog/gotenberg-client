@@ -3,20 +3,20 @@
 # SPDX-License-Identifier: MPL-2.0
 import json
 import logging
-from pathlib import Path
 from datetime import datetime
-from dataclasses import dataclass
-from enum import Enum
-
-from typing import Dict
-from typing import Iterable
-from typing import Optional
+from pathlib import Path
 from typing import Any
+from typing import Dict
+from typing import Final
+from typing import Iterable
 from typing import List
+from typing import Optional
 from typing import Union
 from warnings import warn
 
 from gotenberg_client._base import BaseSingleFileResponseRoute
+from gotenberg_client._errors import InvalidKeywordError
+from gotenberg_client._errors import InvalidPdfRevisionError
 from gotenberg_client._types import PageScaleType
 from gotenberg_client._types import Self
 from gotenberg_client._types import WaitTimeType
@@ -24,6 +24,7 @@ from gotenberg_client.options import EmulatedMediaType
 from gotenberg_client.options import PageMarginsType
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PageSize
+from gotenberg_client.options import TrappedStatus
 
 logger = logging.getLogger()
 
@@ -285,57 +286,13 @@ class MetadataMixin:
                 response.to_file(Path('my-world.pdf'))
     """
 
-    class TrappedStatus(str, Enum):
-        """Enum for valid trapped status values."""
-        TRUE = 'True'
-        FALSE = 'False'
-        UNKNOWN = 'Unknown'
-
-    @dataclass
-    class PDFMetadata:
-        """Data class for PDF metadata validation."""
-        author: Optional[str] = None
-        copyright: Optional[str] = None
-        creation_date: Optional[datetime] = None
-        creator: Optional[str] = None
-        keywords: Optional[List[str]] = None
-        marked: Optional[bool] = None
-        modification_date: Optional[datetime] = None
-        pdf_version: Optional[float] = None
-        producer: Optional[str] = None
-        subject: Optional[str] = None
-        title: Optional[str] = None
-        trapped: Optional[Union[bool, str]] = None
-
-        def __post_init__(self) -> None:
-            """Validate metadata values after initialization."""
-            if self.pdf_version is not None and not (1.0 <= self.pdf_version <= 2.0):
-                raise ValueError("PDF version must be between 1.0 and 2.0")
-
-            if self.trapped is not None and isinstance(self.trapped, str):
-                try:
-                    MetadataMixin.TrappedStatus(self.trapped)
-                except ValueError:
-                    raise ValueError(
-                        f"trapped must be a boolean or one of: {', '.join(t.value for t in MetadataMixin.TrappedStatus)}"
-                    )
-
-            if self.keywords is not None:
-                if not all(isinstance(k, str) for k in self.keywords):
-                    raise ValueError("All keywords must be strings")
-                if any(',' in k for k in self.keywords):
-                    raise ValueError("Keywords cannot contain commas")
-
-    def __init__(self, *args, **kwargs) -> None:
-        """Initialize the mixin with empty form data, passing through parent args."""
-        super().__init__(*args, **kwargs)
-        if not hasattr(self, '_form_data'):
-            self._form_data: Dict[str, Any] = {}
+    MIN_PDF_VERSION: Final[float] = 1.0
+    MAX_PDF_VERSION: Final[float] = 2.0
 
     def metadata(
         self,
         author: Optional[str] = None,
-        copyright: Optional[str] = None,
+        pdf_copyright: Optional[str] = None,
         creation_date: Optional[datetime] = None,
         creator: Optional[str] = None,
         keywords: Optional[List[str]] = None,
@@ -345,8 +302,8 @@ class MetadataMixin:
         producer: Optional[str] = None,
         subject: Optional[str] = None,
         title: Optional[str] = None,
-        trapped: Optional[Union[bool, str]] = None
-    ) -> 'MetadataMixin':
+        trapped: Optional[Union[bool, TrappedStatus]] = None,
+    ) -> Self:
         """
         Sets PDF metadata for the document.
 
@@ -368,74 +325,60 @@ class MetadataMixin:
             Self for method chaining
 
         Raises:
-            ValueError: If any metadata values are invalid
+            InvalidPdfRevisionError: If the provided PDF revision is outside the valid range
+            InvalidKeywordError: If any metadata keyword values are not allowed
             TypeError: If any metadata values have incorrect types
         """
-        try:
-            # Validate metadata using the data class
-            metadata_obj = self.PDFMetadata(
-                author=author,
-                copyright=copyright,
-                creation_date=creation_date,
-                creator=creator,
-                keywords=keywords,
-                marked=marked,
-                modification_date=modification_date,
-                pdf_version=pdf_version,
-                producer=producer,
-                subject=subject,
-                title=title,
-                trapped=trapped
-            )
 
-            # Get existing metadata if any
-            existing_metadata: Dict[str, Any] = {}
-            if "metadata" in self._form_data:
-                existing_metadata = json.loads(self._form_data["metadata"])
+        # Validate metadata values
+        if pdf_version is not None and not (self.MIN_PDF_VERSION <= pdf_version <= self.MAX_PDF_VERSION):
+            msg = "PDF version must be between 1.0 and 2.0"
+            raise InvalidPdfRevisionError(msg)
 
-            # Convert validated metadata to dictionary
-            metadata: Dict[str, Any] = {}
+        if trapped is not None and isinstance(trapped, bool):
+            trapped = TrappedStatus.TRUE if trapped else TrappedStatus.FALSE
 
-            if metadata_obj.author:
-                metadata["Author"] = metadata_obj.author
-            if metadata_obj.copyright:
-                metadata["Copyright"] = metadata_obj.copyright
-            if metadata_obj.creation_date:
-                metadata["CreationDate"] = metadata_obj.creation_date.isoformat()
-            if metadata_obj.creator:
-                metadata["Creator"] = metadata_obj.creator
-            if metadata_obj.keywords:
-                metadata["Keywords"] = ", ".join(metadata_obj.keywords)
-            if metadata_obj.marked is not None:
-                metadata["Marked"] = metadata_obj.marked
-            if metadata_obj.modification_date:
-                metadata["ModDate"] = metadata_obj.modification_date.isoformat()
-            if metadata_obj.pdf_version:
-                metadata["PDFVersion"] = metadata_obj.pdf_version
-            if metadata_obj.producer:
-                metadata["Producer"] = metadata_obj.producer
-            if metadata_obj.subject:
-                metadata["Subject"] = metadata_obj.subject
-            if metadata_obj.title:
-                metadata["Title"] = metadata_obj.title
-            if metadata_obj.trapped is not None:
-                if isinstance(metadata_obj.trapped, bool):
-                    metadata["Trapped"] = metadata_obj.trapped
-                else:
-                    metadata["Trapped"] = (
-                        True if metadata_obj.trapped == self.TrappedStatus.TRUE.value
-                        else False if metadata_obj.trapped == self.TrappedStatus.FALSE.value
-                        else metadata_obj.trapped
-                    )
+        if keywords is not None:
+            if not all(isinstance(k, str) for k in keywords):
+                raise InvalidKeywordError("All keywords must be strings")  # noqa: EM101, TRY003
+            if any("," in k for k in keywords):
+                raise InvalidKeywordError("Keywords cannot contain commas")  # noqa: EM101, TRY003
 
-            # Merge existing and new metadata
-            if metadata:
-                merged_metadata = {**existing_metadata, **metadata}
-                self._form_data["metadata"] = json.dumps(merged_metadata)
+        # Get existing metadata if any
+        existing_metadata: Dict[str, Any] = {}
+        if "metadata" in self._form_data:
+            existing_metadata = json.loads(self._form_data["metadata"])
 
-            return self
+        # Convert validated metadata to dictionary
+        metadata: Dict[str, Any] = {}
 
-        except (ValueError, TypeError) as e:
-            raise ValueError(f"Invalid metadata: {str(e)}") from e
-        except json.JSONEncodeError as e:
-            raise ValueError(f"Failed to encode metadata as JSON: {str(e)}") from e
+        if author:
+            metadata["Author"] = author
+        if pdf_copyright:
+            metadata["Copyright"] = pdf_copyright
+        if creation_date:
+            metadata["CreationDate"] = creation_date.isoformat()
+        if creator:
+            metadata["Creator"] = creator
+        if keywords:
+            metadata["Keywords"] = ", ".join(keywords)
+        if marked is not None:
+            metadata["Marked"] = marked
+        if modification_date:
+            metadata["ModDate"] = modification_date.isoformat()
+        if pdf_version:
+            metadata["PDFVersion"] = pdf_version
+        if producer:
+            metadata["Producer"] = producer
+        if subject:
+            metadata["Subject"] = subject
+        if title:
+            metadata["Title"] = title
+        if trapped is not None:
+            metadata["Trapped"] = trapped.value
+
+        # Merge existing and new metadata
+        if metadata:
+            self._form_data.update({"metadata": json.dumps({**existing_metadata, **metadata})})
+
+        return self

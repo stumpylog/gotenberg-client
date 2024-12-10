@@ -6,11 +6,11 @@ from typing import List
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
-from gotenberg_client._types import Self
 from gotenberg_client._convert.common import MetadataMixin
+from gotenberg_client._types import Self
 
 
-class PdfAConvertRoute(BaseSingleFileResponseRoute, MetadataMixin):
+class PdfAConvertRoute(MetadataMixin, BaseSingleFileResponseRoute):
     """
     Represents the Gotenberg route for converting PDFs to PDF/A format.
 
