@@ -75,6 +75,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
     -
+      name: Pull Docker images
+      run: |
+          docker compose --file tests/docker/docker-compose.ci-test-edge.yml pull --quiet
+          docker compose --file tests/docker/docker-compose.ci-test.yml pull --quiet
+    -
       name: Install Hatch
       run: |
           pip3 --quiet install --upgrade hatch uv
