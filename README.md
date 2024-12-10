@@ -102,6 +102,35 @@ with GotenbergClient("http://localhost:3000") as client:
       response.to_file(Path("my-world.pdf"))
 ```
 
+Adding metadata to a PDF:
+
+This example shows how to add metadata to your generated PDF. All metadata fields are optional and include:
+
+- Document info (title, author, subject, keywords)
+- Dates (creation, modification)
+- Technical details (pdf version, creator, producer)
+- PDF standards (trapped status, marked status)
+
+```python
+from gotenberg_client import GotenbergClient
+from datetime import datetime
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.chromium.html_to_pdf() as route:
+        response = (route
+            .index("my-index.html")
+            .metadata(
+                title="My Document",
+                author="John Doe",
+                subject="Example PDF",
+                keywords=["sample", "document", "test"],
+                creation_date=datetime.now(),
+                trapped="Unknown"
+            )
+            .run())
+        response.to_file(Path("my-index.pdf"))
+```
+
 To ensure the proper clean up of all used resources, both the client and the route(s) should be
 used as context manager. If for some reason you cannot, you should `.close` the client and any
 routes:

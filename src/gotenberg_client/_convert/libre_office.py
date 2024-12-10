@@ -9,6 +9,7 @@ from httpx import Client
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
+from gotenberg_client._convert.common import MetadataMixin
 from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PageRangeMixin
 from gotenberg_client._types import Self
@@ -17,7 +18,7 @@ from gotenberg_client.responses import SingleFileResponse
 from gotenberg_client.responses import ZipFileResponse
 
 
-class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileResponseRoute):
+class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, MetadataMixin, BaseSingleFileResponseRoute):
     """
     Represents the Gotenberg route for converting documents to PDF using LibreOffice.
 
