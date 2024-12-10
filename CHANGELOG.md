@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Change
+
+- Dopped support for Python 3.8 ([#43](https://github.com/stumpylog/gotenberg-client/pull/43))
+
 ### Added
 
-- Official support and testing for Python 3.13 ([#25](https://github.com/stumpylog/tika-client/pull/25))
-- Support for setting PDF metadata ([#42](https://github.com/stumpylog/tika-client/pull/42))
-  - Initial work by @spechtx in ([#40](https://github.com/stumpylog/tika-client/pull/40))
+- Official support and testing for Python 3.13 ([#25](https://github.com/stumpylog/gotenberg-client/pull/25))
+- Support for setting PDF metadata ([#42](https://github.com/stumpylog/gotenberg-client/pull/42))
+  - Initial work by @spechtx in ([#40](https://github.com/stumpylog/gotenberg-client/pull/40))
 
 ### Changed
 
