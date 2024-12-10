@@ -6,10 +6,7 @@ from contextlib import ExitStack
 from pathlib import Path
 from time import sleep
 from types import TracebackType
-from typing import Dict
 from typing import Optional
-from typing import Tuple
-from typing import Type
 
 from httpx import Client
 from httpx import HTTPStatusError
@@ -71,13 +68,13 @@ class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         self._route = api_route
         self._stack = ExitStack()
         # These are the options that will be set to Gotenberg.  Things like PDF/A
-        self._form_data: Dict[str, str] = {}
+        self._form_data: dict[str, str] = {}
         # These are the names of files, mapping to their Path
-        self._file_map: Dict[str, Path] = {}
+        self._file_map: dict[str, Path] = {}
         # Additional in memory resources, mapping the referenced name to the content and an optional mimetype
-        self._in_memory_resources: Dict[str, Tuple[str, Optional[str]]] = {}
+        self._in_memory_resources: dict[str, tuple[str, Optional[str]]] = {}
         # Any header that will also be sent
-        self._headers: Dict[str, str] = {}
+        self._headers: dict[str, str] = {}
 
     def __enter__(self) -> Self:
         self.reset()
@@ -85,7 +82,7 @@ class _BaseRoute(PdfFormatMixin, PfdUniversalAccessMixin):
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:

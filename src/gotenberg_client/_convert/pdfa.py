@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import List
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
@@ -35,7 +34,7 @@ class PdfAConvertRoute(MetadataMixin, BaseSingleFileResponseRoute):
         self._add_file_map(file_path)
         return self
 
-    def convert_files(self, file_paths: List[Path]) -> Self:
+    def convert_files(self, file_paths: list[Path]) -> Self:
         """
         Converts multiple PDF files to the provided PDF/A format.
 

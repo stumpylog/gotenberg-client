@@ -3,12 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 import json
 import logging
+from collections.abc import Iterable
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
 from typing import Final
-from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Union
 from warnings import warn
@@ -195,7 +193,7 @@ class CustomHTTPHeaderMixin:
         self._form_data.update({"userAgent": agent})  # type: ignore[attr-defined,misc]
         return self
 
-    def headers(self, headers: Dict[str, str]) -> Self:
+    def headers(self, headers: dict[str, str]) -> Self:
         json_str = json.dumps(headers)
         self._form_data.update({"extraHttpHeaders": json_str})  # type: ignore[attr-defined,misc]
         return self
@@ -294,7 +292,7 @@ class MetadataMixin:
         pdf_copyright: Optional[str] = None,
         creation_date: Optional[datetime] = None,
         creator: Optional[str] = None,
-        keywords: Optional[List[str]] = None,
+        keywords: Optional[list[str]] = None,
         marked: Optional[bool] = None,
         modification_date: Optional[datetime] = None,
         pdf_version: Optional[float] = None,
@@ -344,12 +342,12 @@ class MetadataMixin:
                 raise InvalidKeywordError("Keywords cannot contain commas")  # noqa: EM101, TRY003
 
         # Get existing metadata if any
-        existing_metadata: Dict[str, Union[str, bool, float]] = {}
+        existing_metadata: dict[str, Union[str, bool, float]] = {}
         if "metadata" in self._form_data:  # type: ignore[attr-defined,misc]
             existing_metadata = json.loads(self._form_data["metadata"])  # type: ignore[attr-defined,misc]
 
         # Convert validated metadata to dictionary
-        metadata: Dict[str, Union[str, bool, float]] = {}
+        metadata: dict[str, Union[str, bool, float]] = {}
 
         if author:
             metadata["Author"] = author

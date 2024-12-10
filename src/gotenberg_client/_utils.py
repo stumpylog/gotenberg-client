@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Dict
 from typing import Final
 from typing import Optional
 from typing import Union
@@ -12,12 +11,12 @@ from gotenberg_client._types import FormFieldType
 
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128
-class ForceMultipartDict(Dict):
+class ForceMultipartDict(dict):
     def __bool__(self) -> bool:
         return True
 
 
-def optional_to_form(value: Optional[FormFieldType], name: str) -> Dict[str, str]:
+def optional_to_form(value: Optional[FormFieldType], name: str) -> dict[str, str]:
     """
     Converts an optional value to a form data field with the given name,
     handling None values gracefully.

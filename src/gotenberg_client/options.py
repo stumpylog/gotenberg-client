@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 import dataclasses
 import enum
-from typing import Dict
 from typing import Final
 from typing import Optional
 
@@ -28,7 +27,7 @@ class PdfAFormat(enum.Enum):
     A2b = enum.auto()
     A3b = enum.auto()
 
-    def to_form(self) -> Dict[str, str]:
+    def to_form(self) -> dict[str, str]:
         """
         Converts this PdfAFormat enum value to a dictionary suitable for form data.
 
@@ -38,7 +37,7 @@ class PdfAFormat(enum.Enum):
             If the format is not supported (e.g., A1a), raises an Exception.
         """
 
-        format_mapping: Final[Dict[PdfAFormat, str]] = {
+        format_mapping: Final[dict[PdfAFormat, str]] = {
             PdfAFormat.A1a: "PDF/A-1a",  # Include deprecated format with warning
             PdfAFormat.A2b: "PDF/A-2b",
             PdfAFormat.A3b: "PDF/A-3b",
@@ -67,7 +66,7 @@ class PageOrientation(enum.Enum):
     Landscape = enum.auto()
     Portrait = enum.auto()
 
-    def to_form(self) -> Dict[str, str]:
+    def to_form(self) -> dict[str, str]:
         """
         Converts this PageOrientation enum value to a dictionary suitable for form data.
 
@@ -76,7 +75,7 @@ class PageOrientation(enum.Enum):
             and the corresponding Gotenberg value ("landscape" or "portrait") as the value.
         """
 
-        orientation_mapping: Final[Dict[PageOrientation, Dict[str, str]]] = {
+        orientation_mapping: Final[dict[PageOrientation, dict[str, str]]] = {
             PageOrientation.Landscape: {"landscape": "true"},
             PageOrientation.Portrait: {"landscape": "false"},
         }
@@ -97,7 +96,7 @@ class PageSize:
     width: Optional[PageSizeType] = None
     height: Optional[PageSizeType] = None
 
-    def to_form(self) -> Dict[str, str]:
+    def to_form(self) -> dict[str, str]:
         """
         Converts this PageSize object to a dictionary suitable for form data.
 
@@ -160,7 +159,7 @@ class MarginType:
     value: MarginSizeType
     unit: MarginUnitType = MarginUnitType.Undefined
 
-    def to_form(self, name: str) -> Dict[str, str]:
+    def to_form(self, name: str) -> dict[str, str]:
         """
         Converts this MarginType object to a dictionary suitable for form data.
 
@@ -193,7 +192,7 @@ class PageMarginsType:
     left: Optional[MarginType] = None
     right: Optional[MarginType] = None
 
-    def to_form(self) -> Dict[str, str]:
+    def to_form(self) -> dict[str, str]:
         """
         Converts this PageMarginsType object to a dictionary suitable for form data.
 
@@ -225,7 +224,7 @@ class EmulatedMediaType(str, enum.Enum):
     Print = enum.auto()
     Screen = enum.auto()
 
-    def to_form(self) -> Dict[str, str]:
+    def to_form(self) -> dict[str, str]:
         """
         Converts this EmulatedMediaType enum value to a dictionary suitable for form data.
 

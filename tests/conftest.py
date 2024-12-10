@@ -4,8 +4,8 @@
 import logging
 import os
 import shutil
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 from typing import Union
 
 import httpx
