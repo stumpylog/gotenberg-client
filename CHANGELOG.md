@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Official support and testing for Python 3.13 ([#25](https://github.com/stumpylog/gotenberg-client/pull/25))
 - Support for setting PDF metadata ([#42](https://github.com/stumpylog/gotenberg-client/pull/42))
   - Initial work by @spechtx in ([#40](https://github.com/stumpylog/gotenberg-client/pull/40))
+- Integrated Codecov test analytics ([#44](https://github.com/stumpylog/gotenberg-client/pull/44))
 
 ### Changed
 
