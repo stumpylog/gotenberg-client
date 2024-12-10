@@ -2,11 +2,16 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from pathlib import Path
+from typing import List
 
 import pikepdf
+import pytest
 from httpx import codes
 
 from gotenberg_client import GotenbergClient
+from gotenberg_client import InvalidKeywordError
+from gotenberg_client import InvalidPdfRevisionError
+from gotenberg_client._convert.common import MetadataMixin
 from gotenberg_client.options import TrappedStatus
 
 
@@ -82,3 +87,98 @@ class TestPdfMetadata:
             assert pdf.docinfo["/Trapped"] == "/True"
 
             # TODO(stumpylog): Investigate why certain fields seems to not be possible to set
+
+    def test_metadata_trapped_bool(self, client: GotenbergClient, tmp_path: Path, webserver_docker_internal_url: str):
+        with client.chromium.url_to_pdf() as route:
+            resp = (
+                route.url(webserver_docker_internal_url)
+                .metadata(
+                    trapped=True,
+                )
+                .run_with_retry()
+            )
+
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+        output = tmp_path / "test_metadata_trapped_bool.pdf"
+        resp.to_file(output)
+
+        with pikepdf.Pdf.open(output) as pdf:
+            assert "/Trapped" in pdf.docinfo
+            assert pdf.docinfo["/Trapped"] == "/True"
+
+    def test_metadata_merging(
+        self,
+        client: GotenbergClient,
+        tmp_path: Path,
+        webserver_docker_internal_url: str,
+    ):
+        inital_title = "Initial Title"
+        new_title = "An New Title"
+        trapped = TrappedStatus.UNKNOWN
+
+        with client.chromium.url_to_pdf() as route:
+            resp = (
+                route.url(webserver_docker_internal_url)
+                .metadata(
+                    title=inital_title,
+                    trapped=trapped,
+                )
+                .metadata(title=new_title)
+                .run_with_retry()
+            )
+
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+        output = tmp_path / "test_metadata_merging.pdf"
+        resp.to_file(output)
+
+        with pikepdf.Pdf.open(output) as pdf:
+            assert "/Title" in pdf.docinfo
+            assert pdf.docinfo["/Title"] == new_title
+
+            assert "/Trapped" in pdf.docinfo
+            assert pdf.docinfo["/Trapped"] == "/Unknown"
+
+    @pytest.mark.parametrize(
+        ("base_value", "delta"),
+        [(MetadataMixin.MIN_PDF_VERSION, -0.5), (MetadataMixin.MAX_PDF_VERSION, 0.5)],
+    )
+    def test_metadata_invalid_pdf_revision(
+        self,
+        client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        base_value: float,
+        delta: float,
+    ):
+        with client.chromium.url_to_pdf() as route, pytest.raises(InvalidPdfRevisionError):
+            _ = (
+                route.url(webserver_docker_internal_url)
+                .metadata(
+                    pdf_version=base_value + delta,
+                )
+                .run_with_retry()
+            )
+
+    @pytest.mark.parametrize(
+        ("keywords"),
+        [["Test, Something"], ["Test", 1]],
+    )
+    def test_metadata_invalid_pdf_keyword(
+        self,
+        client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        keywords: List[str],
+    ):
+        with client.chromium.url_to_pdf() as route, pytest.raises(InvalidKeywordError):
+            _ = (
+                route.url(webserver_docker_internal_url)
+                .metadata(
+                    keywords=keywords,
+                )
+                .run_with_retry()
+            )
