@@ -21,6 +21,7 @@ from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PagePropertiesMixin
 from gotenberg_client._convert.common import PerformanceModeMixin
 from gotenberg_client._convert.common import RenderControlMixin
+from gotenberg_client._convert.common import MetadataMixin
 from gotenberg_client._types import Self
 from gotenberg_client._utils import FORCE_MULTIPART
 from gotenberg_client._utils import ForceMultipartDict
@@ -125,6 +126,7 @@ class HtmlRoute(
     HeaderFooterMixin,
     RenderControlMixin,
     PageOrientMixin,
+    MetadataMixin,
     _RouteWithResources,
     _FileBasedRoute,
 ):
@@ -142,6 +144,7 @@ class UrlRoute(
     CustomHTTPHeaderMixin,
     PageOrientMixin,
     BaseSingleFileResponseRoute,
+    MetadataMixin,
 ):
     """
     Represents the Gotenberg route for converting a URL to a PDF.
@@ -183,7 +186,7 @@ class UrlRoute(
         return FORCE_MULTIPART
 
 
-class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, _RouteWithResources, _FileBasedRoute):
+class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, MetadataMixin, _RouteWithResources, _FileBasedRoute):
     """
     Represents the Gotenberg route for converting Markdown files to a PDF.
 
