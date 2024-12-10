@@ -5,7 +5,6 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 from typing import Dict
 from typing import Final
 from typing import Iterable
@@ -345,12 +344,12 @@ class MetadataMixin:
                 raise InvalidKeywordError("Keywords cannot contain commas")  # noqa: EM101, TRY003
 
         # Get existing metadata if any
-        existing_metadata: Dict[str, Any] = {}
-        if "metadata" in self._form_data:
-            existing_metadata = json.loads(self._form_data["metadata"])
+        existing_metadata: Dict[str, Union[str, bool, float]] = {}
+        if "metadata" in self._form_data:  # type: ignore[attr-defined,misc]
+            existing_metadata = json.loads(self._form_data["metadata"])  # type: ignore[attr-defined,misc]
 
         # Convert validated metadata to dictionary
-        metadata: Dict[str, Any] = {}
+        metadata: Dict[str, Union[str, bool, float]] = {}
 
         if author:
             metadata["Author"] = author
@@ -379,6 +378,6 @@ class MetadataMixin:
 
         # Merge existing and new metadata
         if metadata:
-            self._form_data.update({"metadata": json.dumps({**existing_metadata, **metadata})})
+            self._form_data.update({"metadata": json.dumps({**existing_metadata, **metadata})})  # type: ignore[attr-defined,misc]
 
         return self
