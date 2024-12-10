@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import List
 from typing import Literal
 from typing import Optional
-from typing import Tuple
 
 from httpx import Client
 
@@ -83,7 +81,7 @@ class _RouteWithResources(BaseSingleFileResponseRoute):
         self._add_in_memory_file(resource, name=name, mime_type=mime_type)
         return self
 
-    def resources(self, resources: List[Path]) -> Self:
+    def resources(self, resources: list[Path]) -> Self:
         """
         Adds multiple resource files for the index HTML file to reference.
 
@@ -95,7 +93,7 @@ class _RouteWithResources(BaseSingleFileResponseRoute):
 
     def string_resources(
         self,
-        resources: List[Tuple[str, str, Optional[str]]],
+        resources: list[tuple[str, str, Optional[str]]],
     ) -> Self:
         """
         Process string resources.
@@ -215,7 +213,7 @@ class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, MetadataMixin, _Rout
 
         return self
 
-    def markdown_files(self, markdown_files: List[Path]) -> Self:
+    def markdown_files(self, markdown_files: list[Path]) -> Self:
         """
         Adds multiple Markdown files to be converted.
 

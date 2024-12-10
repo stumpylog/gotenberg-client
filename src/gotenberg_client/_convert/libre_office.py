@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import List
 from typing import Union
 
 from httpx import Client
@@ -54,7 +53,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, MetadataMixin, Ba
             self._result_is_zip = True
         return self
 
-    def convert_files(self, file_paths: List[Path]) -> Self:
+    def convert_files(self, file_paths: list[Path]) -> Self:
         """
         Adds all provided files for conversion to individual PDFs.
 

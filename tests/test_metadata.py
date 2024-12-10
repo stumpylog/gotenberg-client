@@ -2,7 +2,6 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from pathlib import Path
-from typing import List
 
 import pikepdf
 import pytest
@@ -172,7 +171,7 @@ class TestPdfMetadata:
         self,
         client: GotenbergClient,
         webserver_docker_internal_url: str,
-        keywords: List[str],
+        keywords: list[str],
     ):
         with client.chromium.url_to_pdf() as route, pytest.raises(InvalidKeywordError):
             _ = (

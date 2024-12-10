@@ -41,11 +41,10 @@ class TestConvertChromiumUrlMocked:
         with client.chromium.url_to_pdf() as route:
             _ = route.url(webserver_docker_internal_url).media_type(emulation).run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "emulatedMediaType",
             "screen" if emulation == EmulatedMediaType.Screen else "print",
-            request.stream,
         )
 
     @pytest.mark.parametrize(
@@ -66,11 +65,10 @@ class TestConvertChromiumUrlMocked:
             getattr(route, method)()
             _ = route.run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "preferCssPageSize",
             "true" if method == "prefer_css_page_size" else "false",
-            request.stream,
         )
 
     @pytest.mark.parametrize(
@@ -91,11 +89,10 @@ class TestConvertChromiumUrlMocked:
             getattr(route, method)()
             _ = route.run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "printBackground",
             "true" if method == "background_graphics" else "false",
-            request.stream,
         )
 
     @pytest.mark.parametrize(
@@ -116,11 +113,10 @@ class TestConvertChromiumUrlMocked:
             getattr(route, method)()
             _ = route.run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "omitBackground",
             "true" if method == "hide_background" else "false",
-            request.stream,
         )
 
     @pytest.mark.parametrize(
@@ -141,11 +137,10 @@ class TestConvertChromiumUrlMocked:
             getattr(route, method)()
             _ = route.run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "failOnConsoleExceptions",
             "true" if method == "fail_on_exceptions" else "false",
-            request.stream,
         )
 
     def test_convert_scale(
@@ -159,11 +154,10 @@ class TestConvertChromiumUrlMocked:
         with client.chromium.url_to_pdf() as route:
             _ = route.url(webserver_docker_internal_url).scale(1.5).run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "scale",
             "1.5",
-            request.stream,
         )
 
     def test_convert_page_ranges(
@@ -177,11 +171,10 @@ class TestConvertChromiumUrlMocked:
         with client.chromium.url_to_pdf() as route:
             _ = route.url(webserver_docker_internal_url).page_ranges("1-5").run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "nativePageRanges",
             "1-5",
-            request.stream,
         )
 
     def test_convert_url_render_wait(
@@ -195,11 +188,10 @@ class TestConvertChromiumUrlMocked:
         with client.chromium.url_to_pdf() as route:
             _ = route.url(webserver_docker_internal_url).render_wait(500).run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "waitDelay",
             "500",
-            request.stream,
         )
 
     def test_convert_url_render_expression(
@@ -213,11 +205,10 @@ class TestConvertChromiumUrlMocked:
         with client.chromium.url_to_pdf() as route:
             _ = route.url(webserver_docker_internal_url).render_expr("wait while false;").run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "waitForExpression",
             "wait while false;",
-            request.stream,
         )
 
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
@@ -232,11 +223,10 @@ class TestConvertChromiumUrlMocked:
         with client.chromium.url_to_pdf() as route:
             _ = route.url(webserver_docker_internal_url).user_agent("Firefox").run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "userAgent",
             "Firefox",
-            request.stream,
         )
 
     def test_convert_url_headers(
@@ -251,10 +241,8 @@ class TestConvertChromiumUrlMocked:
 
         with client.chromium.url_to_pdf() as route:
             _ = route.url(webserver_docker_internal_url).headers(headers).run()
-
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "extraHttpHeaders",
             json.dumps(headers),
-            request.stream,
         )

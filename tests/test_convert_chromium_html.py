@@ -127,8 +127,8 @@ class TestConvertChromiumHtmlRouteMocked:
             _ = route.index(test_file).size(A4).run()
 
         request = httpx_mock.get_request()
-        verify_stream_contains("paperWidth", "8.27", request.stream)
-        verify_stream_contains("paperHeight", "11.7", request.stream)
+        verify_stream_contains(request, "paperWidth", "8.27")
+        verify_stream_contains(request, "paperHeight", "11.7")
 
     def test_convert_margin(self, client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")
@@ -149,10 +149,10 @@ class TestConvertChromiumHtmlRouteMocked:
             )
 
         request = httpx_mock.get_request()
-        verify_stream_contains("marginTop", "1cm", request.stream)
-        verify_stream_contains("marginBottom", "2pc", request.stream)
-        verify_stream_contains("marginLeft", "3mm", request.stream)
-        verify_stream_contains("marginRight", "4", request.stream)
+        verify_stream_contains(request, "marginTop", "1cm")
+        verify_stream_contains(request, "marginBottom", "2pc")
+        verify_stream_contains(request, "marginLeft", "3mm")
+        verify_stream_contains(request, "marginRight", "4")
 
     def test_convert_render_control(self, client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")
@@ -161,8 +161,7 @@ class TestConvertChromiumHtmlRouteMocked:
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).render_wait(500.0).run()
 
-        request = httpx_mock.get_request()
-        verify_stream_contains("waitDelay", "500.0", request.stream)
+        verify_stream_contains(httpx_mock.get_request(), "waitDelay", "500.0")
 
     @pytest.mark.parametrize(
         ("orientation"),
@@ -181,9 +180,8 @@ class TestConvertChromiumHtmlRouteMocked:
         with client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).orient(orientation).run()
 
-        request = httpx_mock.get_request()
         verify_stream_contains(
+            httpx_mock.get_request(),
             "landscape",
             "true" if orientation == PageOrientation.Landscape else "false",
-            request.stream,
         )
