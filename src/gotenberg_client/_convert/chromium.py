@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import List
 from typing import Literal
 from typing import Optional
-from typing import Tuple
 
 from httpx import Client
 
@@ -17,6 +15,7 @@ from gotenberg_client._convert.common import CustomHTTPHeaderMixin
 from gotenberg_client._convert.common import EmulatedMediaMixin
 from gotenberg_client._convert.common import HeaderFooterMixin
 from gotenberg_client._convert.common import InvalidStatusCodesMixin
+from gotenberg_client._convert.common import MetadataMixin
 from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PagePropertiesMixin
 from gotenberg_client._convert.common import PerformanceModeMixin
@@ -82,7 +81,7 @@ class _RouteWithResources(BaseSingleFileResponseRoute):
         self._add_in_memory_file(resource, name=name, mime_type=mime_type)
         return self
 
-    def resources(self, resources: List[Path]) -> Self:
+    def resources(self, resources: list[Path]) -> Self:
         """
         Adds multiple resource files for the index HTML file to reference.
 
@@ -94,7 +93,7 @@ class _RouteWithResources(BaseSingleFileResponseRoute):
 
     def string_resources(
         self,
-        resources: List[Tuple[str, str, Optional[str]]],
+        resources: list[tuple[str, str, Optional[str]]],
     ) -> Self:
         """
         Process string resources.
@@ -125,6 +124,7 @@ class HtmlRoute(
     HeaderFooterMixin,
     RenderControlMixin,
     PageOrientMixin,
+    MetadataMixin,
     _RouteWithResources,
     _FileBasedRoute,
 ):
@@ -141,6 +141,7 @@ class UrlRoute(
     EmulatedMediaMixin,
     CustomHTTPHeaderMixin,
     PageOrientMixin,
+    MetadataMixin,
     BaseSingleFileResponseRoute,
 ):
     """
@@ -183,7 +184,7 @@ class UrlRoute(
         return FORCE_MULTIPART
 
 
-class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, _RouteWithResources, _FileBasedRoute):
+class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, MetadataMixin, _RouteWithResources, _FileBasedRoute):
     """
     Represents the Gotenberg route for converting Markdown files to a PDF.
 
@@ -212,7 +213,7 @@ class MarkdownRoute(PagePropertiesMixin, HeaderFooterMixin, _RouteWithResources,
 
         return self
 
-    def markdown_files(self, markdown_files: List[Path]) -> Self:
+    def markdown_files(self, markdown_files: list[Path]) -> Self:
         """
         Adds multiple Markdown files to be converted.
 

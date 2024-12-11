@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from types import TracebackType
-from typing import Dict
 from typing import Optional
-from typing import Type
 
 from httpx import Client
 
@@ -65,7 +63,7 @@ class GotenbergClient:
         self.merge = MergeApi(self._client)
         self.health = HealthCheckApi(self._client)
 
-    def add_headers(self, header: Dict[str, str]) -> None:
+    def add_headers(self, header: dict[str, str]) -> None:
         """
         Update the httpx Client headers with the given values.
 
@@ -110,7 +108,7 @@ class GotenbergClient:
         """
         self.add_headers({"Gotenberg-Webhook-Error-Method": method})
 
-    def set_webhook_extra_headers(self, extra_headers: Dict[str, str]) -> None:
+    def set_webhook_extra_headers(self, extra_headers: dict[str, str]) -> None:
         """
         Set additional HTTP headers for Gotenberg to use when calling webhooks.
 
@@ -138,7 +136,7 @@ class GotenbergClient:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:

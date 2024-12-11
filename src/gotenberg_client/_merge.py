@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 from typing import Final
-from typing import List
 
 from httpx import Client
 
@@ -38,7 +37,7 @@ class MergeRoute(BaseZipFileResponseRoute):
         super().__init__(client, api_route)
         self._next = 1
 
-    def merge(self, files: List[Path]) -> Self:
+    def merge(self, files: list[Path]) -> Self:
         """
         Add the given files to the merge operation.
 

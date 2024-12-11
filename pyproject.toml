@@ -16,7 +16,7 @@ license = "MPL-2.0"
 authors = [
   { name = "Trenton H", email = "rda0128ou@mozmail.com" },
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Environment :: Web Environment",
@@ -25,18 +25,17 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = [ "version" ]
 dependencies = [
-  "httpx[http2]~=0.24; python_version<'3.9'",
-  "httpx[http2]~=0.27; python_version>='3.9'",
+  "httpx[http2]~=0.28",
   "typing-extensions; python_version<'3.11'",
 ]
 
@@ -64,7 +63,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = [ "ruff ~= 0.6" ]
+dependencies = [ "ruff ~= 0.8" ]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]
@@ -74,7 +73,6 @@ randomize = true
 dependencies = [
   "coverage-enable-subprocess == 1.0",
   "coverage[toml] ~= 7.6",
-  "pytest < 8.0; python_version < '3.9'",
   "pytest ~= 8.3; python_version >= '3.9'",
   "pytest-mock ~= 3.14",
   "pytest-randomly ~= 3.15",
@@ -83,10 +81,10 @@ dependencies = [
 ]
 extra-dependencies = [
   "pytest-sugar",
-  "pytest-httpx == 0.30.0; python_version >= '3.9'",
-  "pytest-httpx ~= 0.22; python_version < '3.9'",
+  "pytest-httpx ~= 0.35",
   "pikepdf",
   "python-magic",
+  "pytest-docker ~= 3.1",
 ]
 extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
 
@@ -109,7 +107,7 @@ cov-report = [
 ]
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = [ "3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9", "pypy3.10" ]
+python = [ "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10" ]
 
 #
 # Custom Environments
@@ -117,11 +115,11 @@ python = [ "3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9", "pypy3.10" ]
 [tool.hatch.envs.typing]
 detached = true
 dependencies = [
-  "mypy ~= 1.11",
+  "mypy ~= 1.13",
   "httpx",
   "pytest",
   "pikepdf",
-  "pytest-httpx == 0.30.0",
+  "pytest-httpx ~= 0.35",
 ]
 
 [tool.hatch.envs.typing.scripts]
@@ -168,7 +166,7 @@ deploy = [
 #
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py39"
 line-length = 120
 
 # https://docs.astral.sh/ruff/settings/
@@ -244,12 +242,16 @@ lint.ignore = [
 ]
 # Tests can use magic values, assertions, and relative imports
 lint.per-file-ignores."tests/**/*" = [ "PLR2004", "S101", "TID252" ]
+lint.per-file-ignores."tests/utils.py" = [ "S603" ]
 # No relative imports
 lint.flake8-tidy-imports.ban-relative-imports = "all"
 # One import per line
 lint.isort.force-single-line = true
 # Recognize us please
 lint.isort.known-first-party = [ "gotenberg_client" ]
+
+[tool.pyproject-fmt]
+max_supported_python = "3.13"
 
 [tool.pytest.ini_options]
 minversion = "7.0"

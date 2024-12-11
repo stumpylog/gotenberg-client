@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2024-12-11
+
+### Breaking Change
+
+- Dropped support for Python 3.8 ([#43](https://github.com/stumpylog/gotenberg-client/pull/43))
+
+### Added
+
+- Official support and testing for Python 3.13 ([#25](https://github.com/stumpylog/gotenberg-client/pull/25))
+- Support for setting PDF metadata ([#42](https://github.com/stumpylog/gotenberg-client/pull/42))
+  - Initial work by @spechtx in ([#40](https://github.com/stumpylog/gotenberg-client/pull/40))
+- Integrated Codecov test analytics ([#44](https://github.com/stumpylog/gotenberg-client/pull/44))
+
+### Changed
+
+- Use `pytest-docker` to manage Docker image services ([#36](https://github.com/stumpylog/gotenberg-client/pull/36))
+- Bump Bump pypa/gh-action-pypi-publish from 1.10.2 to 1.12.2 by @dependabot ([#41](https://github.com/stumpylog/gotenberg-client/pull/41))
+- Bump codecov/codecov-action from 4 to 5 by @dependabot ([#41](https://github.com/stumpylog/gotenberg-client/pull/41))
+
 ## [0.7.0] - 2024-10-08
 
 ### Fixed

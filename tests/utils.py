@@ -6,24 +6,17 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from httpx._multipart import DataField
-from httpx._multipart import FileField
-from httpx._multipart import MultipartStream
 
+def verify_stream_contains(request, key: str, value: str) -> None:
+    content_type = request.headers["Content-Type"]
+    assert "multipart/form-data" in content_type
 
-def verify_stream_contains(key: str, value: str, stream: MultipartStream) -> None:
-    for item in stream.fields:
-        if isinstance(item, FileField):
-            continue
-        elif isinstance(item, DataField) and item.name == key:
-            actual_value = item.value
-            if isinstance(actual_value, bytes):
-                actual_value = actual_value.decode("utf-8")
-            assert actual_value == value, f"Key '{actual_value}' /= {value}"
-            return
+    boundary = content_type.split("boundary=")[1]
 
-    msg = f'Key "{key}" with value "{value}" not found in stream'
-    raise AssertionError(msg)
+    parts = request.content.split(f"--{boundary}".encode())
+
+    form_field_found = any(f'name="{key}"'.encode() in part and value.encode() in part for part in parts)
+    assert form_field_found, f'Key "{key}" with value "{value}" not found in stream'
 
 
 def extract_text(pdf_path: Path) -> str:
@@ -36,7 +29,7 @@ def extract_text(pdf_path: Path) -> str:
     with tempfile.NamedTemporaryFile(
         mode="w+",
     ) as tmp:
-        subprocess.run(  # noqa: S603
+        subprocess.run(
             [
                 pdf_to_text,
                 "-q",

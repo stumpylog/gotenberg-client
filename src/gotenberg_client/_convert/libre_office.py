@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import List
 from typing import Union
 
 from httpx import Client
 
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
+from gotenberg_client._convert.common import MetadataMixin
 from gotenberg_client._convert.common import PageOrientMixin
 from gotenberg_client._convert.common import PageRangeMixin
 from gotenberg_client._types import Self
@@ -17,7 +17,7 @@ from gotenberg_client.responses import SingleFileResponse
 from gotenberg_client.responses import ZipFileResponse
 
 
-class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileResponseRoute):
+class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, MetadataMixin, BaseSingleFileResponseRoute):
     """
     Represents the Gotenberg route for converting documents to PDF using LibreOffice.
 
@@ -53,7 +53,7 @@ class LibreOfficeConvertRoute(PageOrientMixin, PageRangeMixin, BaseSingleFileRes
             self._result_is_zip = True
         return self
 
-    def convert_files(self, file_paths: List[Path]) -> Self:
+    def convert_files(self, file_paths: list[Path]) -> Self:
         """
         Adds all provided files for conversion to individual PDFs.
 
