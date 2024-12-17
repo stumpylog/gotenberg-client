@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Relaxed version restriction on `httpx`
 
+### Changed
+
+- Test in CI using Gotenberg 8.14.1
+
 ## [0.8.0] - 2024-12-11
 
 ### Breaking Change
