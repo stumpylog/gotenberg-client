@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drop testing on PyPy3.9 ([#45](https://github.com/stumpylog/gotenberg-client/pull/45))
   - The library should still work, but required wheels for testing are no longer built against pypy3.9. Flagging this as breaking just for an FYI
 
+### Added
+
+- Allow setting user agent string and provide a default ([#46](https://github.com/stumpylog/gotenberg-client/pull/46))
+
 ## [0.8.2] - 2024-12-17
 
 ### Fixed

@@ -7,6 +7,7 @@ from typing import Optional
 
 from httpx import Client
 
+from gotenberg_client.__about__ import __version__
 from gotenberg_client._convert.chromium import ChromiumApi
 from gotenberg_client._convert.libre_office import LibreOfficeApi
 from gotenberg_client._convert.pdfa import PdfAApi
@@ -35,6 +36,7 @@ class GotenbergClient:
     def __init__(
         self,
         host: str,
+        user_agent: str = f"gotenberg-client/{__version__}",
         *,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
@@ -50,7 +52,7 @@ class GotenbergClient:
             http2 (bool, optional): Whether to use HTTP/2. Defaults to True.
         """
         # Configure the client
-        self._client = Client(base_url=host, timeout=timeout, http2=http2)
+        self._client = Client(base_url=host, timeout=timeout, http2=http2, headers={"User-Agent": user_agent})
 
         # Set the log level
         logging.getLogger("httpx").setLevel(log_level)
