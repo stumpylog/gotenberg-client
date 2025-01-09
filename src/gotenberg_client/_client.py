@@ -38,7 +38,7 @@ class GotenbergClient:
         self,
         host: str,
         user_agent: str = f"gotenberg-client/{__version__}",
-        auth: BasicAuth | None = None,
+        auth: Optional[BasicAuth] = None,
         *,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
