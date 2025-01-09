@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Allow setting user agent string and provide a default ([#46](https://github.com/stumpylog/gotenberg-client/pull/46))
+- Allow providing an instance of [httpx.BasicAuth](https://www.python-httpx.org/advanced/authentication/#basic-authentication) when creating the client ([#47](https://github.com/stumpylog/gotenberg-client/pull/47))
 
 ## [0.8.2] - 2024-12-17
 
