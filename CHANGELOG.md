@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-01-09
+
+### Breaking Change
+
+- Drop testing on PyPy3.9 ([#45](https://github.com/stumpylog/gotenberg-client/pull/45))
+  - The library should still work, but required wheels for testing are no longer built against pypy3.9. Flagging this as breaking just for an FYI
+
+### Added
+
+- Allow setting user agent string and provide a default ([#46](https://github.com/stumpylog/gotenberg-client/pull/46))
+- Allow providing an instance of [httpx.BasicAuth](https://www.python-httpx.org/advanced/authentication/#basic-authentication) when creating the client ([#47](https://github.com/stumpylog/gotenberg-client/pull/47))
+- Documentation and project management updates ([#48](https://github.com/stumpylog/gotenberg-client/pull/48))
+  - Enabled discussions for Q&A and Feature Requests
+  - Created a bug report template
+  - Created a contributing guide
+
 ## [0.8.2] - 2024-12-17
 
 ### Fixed

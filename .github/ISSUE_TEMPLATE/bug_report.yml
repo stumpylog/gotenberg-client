@@ -1,0 +1,74 @@
+name: Bug Report
+description: Create a report to help us improve gotenberg-client
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please fill out this form to help us address your bug report."
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      placeholder: "e.g., 3.11.0"
+    validations:
+      required: true
+
+  - type: input
+    id: client-version
+    attributes:
+      label: gotenberg-client Version
+      placeholder: "e.g., 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: Gotenberg Server Version
+      placeholder: "e.g., 7.8.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps To Reproduce
+      description: Minimal code example that demonstrates the issue
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Output
+      description: Error messages, stack traces, or any other relevant information
+      render: shell
+    validations:
+      required: false
