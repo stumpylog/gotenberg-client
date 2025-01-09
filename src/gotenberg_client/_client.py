@@ -5,6 +5,7 @@ import logging
 from types import TracebackType
 from typing import Optional
 
+from httpx import BasicAuth
 from httpx import Client
 
 from gotenberg_client.__about__ import __version__
@@ -37,6 +38,7 @@ class GotenbergClient:
         self,
         host: str,
         user_agent: str = f"gotenberg-client/{__version__}",
+        auth: Optional[BasicAuth] = None,
         *,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
@@ -47,12 +49,20 @@ class GotenbergClient:
 
         Args:
             host (str): The base URL of the Gotenberg service.
+            user_agent (str): The value of the User-Agent header to set.  Defaults to gotenberg-client/{version}
+            auth (httpx.BasicAuth, optional): The value of the authentication for the server.  Defaults to None
             timeout (float, optional): The timeout for API requests in seconds. Defaults to 30.0.
             log_level (int, optional): The logging level for httpx and httpcore. Defaults to logging.ERROR.
             http2 (bool, optional): Whether to use HTTP/2. Defaults to True.
         """
         # Configure the client
-        self._client = Client(base_url=host, timeout=timeout, http2=http2, headers={"User-Agent": user_agent})
+        self._client = Client(
+            base_url=host,
+            timeout=timeout,
+            http2=http2,
+            auth=auth,
+            headers={"User-Agent": user_agent},
+        )
 
         # Set the log level
         logging.getLogger("httpx").setLevel(log_level)
