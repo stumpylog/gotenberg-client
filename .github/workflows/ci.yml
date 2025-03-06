@@ -15,6 +15,7 @@ env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
   DEFAULT_PYTHON_VERSION: "3.11"
+  DEFAULT_UV_VERSION: "0.6.x"
 
 jobs:
   lint:
@@ -35,7 +36,7 @@ jobs:
         name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
-          version: "0.6.x"
+          version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch & pre-commit
@@ -96,14 +97,14 @@ jobs:
       if: contains(matrix.python-version, 'pypy')
       uses: astral-sh/setup-uv@v5
       with:
-        version: "0.6.x"
+        version: ${{ env.DEFAULT_UV_VERSION }}
         python-version: ${{ steps.setup-python.outputs.python-path }}
     -
       name: Install uv (CPython)
       if: ${{ !contains(matrix.python-version, 'pypy') }}
       uses: astral-sh/setup-uv@v5
       with:
-        version: "0.6.x"
+        version: ${{ env.DEFAULT_UV_VERSION }}
         python-version: ${{ matrix.python-version }}
     -
       name: Install Hatch (PyPy)
@@ -166,7 +167,7 @@ jobs:
       name: Install uv
       uses: astral-sh/setup-uv@v5
       with:
-        version: "0.6.x"
+        version: ${{ env.DEFAULT_UV_VERSION }}
         python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
     -
       name: Install Hatch
@@ -201,7 +202,7 @@ jobs:
         name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
-          version: "0.6.x"
+          version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch
@@ -238,7 +239,7 @@ jobs:
         name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
-          version: "0.6.x"
+          version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch
