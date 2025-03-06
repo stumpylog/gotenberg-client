@@ -96,9 +96,7 @@ jobs:
     -
       name: Rename test data files
       run: |
-        ls -ahl .
         mv coverage.json coverage-${{ matrix.python-version }}.json
-        ls -ahl .
     -
       name: Upload coverage data
       if: ${{ !cancelled() }}
@@ -148,7 +146,7 @@ jobs:
       run: |
         hatch test --cover --python 3.11
 
-  test-data-upload:
+  upload-test-data:
     name: Upload test data
     runs-on: ubuntu-latest
     if: >-
@@ -163,10 +161,6 @@ jobs:
         with:
           pattern: coverage-*
           merge-multiple: true
-      -
-        name: Rename test data files
-        run: |
-          ls -ahl .
       -
         name: Upload coverage to Codecov
         if: ${{ !cancelled() }}
