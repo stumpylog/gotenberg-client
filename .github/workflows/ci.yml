@@ -97,7 +97,7 @@ jobs:
       name: Rename test data files
       run: |
         ls -ahl .
-        mv coverage.xml coverage-${{ matrix.python-version }}.xml
+        mv coverage.json coverage-${{ matrix.python-version }}.json
         ls -ahl .
     -
       name: Upload coverage data
@@ -106,7 +106,7 @@ jobs:
       with:
           name: coverage-${{ matrix.python-version }}
           path: |
-            coverage-${{ matrix.python-version }}.xml
+            coverage-${{ matrix.python-version }}.json
             junit-${{ matrix.python-version }}.xml
           retention-days: 1
 
