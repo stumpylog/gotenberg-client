@@ -1,5 +1,7 @@
 codecov:
   require_ci_to_pass: true
+  notify:
+    after_n_builds: 6
 comment:
   require_changes: true
 coverage:

@@ -48,7 +48,7 @@ jobs:
         name: Check files with pre-commit
         uses: pre-commit/action@v3.0.1
 
-  test:
+  tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     permissions:
@@ -95,10 +95,11 @@ jobs:
         hatch test --cover --junitxml=junit.xml -o junit_family=legacy --python ${{ matrix.python-version }}
     -
       name: Upload coverage to Codecov
-      if: matrix.python-version == '3.11'
+      if: ${{ !cancelled() }}
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        flags: ${{ matrix.python-version }}
     -
       name: Upload test results to Codecov
       if: ${{ !cancelled() }}
@@ -106,6 +107,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: ${{ matrix.python-version }}
+
 
   test-edge:
     name: Test Gotenberg :edge
@@ -232,7 +234,7 @@ jobs:
       contents: write
     needs:
       - build
-      - test
+      - tests
       - documentation
     steps:
       -
@@ -269,7 +271,7 @@ jobs:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     needs:
       - build
-      - test
+      - tests
       - documentation
     steps:
       -
