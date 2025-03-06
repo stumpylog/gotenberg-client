@@ -92,11 +92,19 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     -
-      name: Install uv
+      name: Install uv (PyPy)
+      if: contains(matrix.python-version, 'pypy')
       uses: astral-sh/setup-uv@v5
       with:
         version: "0.6.x"
-        python-version: ${{ steps.setup-python.outputs.python-version }}
+        python-version: ${{ steps.setup-python.outputs.python-path }}
+    -
+      name: Install uv (CPython)
+      if: ${{ !contains(matrix.python-version, 'pypy') }}
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "0.6.x"
+        python-version: ${{ matrix.python-version }}
     -
       name: Install Hatch (PyPy)
       if: contains(matrix.python-version, 'pypy')
@@ -106,7 +114,7 @@ jobs:
       name: Install Hatch (CPython)
       if: ${{ !contains(matrix.python-version, 'pypy') }}
       run: |
-        uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
+        uv tool install --python ${{ matrix.python-version }} --upgrade hatch
     -
       name: Show environment
       run: |
