@@ -48,7 +48,7 @@ jobs:
         name: Check files with pre-commit
         uses: pre-commit/action@v3.0.1
 
-  test:
+  tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     permissions:
@@ -92,20 +92,24 @@ jobs:
     -
       name: Run tests
       run: |
-        hatch test --cover --junitxml=junit.xml -o junit_family=legacy --python ${{ matrix.python-version }}
+        hatch test --cover --junitxml=junit-${{ matrix.python-version }}.xml -o junit_family=legacy --python ${{ matrix.python-version }}
     -
-      name: Upload coverage to Codecov
-      if: matrix.python-version == '3.11'
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+      name: Rename test data files
+      run: |
+        ls -ahl .
+        mv coverage.xml coverage-${{ matrix.python-version }}.xml
+        ls -ahl .
     -
-      name: Upload test results to Codecov
+      name: Upload coverage data
       if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
+      uses: actions/upload-artifact@v4
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: ${{ matrix.python-version }}
+          name: coverage-${{ matrix.python-version }}
+          path: |
+            coverage-${{ matrix.python-version }}.xml
+            junit-${{ matrix.python-version }}.xml
+          retention-days: 1
+
 
   test-edge:
     name: Test Gotenberg :edge
@@ -143,6 +147,38 @@ jobs:
       name: Run tests
       run: |
         hatch test --cover --python 3.11
+
+  test-data-upload:
+    name: Upload test data
+    runs-on: ubuntu-latest
+    if: >-
+      always() &&
+      (needs.tests.result == 'failure' || needs.tests.result == 'success')
+    needs:
+      - tests
+    steps:
+      -
+        name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+      -
+        name: Rename test data files
+        run: |
+          ls -ahl .
+      -
+        name: Upload coverage to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+      -
+        name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: Build
@@ -232,7 +268,7 @@ jobs:
       contents: write
     needs:
       - build
-      - test
+      - tests
       - documentation
     steps:
       -
@@ -269,7 +305,7 @@ jobs:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     needs:
       - build
-      - test
+      - tests
       - documentation
     steps:
       -
