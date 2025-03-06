@@ -92,21 +92,21 @@ jobs:
     -
       name: Run tests
       run: |
-        hatch test --cover --junitxml=junit-${{ matrix.python-version }}.xml -o junit_family=legacy --python ${{ matrix.python-version }}
+        hatch test --cover --junitxml=junit.xml -o junit_family=legacy --python ${{ matrix.python-version }}
     -
-      name: Rename test data files
-      run: |
-        mv coverage.json coverage-${{ matrix.python-version }}.json
-    -
-      name: Upload coverage data
+      name: Upload coverage to Codecov
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
+      uses: codecov/codecov-action@v5
       with:
-          name: coverage-${{ matrix.python-version }}
-          path: |
-            coverage-${{ matrix.python-version }}.json
-            junit-${{ matrix.python-version }}.xml
-          retention-days: 1
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: ${{ matrix.python-version }}
+    -
+      name: Upload test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: ${{ matrix.python-version }}
 
 
   test-edge:
@@ -145,34 +145,6 @@ jobs:
       name: Run tests
       run: |
         hatch test --cover --python 3.11
-
-  upload-test-data:
-    name: Upload test data
-    runs-on: ubuntu-latest
-    if: >-
-      always() &&
-      (needs.tests.result == 'failure' || needs.tests.result == 'success')
-    needs:
-      - tests
-    steps:
-      -
-        name: Download test results
-        uses: actions/download-artifact@v4
-        with:
-          pattern: coverage-*
-          merge-multiple: true
-      -
-        name: Upload coverage to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-      -
-        name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: Build
