@@ -50,8 +50,14 @@ jobs:
         run: |
           hatch run typing:run
       -
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+      -
         name: Check files with pre-commit
-        uses: pre-commit/action@v3.0.1
+        run: |
+          pre-commit run --show-diff-on-failure --color=always
 
   tests:
     name: Test (Python ${{ matrix.python-version }})
