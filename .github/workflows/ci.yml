@@ -37,9 +37,10 @@ jobs:
         with:
           version: "0.6.x"
       -
-        name: Install Hatch
+        name: Install Hatch & pre-commit
         run: |
           uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
+          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade pre-commit --with pre-commit-uv
       -
         name: Lint project
         run: |
@@ -91,7 +92,7 @@ jobs:
     -
       name: Install Hatch
       run: |
-        uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
+        uv tool install --python ${{ steps.setup-python.outputs.python-path }} --upgrade hatch
     -
       name: Show environment
       run: |
