@@ -14,6 +14,7 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
+  DEFAULT_PYTHON_VERSION: "3.11"
 
 jobs:
   lint:
@@ -26,16 +27,21 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Set up Python 3.11
+        id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
-        name: Install Hatch
+        name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.x"
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+      -
+        name: Install Hatch & pre-commit
         run: |
-          pip3 --quiet install --upgrade hatch uv
-          hatch --version
-          uv --version
+          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
+          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade pre-commit --with pre-commit-uv
       -
         name: Lint project
         run: |
@@ -45,8 +51,14 @@ jobs:
         run: |
           hatch run typing:run
       -
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+      -
         name: Check files with pre-commit
-        uses: pre-commit/action@v3.0.1
+        run: |
+          pre-commit run --all-files --show-diff-on-failure --color=always
 
   tests:
     name: Test (Python ${{ matrix.python-version }})
@@ -69,22 +81,40 @@ jobs:
         sudo apt-get update
         sudo apt-get install --yes --no-install-recommends poppler-utils
     -
-      name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-    -
       name: Pull Docker images
       run: |
           docker compose --file tests/docker/docker-compose.ci-test-edge.yml pull --quiet
           docker compose --file tests/docker/docker-compose.ci-test.yml pull --quiet
     -
-      name: Install Hatch
+      name: Set up Python ${{ matrix.python-version }}
+      id: setup-python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    -
+      name: Install uv (PyPy)
+      if: contains(matrix.python-version, 'pypy')
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "0.6.x"
+        python-version: ${{ steps.setup-python.outputs.python-path }}
+    -
+      name: Install uv (CPython)
+      if: ${{ !contains(matrix.python-version, 'pypy') }}
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "0.6.x"
+        python-version: ${{ matrix.python-version }}
+    -
+      name: Install Hatch (PyPy)
+      if: contains(matrix.python-version, 'pypy')
       run: |
-          pip3 --quiet install --upgrade hatch uv
-          hatch --version
-          uv --version
+        uv tool install --python ${{ steps.setup-python.outputs.python-path }} --upgrade hatch
+    -
+      name: Install Hatch (CPython)
+      if: ${{ !contains(matrix.python-version, 'pypy') }}
+      run: |
+        uv tool install --python ${{ matrix.python-version }} --upgrade hatch
     -
       name: Show environment
       run: |
@@ -127,24 +157,29 @@ jobs:
         sudo apt-get update
         sudo apt-get install --yes --no-install-recommends poppler-utils
     -
-      name: Set up Python 3.11
+      name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
+      id: setup-python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.11"
-        cache: 'pip'
+        python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+    -
+      name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "0.6.x"
+        python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
     -
       name: Install Hatch
       run: |
-        python3 -m pip install --upgrade pip
-        pip install --upgrade hatch
+        uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
     -
       name: Show environment
       run: |
-        hatch test --show --python 3.11
+        hatch test --show --python ${{ env.DEFAULT_PYTHON_VERSION }}
     -
       name: Run tests
       run: |
-        hatch test --cover --python 3.11
+        hatch test --cover --python ${{ env.DEFAULT_PYTHON_VERSION }}
 
   build:
     name: Build
@@ -157,17 +192,21 @@ jobs:
       -
         uses: actions/checkout@v4
       -
-        name: Set up Python 3.10
+        name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
+        id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip'
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+      -
+        name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.x"
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch
         run: |
-          pip3 --quiet install --upgrade hatch uv
-          hatch --version
-          uv --version
+          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
       -
         name: Build
         run: |
@@ -190,15 +229,21 @@ jobs:
       -
         uses: actions/checkout@v4
       -
-        name: Set up Python 3.10
+        name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
+        id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip'
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+      -
+        name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.x"
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch
         run: |
-          pip3 --quiet install --upgrade hatch
+          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
       -
         name: Build Documentation
         run: |

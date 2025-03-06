@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Reworked Codecov integration ([#50](https://github.com/stumpylog/gotenberg-client/pull/50))
+- Update CI to use astral-sh/setup-uv instead of pip ([#51](https://github.com/stumpylog/gotenberg-client/pull/51))
 - Bump pypa/gh-action-pypi-publish from 1.12.3 to 1.12.4 by @dependabot ([#49](https://github.com/stumpylog/gotenberg-client/pull/49))
 
 ## [0.9.0] - 2025-01-09
