@@ -36,6 +36,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: "0.6.x"
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch & pre-commit
         run: |
@@ -95,6 +96,7 @@ jobs:
       uses: astral-sh/setup-uv@v5
       with:
         version: "0.6.x"
+        python-version: ${{ steps.setup-python.outputs.python-path }}
     -
       name: Install Hatch
       run: |
@@ -151,6 +153,7 @@ jobs:
       uses: astral-sh/setup-uv@v5
       with:
         version: "0.6.x"
+        python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
     -
       name: Install Hatch
       run: |
@@ -185,6 +188,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: "0.6.x"
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch
         run: |
@@ -221,6 +225,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: "0.6.x"
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       -
         name: Install Hatch
         run: |
