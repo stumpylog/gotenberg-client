@@ -96,11 +96,17 @@ jobs:
       uses: astral-sh/setup-uv@v5
       with:
         version: "0.6.x"
-        python-version: ${{ steps.setup-python.outputs.python-path }}
+        python-version: ${{ steps.setup-python.outputs.python-version }}
     -
-      name: Install Hatch
+      name: Install Hatch (PyPy)
+      if: contains(matrix.python-version, 'pypy')
       run: |
         uv tool install --python ${{ steps.setup-python.outputs.python-path }} --upgrade hatch
+    -
+      name: Install Hatch (CPython)
+      if: ${{ !contains(matrix.python-version, 'pypy') }}
+      run: |
+        uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
     -
       name: Show environment
       run: |
