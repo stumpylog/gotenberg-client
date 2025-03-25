@@ -14,8 +14,6 @@ from typing import Literal
 from typing import Optional
 from typing import Union
 
-from gotenberg_client._common.protocols import HasFileMapMethodProtocol
-from gotenberg_client._common.protocols import HasFormDataFieldProtocol
 from gotenberg_client._common.protocols import PageScaleType
 from gotenberg_client._common.units import Measurement
 from gotenberg_client._errors import InvalidKeywordError
@@ -144,7 +142,7 @@ class ChromiumCookieJar:
         return data
 
 
-class ChromiumPageProperties(HasFormDataFieldProtocol):
+class ChromiumPageProperties:
     """
     https://gotenberg.dev/docs/routes#page-properties-chromium
     """
@@ -235,7 +233,7 @@ class ChromiumHeaderFooter(HasFileMapMethodProtocol):
         return self
 
 
-class ChromiumRenderWait(HasFormDataFieldProtocol):
+class ChromiumRenderWait:
     """
     https://gotenberg.dev/docs/routes#wait-before-rendering-chromium
     """
@@ -252,7 +250,7 @@ class ChromiumRenderWait(HasFormDataFieldProtocol):
         return self
 
 
-class ChromiumEmulatedMediaType(HasFormDataFieldProtocol):
+class ChromiumEmulatedMediaType:
     """
     https://gotenberg.dev/docs/routes#emulated-media-type-chromium
     """
@@ -262,7 +260,7 @@ class ChromiumEmulatedMediaType(HasFormDataFieldProtocol):
         return self
 
 
-class ChromiumCookies(HasFormDataFieldProtocol):
+class ChromiumCookies:
     """
     https://gotenberg.dev/docs/routes#cookies-chromium
     """
@@ -273,7 +271,7 @@ class ChromiumCookies(HasFormDataFieldProtocol):
         return self
 
 
-class ChromiumCustomHTTPHeader(HasFormDataFieldProtocol):
+class ChromiumCustomHTTPHeader:
     """
     https://gotenberg.dev/docs/routes#custom-http-headers-chromium
     """
@@ -288,7 +286,7 @@ class ChromiumCustomHTTPHeader(HasFormDataFieldProtocol):
         return self
 
 
-class ChromiumCustomHttpStatusCodes(HasFormDataFieldProtocol):
+class ChromiumCustomHttpStatusCodes:
     """
     https://gotenberg.dev/docs/routes#invalid-http-status-codes-chromium
     """
@@ -302,7 +300,7 @@ class ChromiumCustomHttpStatusCodes(HasFormDataFieldProtocol):
         return self
 
 
-class ChromiumNetworkErrors(HasFormDataFieldProtocol):
+class ChromiumNetworkErrors:
     """
     https://gotenberg.dev/docs/routes#network-errors-chromium
     """
@@ -312,7 +310,7 @@ class ChromiumNetworkErrors(HasFormDataFieldProtocol):
         return self
 
 
-class ChromiumConsoleExceptions(HasFormDataFieldProtocol):
+class ChromiumConsoleExceptions:
     """
     https://gotenberg.dev/docs/routes#console-exceptions-chromium
     """
@@ -328,7 +326,7 @@ class ChromiumConsoleExceptions(HasFormDataFieldProtocol):
         return self.fail_on_console_exception(fail_on_console_exception=False)
 
 
-class ChromiumPerformanceMode(HasFormDataFieldProtocol):
+class ChromiumPerformanceMode:
     """
     https://gotenberg.dev/docs/routes#performance-mode-chromium
     """
@@ -344,7 +342,7 @@ class ChromiumPerformanceMode(HasFormDataFieldProtocol):
         return self.performance_mode(use_performance_mode=False)
 
 
-class ChromiumSplit(HasFormDataFieldProtocol):
+class ChromiumSplit:
     """
     https://gotenberg.dev/docs/routes#split-chromium
     """
@@ -362,7 +360,7 @@ class ChromiumSplit(HasFormDataFieldProtocol):
         return self
 
 
-class ChromiumPdfOptions(HasFormDataFieldProtocol):
+class ChromiumPdfOptions:
     """
     https://gotenberg.dev/docs/routes#pdfa-chromium
     """
@@ -386,7 +384,7 @@ class ChromiumPdfOptions(HasFormDataFieldProtocol):
         return self.universal_access(universal_access=False)
 
 
-class ChromiumMetadata(HasFormDataFieldProtocol):
+class ChromiumMetadata:
     """
     https://gotenberg.dev/docs/routes#metadata-chromium
     """
@@ -490,7 +488,7 @@ class ChromiumMetadata(HasFormDataFieldProtocol):
         return self
 
 
-class ScreenshotSettings(HasFormDataFieldProtocol):
+class ScreenshotSettings:
     """
     https://gotenberg.dev/docs/routes#screenshots-route
     """
