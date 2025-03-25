@@ -35,6 +35,14 @@ def optional_to_form(value: Optional[FormFieldType], name: str) -> dict[str, str
         return {name: str(value).lower()}
 
 
+def bool_to_form(name: str, value: bool) -> dict[str, str]:  # noqa: FBT001
+    bool_to_form_name: Final[dict[bool, str]] = {
+        True: "true",
+        False: "false",
+    }
+    return {name: bool_to_form_name[value]}
+
+
 def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:  # pragma: no cover
     """
     Guesses the MIME type of a URL using the standard library.

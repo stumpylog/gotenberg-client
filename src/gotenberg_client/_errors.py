@@ -31,3 +31,11 @@ class InvalidPdfRevisionError(BaseClientError):
 
 class InvalidKeywordError(BaseClientError):
     pass
+
+
+class NegativeWaitDurationError(BaseClientError):
+    """
+    A timedelta which is negative was provided as a waiting time.
+
+    Only positive durations are allowed
+    """

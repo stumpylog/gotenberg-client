@@ -29,6 +29,7 @@ logger = logging.getLogger()
 class PageSizeMixin:
     """
     https://gotenberg.dev/docs/routes#page-properties-chromium
+    https://gotenberg.dev/docs/routes#page-properties-libreoffice
     """
 
     def size(self, size: PageSize) -> Self:
@@ -39,6 +40,7 @@ class PageSizeMixin:
 class MarginMixin:
     """
     https://gotenberg.dev/docs/routes#page-properties-chromium
+    https://gotenberg.dev/docs/routes#page-properties-libreoffice
     """
 
     def margins(self, margins: PageMarginsType) -> Self:
@@ -49,6 +51,7 @@ class MarginMixin:
 class PageOrientMixin:
     """
     https://gotenberg.dev/docs/routes#page-properties-chromium
+    https://gotenberg.dev/docs/routes#page-properties-libreoffice
     """
 
     def orient(self, orient: PageOrientation) -> Self:
@@ -62,6 +65,7 @@ class PageOrientMixin:
 class PageRangeMixin:
     """
     https://gotenberg.dev/docs/routes#page-properties-chromium
+    https://gotenberg.dev/docs/routes#page-properties-libreoffice
     """
 
     def page_ranges(self, ranges: str) -> Self:

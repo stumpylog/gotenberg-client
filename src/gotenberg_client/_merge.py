@@ -16,8 +16,6 @@ class MergeRoute(BaseZipFileResponseRoute):
     Handles the merging of a given set of PDF files using the Gotenberg API.
 
     This class provides functionality to merge multiple PDF files into a single PDF.
-    It inherits from BaseZipFileResponseRoute, presumably providing common API functionality
-    for routes that return zip files.
 
     For more information on Gotenberg's merge functionality, see:
     https://gotenberg.dev/docs/routes#merge-pdfs-route
