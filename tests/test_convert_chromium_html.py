@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+from datetime import timedelta
 from pathlib import Path
 
 import pikepdf
@@ -159,7 +160,7 @@ class TestConvertChromiumHtmlRouteMocked:
         test_file = sample_directory / "basic.html"
 
         with client.chromium.html_to_pdf() as route:
-            _ = route.index(test_file).render_wait(500.0).run()
+            _ = route.index(test_file).render_wait(timedelta(seconds=500.0)).run()
 
         verify_stream_contains(httpx_mock.get_request(), "waitDelay", "500.0")
 

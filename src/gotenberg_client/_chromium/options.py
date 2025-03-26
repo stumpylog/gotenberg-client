@@ -5,6 +5,7 @@
 import dataclasses
 import enum
 import json
+import logging
 from datetime import datetime
 from datetime import timedelta
 from http import HTTPStatus
@@ -23,6 +24,8 @@ from gotenberg_client._types import Self
 from gotenberg_client._utils import bool_to_form
 from gotenberg_client.options import PdfAFormat
 from gotenberg_client.options import TrappedStatus
+
+logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -120,10 +123,10 @@ class ChromiumCookieJar:
     name: str
     value: str
     domain: str
-    path: Optional[str]
-    secure: Optional[bool]
-    http_only: Optional[bool]
-    same_site: Optional[Literal["Strict", "Lax", "None"]]
+    path: Optional[str] = None
+    secure: Optional[bool] = None
+    http_only: Optional[bool] = None
+    same_site: Optional[Literal["Strict", "Lax", "None"]] = None
 
     def asdict(self) -> dict[str, str]:
         data = {
@@ -219,7 +222,7 @@ class ChromiumPageProperties:
         return self
 
 
-class ChromiumHeaderFooter(HasFileMapMethodProtocol):
+class ChromiumHeaderFooter:
     """
     https://gotenberg.dev/docs/routes#header-footer-chromium
     """
@@ -493,6 +496,9 @@ class ScreenshotSettings:
     https://gotenberg.dev/docs/routes#screenshots-route
     """
 
+    _QUALITY_MAX: Final[int] = 100
+    _QUALITY_MIN: Final[int] = 0
+
     def width(self, width: int) -> Self:
         self._form_data.update({"width": str(width)})
         return self
@@ -511,6 +517,41 @@ class ScreenshotSettings:
     def no_clip_to_dimensions(self) -> Self:
         return self.clip(clip=False)
 
+    def output_format(self, output_format: Literal["png", "jpeg", "webp"] = "png") -> Self:
+        """
+        Sets the output format for the screenshot.
+
+        Args:
+            output_format (Literal["png", "jpeg", "webp"], optional): The desired output format. Defaults to "png".
+
+        Returns:
+            ScreenshotRoute: This object itself for method chaining.
+        """
+
+        self._form_data.update({"format": output_format})
+        return self
+
+    def quality(self, quality: int) -> Self:
+        """
+        Sets the quality of the screenshot (0-100).
+
+        Args:
+            quality (int): The desired quality level (0-100).
+
+        Returns:
+            ScreenshotRoute: This object itself for method chaining.
+        """
+
+        if quality > self._QUALITY_MAX:
+            logging.warning(f"quality {quality} is above {self._QUALITY_MAX}, resetting to {self._QUALITY_MAX}")
+            quality = self._QUALITY_MAX
+        elif quality < self._QUALITY_MIN:
+            logging.warning(f"quality {quality} is below {self._QUALITY_MIN}, resetting to {self._QUALITY_MIN}")
+            quality = self._QUALITY_MIN
+
+        self._form_data.update({"quality": str(quality)})
+        return self
+
     def omit_background(self, *, omit_background: bool = False) -> Self:
         self._form_data.update(bool_to_form("omitBackground", omit_background))
         return self
@@ -526,7 +567,19 @@ class ScreenshotSettings:
         return self
 
     def image_optimize_for_speed(self) -> Self:
+        """
+        Sets the optimization mode to prioritize speed.
+
+        Returns:
+            ScreenshotRoute: This object itself for method chaining.
+        """
         return self.image_optimize(optimize_for_speed=True)
 
     def image_optimize_for_quality(self) -> Self:
+        """
+        Sets the optimization mode to prioritize size reduction.
+
+        Returns:
+            ScreenshotRoute: This object itself for method chaining.
+        """
         return self.image_optimize(optimize_for_speed=False)

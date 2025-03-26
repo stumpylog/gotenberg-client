@@ -4,6 +4,11 @@
 
 
 from gotenberg_client._base import BaseApi
+from gotenberg_client._chromium.routes import HtmlToPdfRoute
+from gotenberg_client._chromium.routes import MarkdownToPdfRoute
+from gotenberg_client._chromium.routes import ScreenshotFromHtmlRoute
+from gotenberg_client._chromium.routes import ScreenshotFromMarkdownRoute
+from gotenberg_client._chromium.routes import ScreenshotFromUrlRoute
 from gotenberg_client._chromium.routes import UrlToPdfRoute
 
 
@@ -16,69 +21,62 @@ class ChromiumApi(BaseApi):
     https://gotenberg.dev/docs/routes#convert-with-chromium
     """
 
-    _URL_CONVERT_ENDPOINT = "/forms/chromium/convert/url"
-    _HTML_CONVERT_ENDPOINT = "/forms/chromium/convert/html"
-    _MARKDOWN_CONVERT_ENDPOINT = "/forms/chromium/convert/markdown"
-    _SCREENSHOT_URL = "/forms/chromium/screenshot/url"
-    _SCREENSHOT_HTML = "/forms/chromium/screenshot/html"
-    _SCREENSHOT_MARK_DOWN = "/forms/chromium/screenshot/markdown"
-
-    def html_to_pdf(self) -> UrlToPdfRoute:
+    def html_to_pdf(self) -> HtmlToPdfRoute:
         """
-        Creates an HtmlRoute object for converting HTML to PDF.
+        Creates an HtmlToPdfRoute object for converting HTML to PDF.
 
         Returns:
-            HtmlRoute: A new HtmlRoute object.
+            HtmlToPdfRoute: A new HtmlToPdfRoute object.
+        """
+
+        return HtmlToPdfRoute(self._client, HtmlToPdfRoute.ENDPOINT_URL)
+
+    def url_to_pdf(self) -> UrlToPdfRoute:
+        """
+        Creates a UrlToPdfRoute object for converting URLs to PDF.
+
+        Returns:
+            UrlToPdfRoute: A new UrlToPdfRoute object.
         """
 
         return UrlToPdfRoute(self._client, UrlToPdfRoute.ENDPOINT_URL)
 
-    def url_to_pdf(self) -> UrlRoute:
+    def markdown_to_pdf(self) -> MarkdownToPdfRoute:
         """
-        Creates a UrlRoute object for converting URLs to PDF.
+        Creates a MarkdownToPdfRoute object for converting Markdown to PDF.
 
         Returns:
-            UrlRoute: A new UrlRoute object.
+            MarkdownToPdfRoute: A new MarkdownToPdfRoute object.
         """
 
-        return UrlRoute(self._client, self._URL_CONVERT_ENDPOINT)
+        return MarkdownToPdfRoute(self._client, MarkdownToPdfRoute.ENDPOINT_URL)
 
-    def markdown_to_pdf(self) -> MarkdownRoute:
+    def screenshot_url(self) -> ScreenshotFromUrlRoute:
         """
-        Creates a MarkdownRoute object for converting Markdown to PDF.
+        Creates a ScreenshotFromUrlRoute object for capturing screenshots from URLs.
 
         Returns:
-            MarkdownRoute: A new MarkdownRoute object.
+            ScreenshotFromUrlRoute: A new ScreenshotFromUrlRoute object.
         """
 
-        return MarkdownRoute(self._client, self._MARKDOWN_CONVERT_ENDPOINT)
+        return ScreenshotFromUrlRoute(self._client, ScreenshotFromUrlRoute.ENDPOINT_URL)
 
-    def screenshot_url(self) -> ScreenshotRouteUrl:
+    def screenshot_html(self) -> ScreenshotFromHtmlRoute:
         """
-        Creates a ScreenshotRouteUrl object for capturing screenshots from URLs.
+        Creates a ScreenshotFromHtmlRoute object for capturing screenshots from HTML files.
 
         Returns:
-            ScreenshotRouteUrl: A new ScreenshotRouteUrl object.
+            ScreenshotFromHtmlRoute: A new ScreenshotFromHtmlRoute object.
         """
 
-        return ScreenshotRouteUrl(self._client, self._SCREENSHOT_URL)
+        return ScreenshotFromHtmlRoute(self._client, ScreenshotFromHtmlRoute.ENDPOINT_URL)
 
-    def screenshot_html(self) -> ScreenshotRouteHtml:
+    def screenshot_markdown(self) -> ScreenshotFromMarkdownRoute:
         """
-        Creates a ScreenshotRouteHtml object for capturing screenshots from HTML files.
+        Creates a ScreenshotFromMarkdownRoute object for capturing screenshots from Markdown files.
 
         Returns:
-            ScreenshotRouteHtml: A new ScreenshotRouteHtml object.
+            ScreenshotFromMarkdownRoute: A new ScreenshotFromMarkdownRoute object.
         """
 
-        return ScreenshotRouteHtml(self._client, self._SCREENSHOT_HTML)
-
-    def screenshot_markdown(self) -> ScreenshotRouteMarkdown:
-        """
-        Creates a ScreenshotRouteMarkdown object for capturing screenshots from Markdown files.
-
-        Returns:
-            ScreenshotRouteMarkdown: A new ScreenshotRouteMarkdown object.
-        """
-
-        return ScreenshotRouteMarkdown(self._client, self._SCREENSHOT_MARK_DOWN)
+        return ScreenshotFromMarkdownRoute(self._client, ScreenshotFromMarkdownRoute.ENDPOINT_URL)

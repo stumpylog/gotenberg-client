@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import Literal
 from typing import Optional
 
-from httpx import Client
-
 from gotenberg_client._base import BaseApi
 from gotenberg_client._base import BaseSingleFileResponseRoute
 from gotenberg_client._convert.common import ConsoleExceptionMixin
@@ -256,9 +254,6 @@ class ScreenshotRoute(
 
     _QUALITY_MAX = 100
     _QUALITY_MIN = 0
-
-    def __init__(self, client: Client, api_route: str) -> None:
-        super().__init__(client, api_route)
 
     def output_format(self, output_format: Literal["png", "jpeg", "webp"] = "png") -> Self:
         """

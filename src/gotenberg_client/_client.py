@@ -9,7 +9,7 @@ from httpx import BasicAuth
 from httpx import Client
 
 from gotenberg_client.__about__ import __version__
-from gotenberg_client._convert.chromium import ChromiumApi
+from gotenberg_client._chromium.api import ChromiumApi
 from gotenberg_client._convert.libre_office import LibreOfficeApi
 from gotenberg_client._convert.pdfa import PdfAApi
 from gotenberg_client._health import HealthCheckApi
