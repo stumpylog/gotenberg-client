@@ -42,7 +42,7 @@ class _BaseReadPdfMetadataRoute:
 class SyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, SyncBaseRoute):
     def run(self) -> dict[str, dict[str, str]]:  # type: ignore[override]
         response = self.post_data()
-        return response.json()
+        return response.json()  # type: ignore[misc]
 
     def run_with_retry(  # type: ignore[override]
         self,
@@ -56,13 +56,13 @@ class SyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, SyncBaseRoute):
             initial_retry_wait=initial_retry_wait,
             retry_scale=retry_scale,
         )
-        return response.json()
+        return response.json()  # type: ignore[misc]
 
 
 class AsyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, AsyncBaseRoute):
     async def run(self) -> dict[str, dict[str, str]]:  # type: ignore[override]
         response = await self.post_data()
-        return response.json()
+        return response.json()  # type: ignore[misc]
 
     async def run_with_retry(  # type: ignore[override]
         self,
@@ -76,7 +76,7 @@ class AsyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, AsyncBaseRoute):
             initial_retry_wait=initial_retry_wait,
             retry_scale=retry_scale,
         )
-        return response.json()
+        return response.json()  # type: ignore[misc]
 
 
 class _BaseWritePdfMetadataRoute(MetadataMixin):
