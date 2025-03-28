@@ -36,6 +36,10 @@ from gotenberg_client._merge.routes import AsyncMergePdfsRoute
 from gotenberg_client._merge.routes import SyncMergePdfsRoute
 from gotenberg_client._pdfa_ua.routes import AsyncConvertToArchiveFormatRoute
 from gotenberg_client._pdfa_ua.routes import SyncConvertToArchiveFormatRoute
+from gotenberg_client._pdfmetadata.routes import AsyncReadPdfMetadataRoute
+from gotenberg_client._pdfmetadata.routes import AsyncWritePdfMetadataRoute
+from gotenberg_client._pdfmetadata.routes import SyncReadPdfMetadataRoute
+from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
 
 logger = logging.getLogger("gotenberg-client.tests")
 
@@ -526,4 +530,32 @@ async def async_screenshot_markdown_route(
     async_client: AsyncGotenbergClient,
 ) -> AsyncGenerator[AsyncScreenshotFromMarkdownRoute, None]:
     async with async_client.chromium.screenshot_markdown() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_read_pdf_metadata_route(sync_client: SyncGotenbergClient) -> Generator[SyncReadPdfMetadataRoute, None, None]:
+    with sync_client.metadata.read() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_read_pdf_metadata_route(
+    async_client: AsyncGotenbergClient,
+) -> AsyncGenerator[AsyncReadPdfMetadataRoute, None]:
+    async with async_client.metadata.read() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_write_pdf_metadata_route(sync_client: SyncGotenbergClient) -> Generator[SyncWritePdfMetadataRoute, None, None]:
+    with sync_client.metadata.write() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_write_pdf_metadata_route(
+    async_client: AsyncGotenbergClient,
+) -> AsyncGenerator[AsyncWritePdfMetadataRoute, None]:
+    async with async_client.metadata.write() as route:
         yield route

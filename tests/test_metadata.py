@@ -11,10 +11,13 @@ from gotenberg_client import GotenbergClient
 from gotenberg_client import InvalidKeywordError
 from gotenberg_client import InvalidPdfRevisionError
 from gotenberg_client._common import MetadataMixin
+from gotenberg_client._pdfmetadata.routes import AsyncReadPdfMetadataRoute
+from gotenberg_client._pdfmetadata.routes import SyncReadPdfMetadataRoute
+from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
 from gotenberg_client.options import TrappedStatus
 
 
-class TestPdfMetadata:
+class TestPdfMetadataOnConvert:
     def test_metadata_basic(
         self,
         sync_client: GotenbergClient,
@@ -186,3 +189,71 @@ class TestPdfMetadata:
                 )
                 .run_with_retry()
             )
+
+
+class TestPdfMetadataReadExisting:
+    async def test_read_metadata_from_pdf(
+        self,
+        async_read_pdf_metadata_route: AsyncReadPdfMetadataRoute,
+        pdf_sample_one_file: Path,
+    ):
+        response = await async_read_pdf_metadata_route.read(pdf_sample_one_file).run_with_retry()
+        assert pdf_sample_one_file.name in response
+
+        # These are the stable fields
+        assert response[pdf_sample_one_file.name]["CreateDate"] == "2018:12:06 17:50:06+00:00"
+        assert response[pdf_sample_one_file.name]["Creator"] == "Chromium"
+        assert response[pdf_sample_one_file.name]["FileName"] == pdf_sample_one_file.name
+        assert response[pdf_sample_one_file.name]["FileSize"] == "208 kB"
+        assert response[pdf_sample_one_file.name]["FileType"] == "PDF"
+        assert response[pdf_sample_one_file.name]["FileTypeExtension"] == "pdf"
+        assert response[pdf_sample_one_file.name]["Linearized"] == "No"
+        assert response[pdf_sample_one_file.name]["MIMEType"] == "application/pdf"
+        assert response[pdf_sample_one_file.name]["ModifyDate"] == "2018:12:06 17:50:06+00:00"
+        assert response[pdf_sample_one_file.name]["PDFVersion"] == 1.4
+        assert response[pdf_sample_one_file.name]["PageCount"] == 3
+        assert response[pdf_sample_one_file.name]["Producer"] == "Skia/PDF m70"
+
+    def test_read_metadata_from_pdf_sync(
+        self,
+        sync_read_pdf_metadata_route: SyncReadPdfMetadataRoute,
+        pdf_sample_one_file: Path,
+    ):
+        response = sync_read_pdf_metadata_route.read(pdf_sample_one_file).run_with_retry()
+        assert pdf_sample_one_file.name in response
+
+        # These are the stable fields
+        assert response[pdf_sample_one_file.name]["CreateDate"] == "2018:12:06 17:50:06+00:00"
+        assert response[pdf_sample_one_file.name]["Creator"] == "Chromium"
+        assert response[pdf_sample_one_file.name]["FileName"] == pdf_sample_one_file.name
+        assert response[pdf_sample_one_file.name]["FileSize"] == "208 kB"
+        assert response[pdf_sample_one_file.name]["FileType"] == "PDF"
+        assert response[pdf_sample_one_file.name]["FileTypeExtension"] == "pdf"
+        assert response[pdf_sample_one_file.name]["Linearized"] == "No"
+        assert response[pdf_sample_one_file.name]["MIMEType"] == "application/pdf"
+        assert response[pdf_sample_one_file.name]["ModifyDate"] == "2018:12:06 17:50:06+00:00"
+        assert response[pdf_sample_one_file.name]["PDFVersion"] == 1.4
+        assert response[pdf_sample_one_file.name]["PageCount"] == 3
+        assert response[pdf_sample_one_file.name]["Producer"] == "Skia/PDF m70"
+
+
+class TestPdfMetadataWriteExisting:
+    def test_write_metadata_to_pdf(
+        self,
+        sync_write_pdf_metadata_route: SyncWritePdfMetadataRoute,
+        pdf_sample_one_file: Path,
+        tmp_path: Path,
+    ):
+        author = "Gotenberg Testing"
+        response = sync_write_pdf_metadata_route.write(pdf_sample_one_file).metadata(author=author).run_with_retry()
+
+        assert response.status_code == codes.OK
+        assert "Content-Type" in response.headers
+        assert response.headers["Content-Type"] == "application/pdf"
+
+        output = tmp_path / "test_write_metadata_to_pdf.pdf"
+        response.to_file(output)
+
+        with pikepdf.Pdf.open(output) as pdf:
+            assert "/Author" in pdf.docinfo
+            assert pdf.docinfo["/Author"] == author

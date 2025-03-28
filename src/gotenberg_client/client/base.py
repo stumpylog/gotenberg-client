@@ -33,6 +33,8 @@ from gotenberg_client._merge import AsyncMergePdfsApi
 from gotenberg_client._merge import SyncMergePdfsApi
 from gotenberg_client._pdfa_ua import AsyncPdfAApi
 from gotenberg_client._pdfa_ua import SyncPdfAApi
+from gotenberg_client._pdfmetadata import AsyncPdfMetadataApi
+from gotenberg_client._pdfmetadata import SyncPdfMetadataApi
 
 SyncOrAsyncApiT = TypeVar("SyncOrAsyncApiT", bound="SyncBaseApi | AsyncBaseApi")
 
@@ -248,27 +250,30 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
         return SyncPdfAApi(self._client, self._log)
 
     @property
-    def metadata(self) -> SyncOrAsyncApiT:
-        raise NotImplementedError
+    def metadata(self) -> SyncPdfMetadataApi:
+        return SyncPdfMetadataApi(self._client, self._log)
 
     @property
     def merge(self) -> SyncMergePdfsApi:
         return SyncMergePdfsApi(self._client, self._log)
 
+    # TODO: Implement this
     @property
-    def split(self) -> SyncOrAsyncApiT:
+    def split(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
         raise NotImplementedError
 
+    # TODO: Implement this
     @property
-    def flatten(self) -> SyncOrAsyncApiT:
+    def flatten(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
         raise NotImplementedError
 
     @property
     def health(self) -> SyncHealthCheckApi:
         return SyncHealthCheckApi(self._client, self._log)
 
+    # TODO: Implement this
     @property
-    def version(self) -> SyncOrAsyncApiT:
+    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
         raise NotImplementedError
 
 
@@ -317,27 +322,30 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         return AsyncPdfAApi(self._client, self._log)
 
     @property
-    def metadata(self) -> SyncOrAsyncApiT:
-        raise NotImplementedError
+    def metadata(self) -> AsyncPdfMetadataApi:
+        return AsyncPdfMetadataApi(self._client, self._log)
 
     @property
     def merge(self) -> AsyncMergePdfsApi:
         return AsyncMergePdfsApi(self._client, self._log)
 
+    # TODO: Implement this
     @property
-    def split(self) -> SyncOrAsyncApiT:
+    def split(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
         raise NotImplementedError
 
+    # TODO: Implement this
     @property
-    def flatten(self) -> SyncOrAsyncApiT:
+    def flatten(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
         raise NotImplementedError
 
     @property
     def health(self) -> AsyncHealthCheckApi:
         return AsyncHealthCheckApi(self._client, self._log)
 
+    # TODO: Implement this
     @property
-    def version(self) -> SyncOrAsyncApiT:
+    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
         raise NotImplementedError
 
 
