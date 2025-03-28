@@ -7,7 +7,7 @@ from typing import Final
 from typing import Optional
 from typing import Union
 
-from gotenberg_client._types import FormFieldType
+FormFieldType = Union[bool, int, float, str]
 
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128

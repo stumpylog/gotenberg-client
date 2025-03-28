@@ -63,7 +63,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = [ "ruff ~= 0.9" ]
+dependencies = [ "ruff ~= 0.11" ]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]
@@ -85,6 +85,7 @@ extra-dependencies = [
   "pikepdf",
   "python-magic",
   "pytest-docker ~= 3.1",
+  "pytest-asyncio",
 ]
 extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
 
@@ -256,6 +257,8 @@ max_supported_python = "3.13"
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = [ "tests" ]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
 
 [tool.pytest_env]
 #SAVE_TEST_OUTPUT = 1

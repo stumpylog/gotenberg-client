@@ -1,60 +1,29 @@
 # SPDX-FileCopyrightText: 2025-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-import dataclasses
-import enum
+from datetime import timedelta
+from http import HTTPMethod
+from typing import TYPE_CHECKING
+from typing import Literal
+from typing import TypeVar
+from typing import Union
 
-from gotenberg_client._common.protocols import MeasurementValueType
-from gotenberg_client._utils import optional_to_form
+if TYPE_CHECKING:
+    from httpx import AsyncClient
+    from httpx import Client
 
+    from gotenberg_client._base import AsyncBaseRoute
+    from gotenberg_client._base import SyncBaseRoute
 
-class UnitType(str, enum.Enum):
-    """
-    Represents the different units of measurement for sizes.
+MeasurementValueType = Union[float, int]
+PageScaleType = Union[float, int]
+WaitTimeType = Union[float, int, timedelta]
+FormFieldType = Union[bool, int, float, str]
+PageSizeType = Union[float, int]
+MarginSizeType = Union[float, int]
+HttpMethodsType = Literal[HTTPMethod.POST, HTTPMethod.PATCH, HTTPMethod.PUT]
 
-    Attributes:
-        Undefined: Indicates that no unit is specified. (Gotenberg will use inches )
-        Points: Represents points (1/72 of an inch).
-        Pixels: Represents pixels.
-        Inches: Represents inches.
-        Millimeters: Represents millimeters.
-        Centimeters: Represents centimeters.
-        Percent: Represents a percentage relative to the page size.
-    """
-
-    Undefined = "none"
-    Points = "pt"
-    Pixels = "px"
-    Inches = "in"
-    Millimeters = "mm"
-    Centimeters = "cm"
-    Percent = "pc"
+ClientT = TypeVar("ClientT", bound="Client | AsyncClient")
 
 
-@dataclasses.dataclass
-class Measurement:
-    """
-    Represents a value with a specified unit of measurement.
-
-    Attributes:
-        value (MeasurementValueType): The numerical value of the measurement.
-        unit (UnitType): The unit of measurement for the measurement.
-    """
-
-    value: MeasurementValueType
-    unit: UnitType = UnitType.Undefined
-
-    def to_form(self, name: str) -> dict[str, str]:
-        """
-        Converts this Measurement object to a dictionary suitable for form data.
-
-        Returns:
-            A dictionary containing the name with the formatted measurement value, according to the
-            defined units of the measurement
-        """
-
-        if self.unit == UnitType.Undefined:
-            return optional_to_form(self.value, name)
-        else:
-            # Fail to see how mypy thinks this is "Any"
-            return optional_to_form(f"{self.value}{self.unit.value}", name)  # type: ignore[misc]
+SyncOrAsyncRouteT = TypeVar("SyncOrAsyncRouteT", bound="SyncBaseRoute | AsyncBaseRoute")

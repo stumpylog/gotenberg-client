@@ -4,11 +4,98 @@
 import dataclasses
 import enum
 from typing import Final
+from typing import Literal
 from typing import Optional
+from typing import Union
 
-from gotenberg_client._types import MarginSizeType
-from gotenberg_client._types import PageSizeType
+from gotenberg_client._utils import bool_to_form
 from gotenberg_client._utils import optional_to_form
+
+MeasurementValueType = Union[float, int]
+
+
+@dataclasses.dataclass
+class ChromiumCookieJar:
+    """
+    https://gotenberg.dev/docs/routes#cookies-chromium
+    """
+
+    name: str
+    value: str
+    domain: str
+    path: Optional[str] = None
+    secure: Optional[bool] = None
+    http_only: Optional[bool] = None
+    same_site: Optional[Literal["Strict", "Lax", "None"]] = None
+
+    def asdict(self) -> dict[str, str]:
+        data = {
+            "name": self.name,
+            "value": self.value,
+            "domain": self.domain,
+        }
+        if self.path:
+            data["path"] = self.path
+        if self.secure:
+            data.update(bool_to_form("secure", self.secure))
+        if self.http_only:
+            data.update(bool_to_form("httpOnly", self.http_only))
+        if self.same_site:
+            data["sameSite"] = self.same_site
+        return data
+
+
+@enum.unique
+class MeasurementUnitType(str, enum.Enum):
+    """
+    Represents the different units of measurement for sizes.
+
+    Attributes:
+        Undefined: Indicates that no unit is specified. (Gotenberg will use inches )
+        Points: Represents points (1/72 of an inch).
+        Pixels: Represents pixels.
+        Inches: Represents inches.
+        Millimeters: Represents millimeters.
+        Centimeters: Represents centimeters.
+        Percent: Represents a percentage relative to the page size.
+    """
+
+    Undefined = "none"
+    Points = "pt"
+    Pixels = "px"
+    Inches = "in"
+    Millimeters = "mm"
+    Centimeters = "cm"
+    Percent = "pc"
+
+
+@dataclasses.dataclass
+class Measurement:
+    """
+    Represents a value with a specified unit of measurement.
+
+    Attributes:
+        value (MeasurementValueType): The numerical value of the measurement.
+        unit (UnitType): The unit of measurement for the measurement.
+    """
+
+    value: MeasurementValueType
+    unit: MeasurementUnitType = MeasurementUnitType.Undefined
+
+    def to_form(self, name: str) -> dict[str, str]:
+        """
+        Converts this Measurement object to a dictionary suitable for form data.
+
+        Returns:
+            A dictionary containing the name with the formatted measurement value, according to the
+            defined units of the measurement
+        """
+
+        if self.unit == MeasurementUnitType.Undefined:
+            return optional_to_form(self.value, name)
+        else:
+            # Fail to see how mypy thinks this is "Any"
+            return optional_to_form(f"{self.value}{self.unit.value}", name)  # type: ignore[misc]
 
 
 @enum.unique
@@ -23,7 +110,7 @@ class PdfAFormat(enum.Enum):
       - https://gotenberg.dev/docs/routes#merge-pdfs-route
     """
 
-    A1a = enum.auto()  # Deprecated format (warning included)
+    A1a = enum.auto()
     A2b = enum.auto()
     A3b = enum.auto()
 
@@ -45,7 +132,7 @@ class PdfAFormat(enum.Enum):
 
         format_name = format_mapping[self]
         # Warn about deprecated format usage (ideally move outside this method)
-        if self is PdfAFormat.A1a:  # pragma: no cover
+        if self is PdfAFormat.A1a:
             import warnings
 
             warnings.warn(
@@ -76,8 +163,8 @@ class PageOrientation(enum.Enum):
         """
 
         orientation_mapping: Final[dict[PageOrientation, dict[str, str]]] = {
-            PageOrientation.Landscape: {"landscape": "true"},
-            PageOrientation.Portrait: {"landscape": "false"},
+            PageOrientation.Landscape: bool_to_form("landscape", True),
+            PageOrientation.Portrait: bool_to_form("landscape", False),
         }
 
         return orientation_mapping[self]
@@ -89,12 +176,12 @@ class PageSize:
     Represents the dimensions of a page in Gotenberg.
 
     Attributes:
-        width (Optional[PageSizeType]): The width of the page.
-        height (Optional[PageSizeType]): The height of the page.
+        width (Optional[Measurement]): The width of the page.
+        height (Optional[Measurement]): The height of the page.
     """
 
-    width: Optional[PageSizeType] = None
-    height: Optional[PageSizeType] = None
+    width: Optional[Measurement] = None
+    height: Optional[Measurement] = None
 
     def to_form(self) -> dict[str, str]:
         """
@@ -104,75 +191,11 @@ class PageSize:
             A dictionary containing the "paperWidth" and "paperHeight" keys with their corresponding values,
             if they are not None.
         """
-        data = optional_to_form(self.width, "paperWidth")
-        data.update(optional_to_form(self.height, "paperHeight"))
+        data: dict[str, str] = {}
+        for field, name in [(self.width, "paperWidth"), (self.height, "paperHeight")]:
+            if field:
+                data.update(field.to_form(name))
         return data
-
-
-# Define common paper sizes as shortcuts
-A0: Final = PageSize(width=33.1, height=46.8)
-A1: Final = PageSize(width=23.4, height=33.1)
-A2: Final = PageSize(width=16.54, height=23.4)
-A3: Final = PageSize(width=11.7, height=16.54)
-A4: Final = PageSize(width=8.27, height=11.7)
-A5: Final = PageSize(width=5.83, height=8.27)
-A6: Final = PageSize(width=4.13, height=5.83)
-Letter: Final = PageSize(width=8.5, height=11)
-Legal: Final = PageSize(width=8.5, height=14)
-Tabloid: Final = PageSize(width=11, height=17)
-Ledge: Final = PageSize(width=17, height=11)
-
-
-class MarginUnitType(str, enum.Enum):
-    """
-    Represents the different units of measurement for page margins.
-
-    Attributes:
-        Undefined: Indicates that no unit is specified.
-        Points: Represents points (1/72 of an inch).
-        Pixels: Represents pixels.
-        Inches: Represents inches.
-        Millimeters: Represents millimeters.
-        Centimeters: Represents centimeters.
-        Percent: Represents a percentage relative to the page size.
-    """
-
-    Undefined = "none"
-    Points = "pt"
-    Pixels = "px"
-    Inches = "in"
-    Millimeters = "mm"
-    Centimeters = "cm"
-    Percent = "pc"
-
-
-@dataclasses.dataclass
-class MarginType:
-    """
-    Represents a margin value with a specified unit of measurement.
-
-    Attributes:
-        value (MarginSizeType): The numerical value of the margin.
-        unit (MarginUnitType): The unit of measurement for the margin.
-    """
-
-    value: MarginSizeType
-    unit: MarginUnitType = MarginUnitType.Undefined
-
-    def to_form(self, name: str) -> dict[str, str]:
-        """
-        Converts this MarginType object to a dictionary suitable for form data.
-
-        Returns:
-            A dictionary containing the "margin" key with the formatted margin value as the value.
-            The margin value is formatted as a string with the unit appended.
-        """
-
-        if self.unit == MarginUnitType.Undefined:
-            return optional_to_form(self.value, name)
-        else:
-            # Fail to see how mypy thinks this is "Any"
-            return optional_to_form(f"{self.value}{self.unit.value}", name)  # type: ignore[misc]
 
 
 @dataclasses.dataclass
@@ -181,16 +204,16 @@ class PageMarginsType:
     Represents the margins for a page in Gotenberg.
 
     Attributes:
-        top (Optional[MarginType]): The top margin of the page.
-        bottom (Optional[MarginType]): The bottom margin of the page.
-        left (Optional[MarginType]): The left margin of the page.
-        right (Optional[MarginType]): The right margin of the page.
+        top (Optional[Measurement]): The top margin of the page.
+        bottom (Optional[Measurement]): The bottom margin of the page.
+        left (Optional[Measurement]): The left margin of the page.
+        right (Optional[Measurement]): The right margin of the page.
     """
 
-    top: Optional[MarginType] = None
-    bottom: Optional[MarginType] = None
-    left: Optional[MarginType] = None
-    right: Optional[MarginType] = None
+    top: Optional[Measurement] = None
+    bottom: Optional[Measurement] = None
+    left: Optional[Measurement] = None
+    right: Optional[Measurement] = None
 
     def to_form(self) -> dict[str, str]:
         """
@@ -209,31 +232,6 @@ class PageMarginsType:
                 form_data.update(margin.to_form(name))
 
         return form_data
-
-
-@enum.unique
-class EmulatedMediaType(str, enum.Enum):
-    """
-    Represents the different media types Gotenberg can emulate for rendering.
-
-    Attributes:
-        Print: Emulates print media for print-optimized output.
-        Screen: Emulates screen media for displaying on screens.
-    """
-
-    Print = enum.auto()
-    Screen = enum.auto()
-
-    def to_form(self) -> dict[str, str]:
-        """
-        Converts this EmulatedMediaType enum value to a dictionary suitable for form data.
-
-        Returns:
-            A dictionary containing a single key-value pair with the key "emulatedMediaType"
-            and the corresponding Gotenberg value ("print" or "screen") as the value.
-        """
-
-        return {"emulatedMediaType": self.name.lower()}
 
 
 @enum.unique

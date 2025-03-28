@@ -10,14 +10,14 @@ from httpx import codes
 from gotenberg_client import GotenbergClient
 from gotenberg_client import InvalidKeywordError
 from gotenberg_client import InvalidPdfRevisionError
-from gotenberg_client._convert.common import MetadataMixin
+from gotenberg_client._common import MetadataMixin
 from gotenberg_client.options import TrappedStatus
 
 
 class TestPdfMetadata:
     def test_metadata_basic(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         tmp_path: Path,
         webserver_docker_internal_url: str,
     ):
@@ -36,7 +36,7 @@ class TestPdfMetadata:
         title = "An override title"
         trapped = TrappedStatus.TRUE
 
-        with client.chromium.url_to_pdf() as route:
+        with sync_client.chromium.url_to_pdf() as route:
             resp = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -87,8 +87,13 @@ class TestPdfMetadata:
 
             # TODO(stumpylog): Investigate why certain fields seems to not be possible to set
 
-    def test_metadata_trapped_bool(self, client: GotenbergClient, tmp_path: Path, webserver_docker_internal_url: str):
-        with client.chromium.url_to_pdf() as route:
+    def test_metadata_trapped_bool(
+        self,
+        sync_client: GotenbergClient,
+        tmp_path: Path,
+        webserver_docker_internal_url: str,
+    ):
+        with sync_client.chromium.url_to_pdf() as route:
             resp = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -110,7 +115,7 @@ class TestPdfMetadata:
 
     def test_metadata_merging(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         tmp_path: Path,
         webserver_docker_internal_url: str,
     ):
@@ -118,7 +123,7 @@ class TestPdfMetadata:
         new_title = "An New Title"
         trapped = TrappedStatus.UNKNOWN
 
-        with client.chromium.url_to_pdf() as route:
+        with sync_client.chromium.url_to_pdf() as route:
             resp = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -149,12 +154,12 @@ class TestPdfMetadata:
     )
     def test_metadata_invalid_pdf_revision(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         webserver_docker_internal_url: str,
         base_value: float,
         delta: float,
     ):
-        with client.chromium.url_to_pdf() as route, pytest.raises(InvalidPdfRevisionError):
+        with sync_client.chromium.url_to_pdf() as route, pytest.raises(InvalidPdfRevisionError):
             _ = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -169,11 +174,11 @@ class TestPdfMetadata:
     )
     def test_metadata_invalid_pdf_keyword(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         webserver_docker_internal_url: str,
         keywords: list[str],
     ):
-        with client.chromium.url_to_pdf() as route, pytest.raises(InvalidKeywordError):
+        with sync_client.chromium.url_to_pdf() as route, pytest.raises(InvalidKeywordError):
             _ = (
                 route.url(webserver_docker_internal_url)
                 .metadata(

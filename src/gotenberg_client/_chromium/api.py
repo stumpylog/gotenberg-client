@@ -3,16 +3,23 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
-from gotenberg_client._base import BaseApi
-from gotenberg_client._chromium.routes import HtmlToPdfRoute
-from gotenberg_client._chromium.routes import MarkdownToPdfRoute
-from gotenberg_client._chromium.routes import ScreenshotFromHtmlRoute
-from gotenberg_client._chromium.routes import ScreenshotFromMarkdownRoute
-from gotenberg_client._chromium.routes import ScreenshotFromUrlRoute
-from gotenberg_client._chromium.routes import UrlToPdfRoute
+from gotenberg_client._base import AsyncBaseApi
+from gotenberg_client._base import SyncBaseApi
+from gotenberg_client._chromium.routes import AsyncHtmlToPdfRoute
+from gotenberg_client._chromium.routes import AsyncMarkdownToPdfRoute
+from gotenberg_client._chromium.routes import AsyncScreenshotFromHtmlRoute
+from gotenberg_client._chromium.routes import AsyncScreenshotFromMarkdownRoute
+from gotenberg_client._chromium.routes import AsyncScreenshotFromUrlRoute
+from gotenberg_client._chromium.routes import AsyncUrlToPdfRoute
+from gotenberg_client._chromium.routes import SyncHtmlToPdfRoute
+from gotenberg_client._chromium.routes import SyncMarkdownToPdfRoute
+from gotenberg_client._chromium.routes import SyncScreenshotFromHtmlRoute
+from gotenberg_client._chromium.routes import SyncScreenshotFromMarkdownRoute
+from gotenberg_client._chromium.routes import SyncScreenshotFromUrlRoute
+from gotenberg_client._chromium.routes import SyncUrlToPdfRoute
 
 
-class ChromiumApi(BaseApi):
+class SyncChromiumApi(SyncBaseApi):
     """
     Represents the Gotenberg API for Chromium-based conversions and screenshots.
 
@@ -21,62 +28,124 @@ class ChromiumApi(BaseApi):
     https://gotenberg.dev/docs/routes#convert-with-chromium
     """
 
-    def html_to_pdf(self) -> HtmlToPdfRoute:
+    def html_to_pdf(self) -> SyncHtmlToPdfRoute:
         """
-        Creates an HtmlToPdfRoute object for converting HTML to PDF.
+        Creates an SyncHtmlToPdfRoute object for converting HTML to PDF.
 
         Returns:
-            HtmlToPdfRoute: A new HtmlToPdfRoute object.
+            SyncHtmlToPdfRoute: A new SyncHtmlToPdfRoute object.
         """
 
-        return HtmlToPdfRoute(self._client, HtmlToPdfRoute.ENDPOINT_URL)
+        return SyncHtmlToPdfRoute(self._client, SyncHtmlToPdfRoute.ENDPOINT_URL, self._log)
 
-    def url_to_pdf(self) -> UrlToPdfRoute:
+    def url_to_pdf(self) -> SyncUrlToPdfRoute:
         """
-        Creates a UrlToPdfRoute object for converting URLs to PDF.
+        Creates a SyncUrlToPdfRoute object for converting URLs to PDF.
 
         Returns:
-            UrlToPdfRoute: A new UrlToPdfRoute object.
+            SyncUrlToPdfRoute: A new SyncUrlToPdfRoute object.
         """
 
-        return UrlToPdfRoute(self._client, UrlToPdfRoute.ENDPOINT_URL)
+        return SyncUrlToPdfRoute(self._client, SyncUrlToPdfRoute.ENDPOINT_URL, self._log)
 
-    def markdown_to_pdf(self) -> MarkdownToPdfRoute:
+    def markdown_to_pdf(self) -> SyncMarkdownToPdfRoute:
         """
-        Creates a MarkdownToPdfRoute object for converting Markdown to PDF.
+        Creates a SyncMarkdownToPdfRoute object for converting Markdown to PDF.
 
         Returns:
-            MarkdownToPdfRoute: A new MarkdownToPdfRoute object.
+            SyncMarkdownToPdfRoute: A new SyncMarkdownToPdfRoute object.
         """
 
-        return MarkdownToPdfRoute(self._client, MarkdownToPdfRoute.ENDPOINT_URL)
+        return SyncMarkdownToPdfRoute(self._client, SyncMarkdownToPdfRoute.ENDPOINT_URL, self._log)
 
-    def screenshot_url(self) -> ScreenshotFromUrlRoute:
+    def screenshot_url(self) -> SyncScreenshotFromUrlRoute:
         """
-        Creates a ScreenshotFromUrlRoute object for capturing screenshots from URLs.
+        Creates a SyncScreenshotFromUrlRoute object for capturing screenshots from URLs.
 
         Returns:
-            ScreenshotFromUrlRoute: A new ScreenshotFromUrlRoute object.
+            SyncScreenshotFromUrlRoute: A new SyncScreenshotFromUrlRoute object.
         """
 
-        return ScreenshotFromUrlRoute(self._client, ScreenshotFromUrlRoute.ENDPOINT_URL)
+        return SyncScreenshotFromUrlRoute(self._client, SyncScreenshotFromUrlRoute.ENDPOINT_URL, self._log)
 
-    def screenshot_html(self) -> ScreenshotFromHtmlRoute:
+    def screenshot_html(self) -> SyncScreenshotFromHtmlRoute:
         """
-        Creates a ScreenshotFromHtmlRoute object for capturing screenshots from HTML files.
+        Creates a SyncScreenshotFromHtmlRoute object for capturing screenshots from HTML files.
 
         Returns:
-            ScreenshotFromHtmlRoute: A new ScreenshotFromHtmlRoute object.
+            SyncScreenshotFromHtmlRoute: A new SyncScreenshotFromHtmlRoute object.
         """
 
-        return ScreenshotFromHtmlRoute(self._client, ScreenshotFromHtmlRoute.ENDPOINT_URL)
+        return SyncScreenshotFromHtmlRoute(self._client, SyncScreenshotFromHtmlRoute.ENDPOINT_URL, self._log)
 
-    def screenshot_markdown(self) -> ScreenshotFromMarkdownRoute:
+    def screenshot_markdown(self) -> SyncScreenshotFromMarkdownRoute:
         """
-        Creates a ScreenshotFromMarkdownRoute object for capturing screenshots from Markdown files.
+        Creates a SyncScreenshotFromMarkdownRoute object for capturing screenshots from Markdown files.
 
         Returns:
-            ScreenshotFromMarkdownRoute: A new ScreenshotFromMarkdownRoute object.
+            SyncScreenshotFromMarkdownRoute: A new SyncScreenshotFromMarkdownRoute object.
         """
 
-        return ScreenshotFromMarkdownRoute(self._client, ScreenshotFromMarkdownRoute.ENDPOINT_URL)
+        return SyncScreenshotFromMarkdownRoute(self._client, SyncScreenshotFromMarkdownRoute.ENDPOINT_URL, self._log)
+
+
+class AsyncChromiumApi(AsyncBaseApi):
+    def html_to_pdf(self) -> AsyncHtmlToPdfRoute:
+        """
+        Creates an AsyncHtmlToPdfRoute object for converting HTML to PDF.
+
+        Returns:
+            AsyncHtmlToPdfRoute: A new AsyncHtmlToPdfRoute object.
+        """
+
+        return AsyncHtmlToPdfRoute(self._client, SyncHtmlToPdfRoute.ENDPOINT_URL, self._log)
+
+    def url_to_pdf(self) -> AsyncUrlToPdfRoute:
+        """
+        Creates a AsyncUrlToPdfRoute object for converting URLs to PDF.
+
+        Returns:
+            AsyncUrlToPdfRoute: A new AsyncUrlToPdfRoute object.
+        """
+
+        return AsyncUrlToPdfRoute(self._client, AsyncUrlToPdfRoute.ENDPOINT_URL, self._log)
+
+    def markdown_to_pdf(self) -> AsyncMarkdownToPdfRoute:
+        """
+        Creates a AsyncMarkdownToPdfRoute object for converting Markdown to PDF.
+
+        Returns:
+            AsyncMarkdownToPdfRoute: A new AsyncMarkdownToPdfRoute object.
+        """
+
+        return AsyncMarkdownToPdfRoute(self._client, AsyncMarkdownToPdfRoute.ENDPOINT_URL, self._log)
+
+    def screenshot_url(self) -> AsyncScreenshotFromUrlRoute:
+        """
+        Creates a AsyncScreenshotFromUrlRoute object for capturing screenshots from URLs.
+
+        Returns:
+            AsyncScreenshotFromUrlRoute: A new AsyncScreenshotFromUrlRoute object.
+        """
+
+        return AsyncScreenshotFromUrlRoute(self._client, AsyncScreenshotFromUrlRoute.ENDPOINT_URL, self._log)
+
+    def screenshot_html(self) -> AsyncScreenshotFromHtmlRoute:
+        """
+        Creates a AsyncScreenshotFromHtmlRoute object for capturing screenshots from HTML files.
+
+        Returns:
+            AsyncScreenshotFromHtmlRoute: A new AsyncScreenshotFromHtmlRoute object.
+        """
+
+        return AsyncScreenshotFromHtmlRoute(self._client, AsyncScreenshotFromHtmlRoute.ENDPOINT_URL, self._log)
+
+    def screenshot_markdown(self) -> AsyncScreenshotFromMarkdownRoute:
+        """
+        Creates a AsyncScreenshotFromMarkdownRoute object for capturing screenshots from Markdown files.
+
+        Returns:
+            AsyncScreenshotFromMarkdownRoute: A new SyncScreenshotFromMarkdownRoute object.
+        """
+
+        return AsyncScreenshotFromMarkdownRoute(self._client, AsyncScreenshotFromMarkdownRoute.ENDPOINT_URL, self._log)

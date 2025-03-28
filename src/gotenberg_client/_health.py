@@ -5,12 +5,16 @@ import dataclasses
 import datetime
 import enum
 import re
+from contextlib import AbstractAsyncContextManager
+from contextlib import AbstractContextManager
+from types import TracebackType
 from typing import Final
 from typing import Optional
 from typing import TypedDict
 from typing import no_type_check
 
-from gotenberg_client._base import BaseApi
+from gotenberg_client._base import AsyncBaseApi
+from gotenberg_client._base import SyncBaseApi
 
 _TIME_RE = re.compile(
     r"(?P<year>\d{4})-"
@@ -72,7 +76,7 @@ class HealthStatus:
             self.chromium = self._extract_status(ModuleOptions.Chromium)
 
         self.uno: Optional[ModuleStatus] = None
-        if ModuleOptions.Uno.value in self.data["details"]:
+        if ModuleOptions.Uno.value in self.data["details"]:  # pragma: no cover
             self.uno = self._extract_status(ModuleOptions.Uno)
 
     def _extract_status(self, module: ModuleOptions) -> ModuleStatus:
@@ -117,7 +121,7 @@ class HealthStatus:
         )
 
 
-class HealthCheckApi(BaseApi):
+class _BaseHealthCheckApi:
     """
     Provides the route for health checks in the Gotenberg API.
 
@@ -129,7 +133,20 @@ class HealthCheckApi(BaseApi):
 
     """
 
-    _HEALTH_ENDPOINT: Final[str] = "/health"
+    HEALTH_ENDPOINT: Final[str] = "/health"
+
+
+class SyncHealthCheckApi(_BaseHealthCheckApi, AbstractContextManager, SyncBaseApi):
+    """
+    Provides the route for health checks in the Gotenberg API.
+
+    This class encapsulates the functionality to perform health checks on the Gotenberg service.
+    It inherits from BaseApi, presumably providing common API functionality.
+
+    For more information on Gotenberg's health check endpoint, see:
+    https://gotenberg.dev/docs/routes#health
+
+    """
 
     def health(self) -> HealthStatus:
         """
@@ -147,7 +164,46 @@ class HealthCheckApi(BaseApi):
         Raises:
             httpx.HTTPStatusError: If the request to the health check endpoint fails.
         """
-        resp = self._client.get(self._HEALTH_ENDPOINT, headers={"Accept": "application/json"})
+        resp = self._client.get(self.HEALTH_ENDPOINT, headers={"Accept": "application/json"})
         resp.raise_for_status()
         json_data: _HealthCheckApiResponseType = resp.json()
         return HealthStatus(json_data)
+
+    async def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        pass
+
+
+class AsyncHealthCheckApi(_BaseHealthCheckApi, AbstractAsyncContextManager, AsyncBaseApi):
+    async def health(self) -> HealthStatus:
+        """
+        Perform a health check on the Gotenberg service.
+
+        This method sends a GET request to the Gotenberg health check endpoint
+        and returns the parsed health status.
+
+        For more details on the health check API, see:
+        https://gotenberg.dev/docs/routes#health
+
+        Returns:
+            HealthStatus: An object representing the current health status of the Gotenberg service.
+
+        Raises:
+            httpx.HTTPStatusError: If the request to the health check endpoint fails.
+        """
+        resp = await self._client.get(self.HEALTH_ENDPOINT, headers={"Accept": "application/json"})
+        resp.raise_for_status()
+        json_data: _HealthCheckApiResponseType = resp.json()
+        return HealthStatus(json_data)
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        pass

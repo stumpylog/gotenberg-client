@@ -1,41 +1,87 @@
 # SPDX-FileCopyrightText: 2025-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 from pathlib import Path
 from typing import Final
 from typing import Optional
 
-from gotenberg_client._base import BaseSingleFileResponseRoute
-from gotenberg_client._chromium.options import ChromiumConsoleExceptions
-from gotenberg_client._chromium.options import ChromiumCookies
-from gotenberg_client._chromium.options import ChromiumCustomHTTPHeader
-from gotenberg_client._chromium.options import ChromiumCustomHttpStatusCodes
-from gotenberg_client._chromium.options import ChromiumEmulatedMediaType
-from gotenberg_client._chromium.options import ChromiumHeaderFooter
-from gotenberg_client._chromium.options import ChromiumMetadata
-from gotenberg_client._chromium.options import ChromiumNetworkErrors
-from gotenberg_client._chromium.options import ChromiumPageProperties
-from gotenberg_client._chromium.options import ChromiumPdfOptions
-from gotenberg_client._chromium.options import ChromiumPerformanceMode
-from gotenberg_client._chromium.options import ChromiumRenderWait
-from gotenberg_client._chromium.options import ChromiumSplit
-from gotenberg_client._chromium.options import ScreenshotSettings
-from gotenberg_client._types import Self
+from gotenberg_client._base import AsyncBaseRoute
+from gotenberg_client._base import SyncBaseRoute
+from gotenberg_client._chromium.mixins import ConsoleExceptionMixin
+from gotenberg_client._chromium.mixins import CookiesMixin
+from gotenberg_client._chromium.mixins import CssPageSizeMixin
+from gotenberg_client._chromium.mixins import CustomHTTPHeaderMixin
+from gotenberg_client._chromium.mixins import DocumentOutlineMixin
+from gotenberg_client._chromium.mixins import EmulatedMediaMixin
+from gotenberg_client._chromium.mixins import HeaderFooterMixin
+from gotenberg_client._chromium.mixins import InvalidStatusCodesMixin
+from gotenberg_client._chromium.mixins import MarginMixin
+from gotenberg_client._chromium.mixins import NativePageRangeMixin
+from gotenberg_client._chromium.mixins import NetworkErrorsMixin
+from gotenberg_client._chromium.mixins import OmitBackgroundMixin
+from gotenberg_client._chromium.mixins import PageOrientMixin
+from gotenberg_client._chromium.mixins import PageSizeMixin
+from gotenberg_client._chromium.mixins import PerformanceModeMixin
+from gotenberg_client._chromium.mixins import PrintBackgroundMixin
+from gotenberg_client._chromium.mixins import RenderControlMixin
+from gotenberg_client._chromium.mixins import ScaleMixin
+from gotenberg_client._chromium.mixins import ScreenShotSettingsMixin
+from gotenberg_client._chromium.mixins import SinglePageMixin
+from gotenberg_client._common import MetadataMixin
+from gotenberg_client._common import PdfFormatMixin
+from gotenberg_client._common import PfdUniversalAccessMixin
+from gotenberg_client._common import SplitModeMixin
+from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import FORCE_MULTIPART
 from gotenberg_client._utils import ForceMultipartDict
 
-logger = logging.getLogger()
+
+class _BaseChromiumConvertMixin(
+    SinglePageMixin,
+    PageSizeMixin,
+    MarginMixin,
+    CssPageSizeMixin,
+    DocumentOutlineMixin,
+    PrintBackgroundMixin,
+    OmitBackgroundMixin,
+    PageOrientMixin,
+    ScaleMixin,
+    NativePageRangeMixin,
+    HeaderFooterMixin,
+    RenderControlMixin,
+    EmulatedMediaMixin,
+    CookiesMixin,
+    CustomHTTPHeaderMixin,
+    InvalidStatusCodesMixin,
+    NetworkErrorsMixin,
+    ConsoleExceptionMixin,
+    PerformanceModeMixin,
+    SplitModeMixin,
+    PdfFormatMixin,
+    PfdUniversalAccessMixin,
+    MetadataMixin,
+):
+    """
+    The common form fields for the following:
+
+      - https://gotenberg.dev/docs/routes#url-into-pdf-route
+      - https://gotenberg.dev/docs/routes#html-file-into-pdf-route
+      - https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route
+    """
 
 
-class _FileBasedRoute(BaseSingleFileResponseRoute):
+class _BaseIndexFilesMixin:
+    """
+    Mixin for routes which require an index.html and supporting resources
+    """
+
     def index(self, index: Path) -> Self:
         """
         Adds the given HTML file as the index file.
 
         The file name will be ignored and cannot be configured
         """
-        self._add_file_map(index, name="index.html")
+        self._add_file_map(index, name="index.html")  # type: ignore[attr-defined]
         return self
 
     def string_index(self, index: str) -> Self:
@@ -49,18 +95,16 @@ class _FileBasedRoute(BaseSingleFileResponseRoute):
             Self: This object itself for method chaining.
         """
 
-        self._add_in_memory_file(index, name="index.html", mime_type="text/html")
+        self._add_in_memory_file(index, name="index.html", mime_type="text/html")  # type: ignore[attr-defined]
         return self
 
-
-class _RouteWithResources(BaseSingleFileResponseRoute):
     def resource(self, resource: Path, *, name: Optional[str] = None) -> Self:
         """
         Adds additional resources for the index HTML file to reference.
 
         The filename may optionally be overridden if the HTML refers to the file with a different name
         """
-        self._add_file_map(resource, name=name)
+        self._add_file_map(resource, name=name)  # type: ignore[attr-defined]
         return self
 
     def string_resource(self, resource: str, name: str, mime_type: Optional[str] = None) -> Self:
@@ -79,7 +123,7 @@ class _RouteWithResources(BaseSingleFileResponseRoute):
             Self: This object itself for method chaining.
         """
 
-        self._add_in_memory_file(resource, name=name, mime_type=mime_type)
+        self._add_in_memory_file(resource, name=name, mime_type=mime_type)  # type: ignore[attr-defined]
         return self
 
     def resources(self, resources: list[Path]) -> Self:
@@ -115,32 +159,15 @@ class _RouteWithResources(BaseSingleFileResponseRoute):
             The third element of each tuple (Resource Mime-Type) is optional.
         """
         for resource, name, mime_type in resources:
-            self._add_in_memory_file(resource, name=name, mime_type=mime_type)
+            self._add_in_memory_file(resource, name=name, mime_type=mime_type)  # type: ignore[attr-defined]
 
         return self
 
 
-class UrlToPdfRoute(
-    ChromiumPageProperties,
-    ChromiumHeaderFooter,
-    ChromiumRenderWait,
-    ChromiumEmulatedMediaType,
-    ChromiumCookies,
-    ChromiumCustomHTTPHeader,
-    ChromiumCustomHttpStatusCodes,
-    ChromiumNetworkErrors,
-    ChromiumConsoleExceptions,
-    ChromiumPerformanceMode,
-    ChromiumSplit,
-    ChromiumPdfOptions,
-    ChromiumMetadata,
-    BaseSingleFileResponseRoute,
-):
+class _BaseUrlFormMixin:
     """
-    https://gotenberg.dev/docs/routes#url-into-pdf-route
+    Mixin for routes which have no files but provide the url form field
     """
-
-    ENDPOINT_URL: Final[str] = "/forms/chromium/convert/url"
 
     def url(self, url: str) -> Self:
         """
@@ -153,7 +180,7 @@ class UrlToPdfRoute(
             UrlRoute: This object itself for method chaining.
         """
 
-        self._form_data["url"] = url
+        self._form_data["url"] = url  # type: ignore[attr-defined,misc]
         return self
 
     def _get_all_resources(self) -> ForceMultipartDict:
@@ -166,28 +193,39 @@ class UrlToPdfRoute(
         return FORCE_MULTIPART
 
 
-class HtmlToPdfRoute(
-    ChromiumPageProperties,
-    ChromiumHeaderFooter,
-    ChromiumRenderWait,
-    ChromiumMetadata,
-    _RouteWithResources,
-    _FileBasedRoute,
-):
+class _BaseUrlToPdfChromiumConvertRoute(_BaseUrlFormMixin, _BaseChromiumConvertMixin):
     """
-    https://gotenberg.dev/docs/routes#hPageOrientMixintml-file-into-pdf-route
+    https://gotenberg.dev/docs/routes#url-into-pdf-route
+    """
+
+    ENDPOINT_URL: Final[str] = "/forms/chromium/convert/url"
+
+
+class SyncUrlToPdfRoute(_BaseUrlToPdfChromiumConvertRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncUrlToPdfRoute(_BaseUrlToPdfChromiumConvertRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseHtmlToPdfRoute(_BaseIndexFilesMixin, _BaseChromiumConvertMixin):
+    """
+    https://gotenberg.dev/docs/routes#html-file-into-pdf-route
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/convert/html"
 
 
-class MarkdownToPdfRoute(
-    ChromiumPageProperties,
-    ChromiumHeaderFooter,
-    ChromiumMetadata,
-    _RouteWithResources,
-    _FileBasedRoute,
-):
+class SyncHtmlToPdfRoute(_BaseHtmlToPdfRoute, _BaseChromiumConvertMixin, SyncBaseRoute):
+    pass
+
+
+class AsyncHtmlToPdfRoute(_BaseHtmlToPdfRoute, _BaseChromiumConvertMixin, AsyncBaseRoute):
+    pass
+
+
+class _BaseMarkdownToPdfRoute(_BaseIndexFilesMixin, _BaseChromiumConvertMixin):
     """
     Represents the Gotenberg route for converting Markdown files to a PDF.
 
@@ -214,7 +252,7 @@ class MarkdownToPdfRoute(
             MarkdownRoute: This object itself for method chaining.
         """
 
-        self._add_file_map(markdown_file)
+        self._add_file_map(markdown_file)  # type: ignore[attr-defined]
 
         return self
 
@@ -233,35 +271,31 @@ class MarkdownToPdfRoute(
         return self
 
 
-class _BaseScreenShotRoute(
-    ScreenshotSettings,
-    ChromiumRenderWait,
-    ChromiumEmulatedMediaType,
-    ChromiumCookies,
-    ChromiumCustomHTTPHeader,
-    ChromiumCustomHttpStatusCodes,
-    ChromiumConsoleExceptions,
-    ChromiumPerformanceMode,
-    BaseSingleFileResponseRoute,
+class SyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseScreenShotSettingsMixin(
+    RenderControlMixin,
+    EmulatedMediaMixin,
+    CookiesMixin,
+    CustomHTTPHeaderMixin,
+    InvalidStatusCodesMixin,
+    ConsoleExceptionMixin,
+    PerformanceModeMixin,
+    ScreenShotSettingsMixin,
 ):
     """
-    Represents the Gotenberg route for capturing screenshots.
-
-    This class inherits from various mixins that provide functionalities such as
-    - Rendering control options
-    - Emulated media type
-    - Custom HTTP headers
-    - Handling invalid status codes from the captured page
-    - Console exception handling
-    - Performance mode selection (optimize for speed or size)
-    - Page orientation
-
-    See the Gotenberg documentation (https://gotenberg.dev/docs/routes#screenshots-route)
-    for detailed information on these functionalities.
+    The common form field settings for the following route:
+      - https://gotenberg.dev/docs/routes#screenshots-route
     """
 
 
-class ScreenshotFromUrlRoute(_BaseScreenShotRoute):
+class _BaseScreenshotFromUrlRoute(_BaseScreenShotSettingsMixin, _BaseUrlFormMixin):
     """
     Represents the Gotenberg route for capturing screenshots from URLs.
 
@@ -272,31 +306,16 @@ class ScreenshotFromUrlRoute(_BaseScreenShotRoute):
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/screenshot/url"
 
-    def url(self, url: str) -> Self:
-        """
-        Sets the URL to capture a screenshot from.
 
-        Args:
-            url (str): The URL of the web page to capture a screenshot of.
-
-        Returns:
-            ScreenshotRouteUrl: This object itself for method chaining.
-        """
-
-        self._form_data.update({"url": url})
-        return self
-
-    def _get_all_resources(self) -> ForceMultipartDict:
-        """
-        Returns an empty ForceMultipartDict.
-
-        This route does not require any file uploads, so an empty dictionary
-        is returned.
-        """
-        return FORCE_MULTIPART
+class SyncScreenshotFromUrlRoute(_BaseScreenshotFromUrlRoute, SyncBaseRoute):
+    pass
 
 
-class ScreenshotFromHtmlRoute(_BaseScreenShotRoute, _RouteWithResources, _FileBasedRoute):
+class AsyncScreenshotFromUrlRoute(_BaseScreenshotFromUrlRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseScreenshotFromHtmlRoute(_BaseIndexFilesMixin, _BaseScreenShotSettingsMixin):
     """
     Represents the Gotenberg route for capturing screenshots from HTML files.
 
@@ -310,7 +329,15 @@ class ScreenshotFromHtmlRoute(_BaseScreenShotRoute, _RouteWithResources, _FileBa
     ENDPOINT_URL: Final[str] = "/forms/chromium/screenshot/html"
 
 
-class ScreenshotFromMarkdownRoute(_RouteWithResources, _FileBasedRoute, _BaseScreenShotRoute):
+class SyncScreenshotFromHtmlRoute(_BaseScreenshotFromHtmlRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncScreenshotFromHtmlRoute(_BaseScreenshotFromHtmlRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseScreenshotFromMarkdownRoute(_BaseIndexFilesMixin, _BaseScreenShotSettingsMixin):
     """
     Represents the Gotenberg route for capturing screenshots from Markdown files.
 
@@ -322,3 +349,11 @@ class ScreenshotFromMarkdownRoute(_RouteWithResources, _FileBasedRoute, _BaseScr
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/screenshot/markdown"
+
+
+class SyncScreenshotFromMarkdownRoute(_BaseScreenshotFromMarkdownRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncScreenshotFromMarkdownRoute(_BaseScreenshotFromMarkdownRoute, AsyncBaseRoute):
+    pass
