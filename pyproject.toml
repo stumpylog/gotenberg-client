@@ -116,7 +116,7 @@ python = [ "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10" ]
 [tool.hatch.envs.typing]
 detached = true
 dependencies = [
-  "mypy ~= 1.13",
+  "mypy ~= 1.15",
   "httpx",
   "pytest",
   "pikepdf",

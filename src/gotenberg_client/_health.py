@@ -169,13 +169,13 @@ class SyncHealthCheckApi(_BaseHealthCheckApi, AbstractContextManager, SyncBaseAp
         json_data: _HealthCheckApiResponseType = resp.json()
         return HealthStatus(json_data)
 
-    async def __exit__(
+    def __exit__(
         self,
         exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        pass
+        return None
 
 
 class AsyncHealthCheckApi(_BaseHealthCheckApi, AbstractAsyncContextManager, AsyncBaseApi):
@@ -206,4 +206,4 @@ class AsyncHealthCheckApi(_BaseHealthCheckApi, AbstractAsyncContextManager, Asyn
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        pass
+        return None
