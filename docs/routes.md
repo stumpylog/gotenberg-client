@@ -62,7 +62,9 @@ Access to the Chromium module of Gotenberg, as documented [here](https://gotenbe
 
 #### Cookies
 
-These options are not yet implemented
+| Gotenberg Option | Route Configuration | Python Type       | Notes |
+| ---------------- | ------------------- | ----------------- | ----- |
+| `cookies`        | `.cookies()`        | `list[CookieJar]` |       |
 
 #### Custom HTTP Headers
 
@@ -180,7 +182,7 @@ Additional Notes:
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#metadata-libreoffice)
 
-These options are not yet implemented
+See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 
 ## Convert
 
@@ -196,15 +198,17 @@ Additional Notes:
 
 ## Merge
 
-| Gotenberg Link                                                      | Route Access                                                                  | Required Properties                                    | Optional Properties                |
-| ------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route) | `merge.merge`                                                                 | <ul><li>`.merge(["file1.pdf", "file2.pdf"])`</li></ul> |                                    |
-| `pdfa`                                                              | `.pdf_format()`                                                               | `PdfAFormat`                                           |                                    |
-| `pdfua`                                                             | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                    |                                    |
-| `metadata`                                                          | N/A                                                                           | N/A                                                    | This option is not implemented yet |
+| Gotenberg Link                                                      | Route Access                                                                  | Required Properties                                    | Optional Properties                                                      |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| [Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route) | `merge.merge`                                                                 | <ul><li>`.merge(["file1.pdf", "file2.pdf"])`</li></ul> |                                                                          |
+| `pdfa`                                                              | `.pdf_format()`                                                               | `PdfAFormat`                                           |                                                                          |
+| `pdfua`                                                             | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                    |                                                                          |
+| `metadata`                                                          | N/A                                                                           | N/A                                                    | See [PDF Metadata Support](#pdf-metadata-support) for the API interface. |
 
 Additional Notes:
 
 - The library will add prefixes to the file to ensure they are merged in the order provided to `merge()`
 
 ## Health Check
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#health-check-route)

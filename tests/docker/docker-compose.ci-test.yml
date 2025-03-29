@@ -5,7 +5,7 @@ networks:
   gotenberg-test-net:
 services:
   gotenberg-client-test-server:
-    image: docker.io/gotenberg/gotenberg:8.17.3
+    image: docker.io/gotenberg/gotenberg:8.19.0
     networks:
       - gotenberg-test-net
     ports:

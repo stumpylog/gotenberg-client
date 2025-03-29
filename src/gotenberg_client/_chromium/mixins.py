@@ -17,7 +17,7 @@ from typing import Union
 from gotenberg_client._errors import NegativeWaitDurationError
 from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import bool_to_form
-from gotenberg_client.options import ChromiumCookieJar
+from gotenberg_client.options import CookieJar
 from gotenberg_client.options import PageMarginsType
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PageSize
@@ -192,7 +192,7 @@ class CookiesMixin:
     https://gotenberg.dev/docs/routes#cookies-chromium
     """
 
-    def cookies(self, cookies: list[ChromiumCookieJar]) -> Self:
+    def cookies(self, cookies: list[CookieJar]) -> Self:
         cookie_dicts = [x.asdict() for x in cookies]
         self._form_data.update({"cookies": json.dumps(cookie_dicts)})  # type: ignore[attr-defined,misc]
         return self

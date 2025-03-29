@@ -13,7 +13,7 @@ from gotenberg_client._utils import optional_to_form
 
 
 @dataclasses.dataclass
-class ChromiumCookieJar:
+class CookieJar:
     """
     https://gotenberg.dev/docs/routes#cookies-chromium
     """

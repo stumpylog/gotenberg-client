@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test in CI using Gotenberg 8.17.3 ([#52](https://github.com/stumpylog/gotenberg-client/pull/52))
 - Bump pypa/gh-action-pypi-publish from 1.12.3 to 1.12.4 by @dependabot ([#49](https://github.com/stumpylog/gotenberg-client/pull/49))
 
+## Added
+
+- Asynchronous support for all implemented routes ([#53](https://github.com/stumpylog/gotenberg-client/pull/53))
+
 ## [0.9.0] - 2025-01-09
 
 ### Breaking Change
