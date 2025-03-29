@@ -219,7 +219,8 @@ class InvalidStatusCodesMixin:
     """
 
     def fail_on_status_codes(self, codes: Iterable[HTTPStatus]) -> Self:
-        codes_str = ",".join([str(x) for x in codes])
+        codes_str = ",".join([str(int(x)) for x in codes])
+        self._log.info(f"[{codes_str}]")
         self._form_data.update({"failOnHttpStatusCodes": f"[{codes_str}]"})  # type: ignore[attr-defined,misc]
         return self
 
