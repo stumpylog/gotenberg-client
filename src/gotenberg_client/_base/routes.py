@@ -15,6 +15,7 @@ from types import TracebackType
 from typing import Any
 from typing import Generic
 from typing import Optional
+from typing import Union
 
 from httpx import AsyncClient
 from httpx import Client
@@ -54,7 +55,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         self._next = 1
 
     @abstractmethod
-    def post_data(self) -> Response | Coroutine[Any, Any, Response]:
+    def post_data(self) -> Union[Response, Coroutine[Any, Any, Response]]:
         """
         Executes the configured route against the server and returns the resulting
         Response.
@@ -65,9 +66,9 @@ class BaseRoute(ABC, Generic[ClientT]):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
-    ) -> Response | Coroutine[Any, Any, Response]:
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
+    ) -> Union[Response, Coroutine[Any, Any, Response]]:
         """
         For whatever reason, Gotenberg often returns HTTP 503 errors, even with the same files.
         Hopefully v8 will improve upon this with its updates, but this is provided for convenience.
@@ -86,7 +87,9 @@ class BaseRoute(ABC, Generic[ClientT]):
         """
 
     @abstractmethod
-    def run(self) -> SingleFileResponse | ZipFileResponse | Coroutine[Any, Any, SingleFileResponse | ZipFileResponse]:
+    def run(
+        self,
+    ) -> Union[SingleFileResponse, ZipFileResponse, Coroutine[Any, Any, Union[SingleFileResponse, ZipFileResponse]]]:
         """
         Execute the API request to Gotenberg.
 
@@ -104,9 +107,9 @@ class BaseRoute(ABC, Generic[ClientT]):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
-    ) -> SingleFileResponse | ZipFileResponse | Coroutine[Any, Any, SingleFileResponse | ZipFileResponse]:
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
+    ) -> Union[SingleFileResponse, ZipFileResponse, Coroutine[Any, Any, Union[SingleFileResponse, ZipFileResponse]]]:
         """
         Execute the API request with a retry mechanism.
 
@@ -242,8 +245,8 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
     ) -> Response:
         retry_time = initial_retry_wait
         current_retry_count = 0
@@ -275,7 +278,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
         raise UnreachableCodeError  # pragma: no cover
 
-    def run(self) -> SingleFileResponse | ZipFileResponse:
+    def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
         response = self.post_data()
         if self._response_is_zip:
             return ZipFileResponse(response.status_code, response.headers, response.content)
@@ -285,9 +288,9 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
-    ) -> SingleFileResponse | ZipFileResponse:
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
+    ) -> Union[SingleFileResponse, ZipFileResponse]:
         response = self.post_data_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,
@@ -328,8 +331,8 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
     ) -> Response:
         retry_time = initial_retry_wait
         current_retry_count = 0
@@ -361,7 +364,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
         raise UnreachableCodeError  # pragma: no cover
 
-    async def run(self) -> SingleFileResponse | ZipFileResponse:
+    async def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
         response = await self.post_data()
         if self._response_is_zip:
             return ZipFileResponse(response.status_code, response.headers, response.content)
@@ -371,9 +374,9 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
-    ) -> SingleFileResponse | ZipFileResponse:
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
+    ) -> Union[SingleFileResponse, ZipFileResponse]:
         response = await self.post_data_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,

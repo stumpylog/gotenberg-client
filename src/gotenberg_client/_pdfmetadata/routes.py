@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 from typing import Final
+from typing import Union
 
 from gotenberg_client._base import AsyncBaseRoute
 from gotenberg_client._base import SyncBaseRoute
@@ -48,8 +49,8 @@ class SyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, SyncBaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
     ) -> dict[str, dict[str, str]]:
         response = self.post_data_with_retry(
             max_retry_count=max_retry_count,
@@ -68,8 +69,8 @@ class AsyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, AsyncBaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: Union[float, int] = 5.0,
+        retry_scale: Union[float, int] = 2.0,
     ) -> dict[str, dict[str, str]]:
         response = await self.post_data_with_retry(
             max_retry_count=max_retry_count,

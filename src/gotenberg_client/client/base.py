@@ -13,6 +13,7 @@ from typing import Generic
 from typing import Literal
 from typing import Optional
 from typing import TypeVar
+from typing import Union
 
 from httpx import AsyncClient
 from httpx import BasicAuth
@@ -97,7 +98,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         pass
 
     @abstractmethod
-    def close(self) -> None | Coroutine[Any, Any, None]:
+    def close(self) -> Union[None, Coroutine[Any, Any, None]]:
         """
         Close the underlying HTTP client connection.
         """
