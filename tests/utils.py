@@ -6,12 +6,13 @@ import subprocess
 import tempfile
 from http import HTTPStatus
 from pathlib import Path
+from typing import Union
 
 from gotenberg_client.responses import SingleFileResponse
 from gotenberg_client.responses import ZipFileResponse
 
 
-def verify_basic_response_values_pdf(response: SingleFileResponse | ZipFileResponse) -> None:
+def verify_basic_response_values_pdf(response: Union[SingleFileResponse, ZipFileResponse]) -> None:
     assert response.status_code == HTTPStatus.OK
     assert "Content-Type" in response.headers
     assert response.headers["Content-Type"] == "application/pdf"

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 import shutil
 import uuid
-from http import HTTPMethod
 from http import HTTPStatus
 from json import dumps
 from json import loads
@@ -145,9 +144,9 @@ class TestWebhookHeaders:
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
         sync_client.add_webhook_url("http://myapi:3000/on-success")
-        sync_client.set_webhook_http_method(HTTPMethod.POST)
+        sync_client.set_webhook_http_method("POST")
         sync_client.add_error_webhook_url("http://myapi:3000/on-error")
-        sync_client.set_error_webhook_http_method(HTTPMethod.PATCH)
+        sync_client.set_error_webhook_http_method("PATCH")
 
         with sync_client.chromium.html_to_pdf() as route:
             _ = route.index(basic_html_file).run_with_retry()
