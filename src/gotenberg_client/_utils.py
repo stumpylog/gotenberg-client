@@ -34,6 +34,9 @@ def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -
 
 
 def bool_to_form(name: str, value: bool) -> dict[str, str]:  # noqa: FBT001
+    """
+    Converts an boolean value to a form data field with the given name, correcting the casing
+    """
     bool_to_form_name: Final[dict[bool, str]] = {
         True: "true",
         False: "false",
