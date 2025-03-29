@@ -12,9 +12,9 @@ Access to the Chromium module of Gotenberg, as documented [here](https://gotenbe
 
 ### HTML file into PDF
 
-| Gotenberg Link                                                              | Route Access           | Required Properties                      | Optional Properties                                                                                                                     |
-| --------------------------------------------------------------------------- | ---------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#html-file-into-pdf-route) | `chromium.html_to_pdf` | <ul><li>`.index("index.html")`</li></ul> | <ul><li>Add extra files by chaining `.resource("file-here")`</li><li> See [common Chromium options](#chromium-common-options)</li></ul> |
+| Gotenberg Link                                                              | Route Access           | Required Properties                      | Optional Properties                                                                                                                                                                                                                           |
+| --------------------------------------------------------------------------- | ---------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Documentation](https://gotenberg.dev/docs/routes#html-file-into-pdf-route) | `chromium.html_to_pdf` | <ul><li>`.index("index.html")`</li></ul> | <ul><li>Add extra files by chaining `.resource("file-here")`or `resources(["file1", "file2"])`</li><li>Add string resources with `string_resource("file content")`</li><li> See [common Chromium options](#chromium-common-options)</li></ul> |
 
 ### Markdown file(s) into PDF
 
@@ -137,6 +137,8 @@ Supported metadata fields:
 - `marked`: PDF marked status
 - `pdf_version`: PDF version number
 
+!!! note "Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine"
+
 ## LibreOffice
 
 ### Office Documents to PDF
@@ -145,10 +147,8 @@ Supported metadata fields:
 | ----------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <ul><li>`.convert("mydoc.docx")`</li><li>or</li><li>`.convert_files(["mydoc.docx"])`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
 
-Additional Notes:
-
-- `convert` may be called multiple times
-- `convert_files` is a convenience method to convert a list of file into PDF
+!!! note "`convert` may be called multiple times"
+!!! note "`convert_files` is a convenience method to convert a list of file into PDF"
 
 ### LibreOffice Properties
 
@@ -167,9 +167,7 @@ Additional Notes:
 | ---------------- | ------------------------------------------- | ----------- | ----- |
 | `merge`          | <ul><li>`merge()`<li>`no_merge()`</li></ul> | N/A         |       |
 
-Additional Notes:
-
-- If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
+!!! note "If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip"
 
 #### PDF/A & PDF/UA
 
