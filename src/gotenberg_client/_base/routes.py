@@ -22,7 +22,7 @@ from httpx import HTTPStatusError
 from httpx import Response
 from httpx._types import RequestFiles
 
-from gotenberg_client._common.units import ClientT
+from gotenberg_client._common import ClientT
 from gotenberg_client._errors import MaxRetriesExceededError
 from gotenberg_client._errors import UnreachableCodeError
 from gotenberg_client._typing_compat import Self
