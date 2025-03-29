@@ -12,9 +12,8 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Final
 from typing import Literal
+from typing import Union
 
-from gotenberg_client._common import PageScaleType
-from gotenberg_client._common import WaitTimeType
 from gotenberg_client._errors import NegativeWaitDurationError
 from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import bool_to_form
@@ -128,7 +127,7 @@ class ScaleMixin:
     https://gotenberg.dev/docs/routes#page-properties-chromium
     """
 
-    def scale(self, scale: PageScaleType) -> Self:
+    def scale(self, scale: Union[float, int]) -> Self:
         self._form_data.update({"scale": str(scale)})  # type: ignore[attr-defined,misc]
         return self
 
@@ -166,7 +165,7 @@ class RenderControlMixin:
     https://gotenberg.dev/docs/routes#wait-before-rendering-chromium
     """
 
-    def render_wait(self, wait: WaitTimeType) -> Self:
+    def render_wait(self, wait: Union[float, int, timedelta]) -> Self:
         time_s = wait.total_seconds() if isinstance(wait, timedelta) else wait
         if time_s < 0:
             raise NegativeWaitDurationError

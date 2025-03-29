@@ -11,8 +11,6 @@ from typing import Union
 from gotenberg_client._utils import bool_to_form
 from gotenberg_client._utils import optional_to_form
 
-MeasurementValueType = Union[float, int]
-
 
 @dataclasses.dataclass
 class ChromiumCookieJar:
@@ -75,11 +73,11 @@ class Measurement:
     Represents a value with a specified unit of measurement.
 
     Attributes:
-        value (MeasurementValueType): The numerical value of the measurement.
+        value (float or int): The numerical value of the measurement.
         unit (UnitType): The unit of measurement for the measurement.
     """
 
-    value: MeasurementValueType
+    value: Union[float, int]
     unit: MeasurementUnitType = MeasurementUnitType.Undefined
 
     def to_form(self, name: str) -> dict[str, str]:

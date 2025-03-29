@@ -7,8 +7,6 @@ from typing import Final
 from typing import Optional
 from typing import Union
 
-FormFieldType = Union[bool, int, float, str]
-
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128
 class ForceMultipartDict(dict):
@@ -16,7 +14,7 @@ class ForceMultipartDict(dict):
         return True
 
 
-def optional_to_form(value: Optional[FormFieldType], name: str) -> dict[str, str]:
+def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> dict[str, str]:
     """
     Converts an optional value to a form data field with the given name,
     handling None values gracefully.

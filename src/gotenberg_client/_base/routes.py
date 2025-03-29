@@ -115,9 +115,9 @@ class BaseRoute(ABC, Generic[ClientT]):
 
         Args:
             max_retry_count (int, optional): The maximum number of retry attempts. Defaults to 5.
-            initial_retry_wait (WaitTimeType, optional): The initial wait time between retries in seconds.
+            initial_retry_wait (float or int, optional): The initial wait time between retries in seconds.
                 Defaults to 5. Can be int or float.
-            retry_scale (WaitTimeType, optional): The scale factor for the exponential backoff.
+            retry_scale (float or int, optional): The scale factor for the exponential backoff.
                 Defaults to 2. Can be int or float.
 
         Returns:

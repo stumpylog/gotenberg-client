@@ -7,10 +7,10 @@ from abc import abstractmethod
 from collections.abc import Coroutine
 from contextlib import AbstractAsyncContextManager
 from contextlib import AbstractContextManager
-from http import HTTPMethod
 from types import TracebackType
 from typing import Any
 from typing import Generic
+from typing import Literal
 from typing import Optional
 from typing import TypeVar
 
@@ -24,7 +24,6 @@ from gotenberg_client._base import SyncBaseApi
 from gotenberg_client._chromium import AsyncChromiumApi
 from gotenberg_client._chromium import SyncChromiumApi
 from gotenberg_client._common.units import ClientT
-from gotenberg_client._common.units import HttpMethodsType
 from gotenberg_client._health import AsyncHealthCheckApi
 from gotenberg_client._health import SyncHealthCheckApi
 from gotenberg_client._libreoffice import AsyncLibreOfficeApi
@@ -175,21 +174,21 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         """
         self.add_headers({"Gotenberg-Webhook-Error-Url": url})
 
-    def set_webhook_http_method(self, method: HttpMethodsType = HTTPMethod.PUT) -> None:
+    def set_webhook_http_method(self, method: Literal["POST", "PATCH", "PUT"]) -> None:
         """
         Set the HTTP method Gotenberg will use to call the webhooks.
 
         Args:
-            method (HttpMethodsType, optional): The HTTP method to use. Defaults to "PUT".
+            method: The HTTP method to use.
         """
         self.add_headers({"Gotenberg-Webhook-Method": method})
 
-    def set_error_webhook_http_method(self, method: HttpMethodsType = HTTPMethod.PUT) -> None:
+    def set_error_webhook_http_method(self, method: Literal["POST", "PATCH", "PUT"]) -> None:
         """
         Set the HTTP method Gotenberg will use to call the error webhooks.
 
         Args:
-            method (HttpMethodsType, optional): The HTTP method to use. Defaults to "PUT".
+            method: The HTTP method to use.
         """
         self.add_headers({"Gotenberg-Webhook-Error-Method": method})
 
