@@ -26,6 +26,10 @@ class PdfFormatMixin:
       - https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route
       - https://gotenberg.dev/docs/routes#merge-pdfs-route
       - https://gotenberg.dev/docs/routes#split-pdfs-route
+
+    which allow the user to configure the resulting PDF/A version.
+
+    See https://en.wikipedia.org/wiki/PDF/A
     """
 
     def pdf_format(self, pdf_format: PdfAFormat) -> Self:
@@ -46,6 +50,10 @@ class PfdUniversalAccessMixin:
       - https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route
       - https://gotenberg.dev/docs/routes#merge-pdfs-route
       - https://gotenberg.dev/docs/routes#split-pdfs-route
+
+      which allow the user to enable or disable PDF/UA.
+
+      See https://en.wikipedia.org/wiki/PDF/UA
     """
 
     def universal_access(self, *, universal_access: bool) -> Self:
@@ -65,6 +73,8 @@ class SplitModeMixin:
 
       - https://gotenberg.dev/docs/routes#split-chromium
       - https://gotenberg.dev/docs/routes#split-libreoffice
+
+    which allow the user to configure splitting operations
     """
 
     def split_mode(self, mode: Literal["intervals", "pages"]) -> Self:
@@ -88,6 +98,8 @@ class MetadataMixin:
 
       - https://gotenberg.dev/docs/routes#metadata-chromium
       - https://gotenberg.dev/docs/routes#metadata-libreoffice
+
+    which allow the user to write metadata to the resulting PDFs
     """
 
     MIN_PDF_VERSION: Final[float] = 1.0

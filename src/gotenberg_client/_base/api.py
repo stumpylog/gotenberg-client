@@ -8,7 +8,7 @@ from typing import Generic
 from httpx import AsyncClient
 from httpx import Client
 
-from gotenberg_client._common.units import ClientT
+from gotenberg_client._common import ClientT
 
 
 class BaseApi(Generic[ClientT]):

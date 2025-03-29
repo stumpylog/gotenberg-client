@@ -23,7 +23,7 @@ from gotenberg_client._base import AsyncBaseApi
 from gotenberg_client._base import SyncBaseApi
 from gotenberg_client._chromium import AsyncChromiumApi
 from gotenberg_client._chromium import SyncChromiumApi
-from gotenberg_client._common.units import ClientT
+from gotenberg_client._common import ClientT
 from gotenberg_client._health import AsyncHealthCheckApi
 from gotenberg_client._health import SyncHealthCheckApi
 from gotenberg_client._libreoffice import AsyncLibreOfficeApi

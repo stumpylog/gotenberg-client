@@ -45,7 +45,7 @@ repos:
       - id: codespell
   # Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.9.9'
+    rev: 'v0.11.2'
     hooks:
       # Run the linter.
       - id: ruff
@@ -57,7 +57,7 @@ repos:
       - id: pyproject-fmt
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.4
+    rev: 0.6.10
     hooks:
       # Update the uv lockfile
       - id: uv-lock
