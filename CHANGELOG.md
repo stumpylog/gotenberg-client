@@ -23,16 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking Change
 
 - Drop testing on PyPy3.9 ([#45](https://github.com/stumpylog/gotenberg-client/pull/45))
-  - The library should still work, but required wheels for testing are no longer built against pypy3.9. Flagging this as breaking just for an FYI
+    - The library should still work, but required wheels for testing are no longer built against pypy3.9. Flagging this as breaking just for an FYI
 
 ### Added
 
 - Allow setting user agent string and provide a default ([#46](https://github.com/stumpylog/gotenberg-client/pull/46))
 - Allow providing an instance of [httpx.BasicAuth](https://www.python-httpx.org/advanced/authentication/#basic-authentication) when creating the client ([#47](https://github.com/stumpylog/gotenberg-client/pull/47))
 - Documentation and project management updates ([#48](https://github.com/stumpylog/gotenberg-client/pull/48))
-  - Enabled discussions for Q&A and Feature Requests
-  - Created a bug report template
-  - Created a contributing guide
+    - Enabled discussions for Q&A and Feature Requests
+    - Created a bug report template
+    - Created a contributing guide
 
 ## [0.8.2] - 2024-12-17
 
@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Official support and testing for Python 3.13 ([#25](https://github.com/stumpylog/gotenberg-client/pull/25))
 - Support for setting PDF metadata ([#42](https://github.com/stumpylog/gotenberg-client/pull/42))
-  - Initial work by @spechtx in ([#40](https://github.com/stumpylog/gotenberg-client/pull/40))
+    - Initial work by @spechtx in ([#40](https://github.com/stumpylog/gotenberg-client/pull/40))
 - Integrated Codecov test analytics ([#44](https://github.com/stumpylog/gotenberg-client/pull/44))
 
 ### Changed
@@ -82,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All routes now return a stronger typed response than just an `httpx.Response` ([#23](https://github.com/stumpylog/gotenberg-client/pull/23))
 - All public methods now include docstrings ([#33](https://github.com/stumpylog/gotenberg-client/pull/33))
 - The Chromium based HTML and Markdown to PDF routes can now accept accept a `str`, containing either HTML text, Markdown or other text based resources for conversion ([#30](https://github.com/stumpylog/gotenberg-client/pull/30))
-  - See `string_index`, `string_resource` and `string_resources` for those routes
+    - See `string_index`, `string_resource` and `string_resources` for those routes
 
 ### Changed
 
@@ -140,8 +140,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Implemented an internal workaround for older Gotenberg versions and their handling of non-latin filenames.
-  - When detected, the files will be copied into a temporary directory and the filename cleaned
-  - Gotenberg 8.0.0 will start implementing something similar once released
+    - When detected, the files will be copied into a temporary directory and the filename cleaned
+    - Gotenberg 8.0.0 will start implementing something similar once released
 - The pulled Gotenberg image is now inspected, allowing local re-creation of failures against specific digests
 - The `:edge` tag testing is now allowed to fail
 
@@ -155,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated test running image to log at warning or lower using text format
 - Updated test running image from 7.9.2 to 7.10.1
 - For the moment, send both `pdfa` and `pdfFormat` for compatibility with 7.9 and 7.10
-  - See [here](https://github.com/stumpylog/gotenberg-client/issues/5#issuecomment-1839081129) for some subtle differences in what these options mean
+    - See [here](https://github.com/stumpylog/gotenberg-client/issues/5#issuecomment-1839081129) for some subtle differences in what these options mean
 
 ### Added
 

@@ -11,9 +11,9 @@
 - [Installation](#installation)
 - [What](#what)
 - [Why](#why)
-  - [Features](#features)
+    - [Features](#features)
 - [How](#how)
-  - [Examples](#examples)
+    - [Examples](#examples)
 - [License](#license)
 
 ## Installation
