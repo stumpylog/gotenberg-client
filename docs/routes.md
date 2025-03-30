@@ -19,8 +19,9 @@ See also [common Chromium options](#chromium-common-options)
 
 ### HTML file into PDF
 
-[Documentation](https://gotenberg.dev/docs/routes#html-file-into-pdf-route) Route
-Access: `chromium.html_to_pdf`
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#html-file-into-pdf-route)
+
+Route Access: `client.chromium.html_to_pdf()`
 
 Required Properties:
 
@@ -37,11 +38,13 @@ Optional Properties:
 
 See also [common Chromium options](#chromium-common-options).
 
-!!! note "`string_resource` currently only supports text data, not binary data"
+!!! note
+
+    `string_resource` currently only supports text data, not binary data
 
 ### Markdown file(s) into PDF
 
-[Documentation](https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route)
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route)
 
 Route Access: `chromium.markdown_to_pdf`
 
@@ -61,9 +64,18 @@ Optional Properties:
 See also [common Chromium options](#chromium-common-options).
 
 !!! note
-`string_resource` currently only supports text data, not binary data
+
+    `string_resource` currently only supports text data, not binary data
 
 ### Screenshot Routes
+
+#### From URL
+
+#### From HTML
+
+#### From Markdown
+
+#### Common Settings
 
 ### Chromium Common Options
 
