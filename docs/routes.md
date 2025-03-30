@@ -1,28 +1,69 @@
-# Implemented Routes
+# API Routes
 
 ## Chromium
 
-Access to the Chromium module of Gotenberg, as documented [here](https://gotenberg.dev/docs/routes#convert-with-chromium).
+Access to the Chromium module of Gotenberg, as documented
+[here](https://gotenberg.dev/docs/routes#convert-with-chromium).
 
 ### URL into PDF
 
-| Gotenberg Link                                                        | Route Access          | Required Properties                               | Optional Properties                                     |
-| --------------------------------------------------------------------- | --------------------- | ------------------------------------------------- | ------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#url-into-pdf-route) | `chromium.url_to_pdf` | <ul><li>`.url("http://localhost:8888")`</li></ul> | See [common Chromium options](#chromium-common-options) |
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#url-into-pdf-route)
+
+Route Access: `client.chromium.url_to_pdf()`
+
+Required Properties:
+
+- `.url("http://localhost:8888")`
+
+See also [common Chromium options](#chromium-common-options)
 
 ### HTML file into PDF
 
-| Gotenberg Link                                                              | Route Access           | Required Properties                      | Optional Properties                                                                                                                                                                                                                           |
-| --------------------------------------------------------------------------- | ---------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#html-file-into-pdf-route) | `chromium.html_to_pdf` | <ul><li>`.index("index.html")`</li></ul> | <ul><li>Add extra files by chaining `.resource("file-here")`or `resources(["file1", "file2"])`</li><li>Add string resources with `string_resource("file content")`</li><li> See [common Chromium options](#chromium-common-options)</li></ul> |
+[Documentation](https://gotenberg.dev/docs/routes#html-file-into-pdf-route) Route
+Access: `chromium.html_to_pdf`
+
+Required Properties:
+
+- An index file is required:
+    - `.index("index.html")` sets the index from an HTML file
+    - `string_index(<html></html>")` sets the index as the HTML string
+
+Optional Properties:
+
+- Provide additional resource files as needed:
+    - `.resource("file-here")` or `resources(["file1", "file2"])` adds the file or files
+      as a resource for the HTML index
+    - Add string resources with `string_resource("file content")`.
+
+See also [common Chromium options](#chromium-common-options).
+
+!!! note "`string_resource` currently only supports text data, not binary data"
 
 ### Markdown file(s) into PDF
 
-| Gotenberg Link                                                                   | Route Access               | Required Properties                                                                   | Optional Properties                                                                                                                     |
-| -------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route) | `chromium.markdown_to_pdf` | <ul><li>`.index("index.html")`</li><li>`.markdown_file` or `markdown_files`</li></ul> | <ul><li>Add extra files by chaining `.resource("file-here")`</li><li> See [common Chromium options](#chromium-common-options)</li></ul> |
+[Documentation](https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route)
 
-### Screenshots
+Route Access: `chromium.markdown_to_pdf`
+
+Required Properties:
+
+- An index file is required:
+    - `.index("index.html")` sets the index from an HTML file
+    - `string_index(<html></html>")` sets the index as the HTML string
+
+Optional Properties:
+
+- Provide additional resource files as needed:
+    - `.resource("file-here")` or `resources(["file1", "file2"])` adds the file or files
+      as a resource for the HTML index
+    - Add string resources with `string_resource("file content")`.
+
+See also [common Chromium options](#chromium-common-options).
+
+!!! note
+`string_resource` currently only supports text data, not binary data
+
+### Screenshot Routes
 
 ### Chromium Common Options
 
@@ -78,6 +119,8 @@ Access to the Chromium module of Gotenberg, as documented [here](https://gotenbe
 | ----------------------- | ------------------------- | --------------- | ----- |
 | `failOnHttpStatusCodes` | `.fail_on_status_codes()` | `Iterable[int]` |       |
 
+#### Network Errors
+
 #### Console Exceptions
 
 | Gotenberg Option          | Route Configuration                                                     | Python Type | Notes |
@@ -89,6 +132,8 @@ Access to the Chromium module of Gotenberg, as documented [here](https://gotenbe
 | Gotenberg Option       | Route Configuration                                             | Python Type | Notes |
 | ---------------------- | --------------------------------------------------------------- | ----------- | ----- |
 | `skipNetworkIdleEvent` | <ul><li>`skip_network_idle()`<li>`use_network_idle()`</li></ul> | N/A         |       |
+
+#### Split
 
 #### PDF/A & PDF/UA
 
@@ -137,7 +182,8 @@ Supported metadata fields:
 - `marked`: PDF marked status
 - `pdf_version`: PDF version number
 
-!!! note "Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine"
+!!! note
+Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
 
 ## LibreOffice
 
@@ -147,8 +193,8 @@ Supported metadata fields:
 | ----------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <ul><li>`.convert("mydoc.docx")`</li><li>or</li><li>`.convert_files(["mydoc.docx"])`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
 
-!!! note "`convert` may be called multiple times"
-!!! note "`convert_files` is a convenience method to convert a list of file into PDF"
+!!! note
+`convert` may be called multiple times" !!! note "`convert_files` is a convenience method to convert a list of file into PDF
 
 ### LibreOffice Properties
 
@@ -161,13 +207,18 @@ Supported metadata fields:
 | `exportFormFields` | N/A                 | N/A               | This option is not implemented yet |
 | `singlePageSheets` | N/A                 | N/A               | This option is not implemented yet |
 
+#### Compress
+
 #### Merge
 
 | Gotenberg Option | Route Configuration                         | Python Type | Notes |
 | ---------------- | ------------------------------------------- | ----------- | ----- |
 | `merge`          | <ul><li>`merge()`<li>`no_merge()`</li></ul> | N/A         |       |
 
-!!! note "If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip"
+!!! note
+If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
+
+#### Split
 
 #### PDF/A & PDF/UA
 
@@ -182,7 +233,9 @@ Supported metadata fields:
 
 See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 
-## Convert
+#### Flatten
+
+## Convert into PDF/A & PDF/UA
 
 | Gotenberg Link                                                                    | Route Access                                                                  | Required Properties                                                                          | Optional Properties |
 | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------- |
@@ -190,11 +243,14 @@ See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 | `pdfa`                                                                            | `.pdf_format()`                                                               | `PdfAFormat`                                                                                 |                     |
 | `pdfua`                                                                           | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                                                          |                     |
 
-Additional Notes:
+!!! note
+At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
 
-- At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
+## Read PDF metadata
 
-## Merge
+## Write PDF metadata
+
+## Merge PDFs
 
 | Gotenberg Link                                                      | Route Access                                                                  | Required Properties                                    | Optional Properties                                                      |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
@@ -203,10 +259,27 @@ Additional Notes:
 | `pdfua`                                                             | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                    |                                                                          |
 | `metadata`                                                          | N/A                                                                           | N/A                                                    | See [PDF Metadata Support](#pdf-metadata-support) for the API interface. |
 
-Additional Notes:
+!!! note
+Prefixes will be added to the file to ensure they are merged in the order provided to `merge()`, even with multiple calls
 
-- The library will add prefixes to the file to ensure they are merged in the order provided to `merge()`
+## Split PDFs
+
+## Flatten PDFs
 
 ## Health Check
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#health-check-route)
+
+## Metrics
+
+## Version
+
+## Debug
+
+## Global Options
+
+### Request Tracing
+
+### Output Filename
+
+### Download From
