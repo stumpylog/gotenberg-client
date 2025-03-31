@@ -147,7 +147,6 @@ class LibreOfficeMergeOptionMixin:
 
     def merge(self, *, merge: bool) -> Self:
         self._form_data.update(bool_to_form("merge", merge))  # type: ignore[attr-defined,misc]
-        self._response_is_zip = not merge
         return self
 
     def no_merge(self) -> Self:

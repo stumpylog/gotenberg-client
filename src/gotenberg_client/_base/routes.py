@@ -43,7 +43,6 @@ class BaseRoute(ABC, Generic[ClientT]):
         self._route_url = route_url
         self._log = log
         self._stack = ExitStack()
-        self._response_is_zip: bool = False
         # These are the options that will be set to Gotenberg.  Things like PDF/A
         self._form_data: dict[str, str] = {}
         # These are the names of files, mapping to their Path
@@ -280,7 +279,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
     def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
         response = self.post_data()
-        if self._response_is_zip:
+        if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
             return ZipFileResponse(response.status_code, response.headers, response.content)
         return SingleFileResponse(response.status_code, response.headers, response.content)
 
@@ -296,7 +295,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
             initial_retry_wait=initial_retry_wait,
             retry_scale=retry_scale,
         )
-        if self._response_is_zip:
+        if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
             return ZipFileResponse(response.status_code, response.headers, response.content)
         return SingleFileResponse(response.status_code, response.headers, response.content)
 
@@ -366,7 +365,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
     async def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
         response = await self.post_data()
-        if self._response_is_zip:
+        if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
             return ZipFileResponse(response.status_code, response.headers, response.content)
         return SingleFileResponse(response.status_code, response.headers, response.content)
 
@@ -382,6 +381,6 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
             initial_retry_wait=initial_retry_wait,
             retry_scale=retry_scale,
         )
-        if self._response_is_zip:
+        if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
             return ZipFileResponse(response.status_code, response.headers, response.content)
         return SingleFileResponse(response.status_code, response.headers, response.content)

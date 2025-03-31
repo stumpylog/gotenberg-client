@@ -37,7 +37,6 @@ class _BaseConvertToArchiveFormatRoute(PdfFormatMixin, PfdUniversalAccessMixin):
         """
 
         self._add_file_map(file_path)  # type: ignore[attr-defined]
-        self._response_is_zip = len(self._file_map) > 1  # type: ignore[attr-defined,misc]
         return self
 
     def convert_files(self, file_paths: list[Path]) -> Self:

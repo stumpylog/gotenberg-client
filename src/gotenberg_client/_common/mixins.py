@@ -78,7 +78,6 @@ class SplitModeMixin:
     """
 
     def split_mode(self, mode: Literal["intervals", "pages"]) -> Self:
-        self._response_is_zip = True
         self._form_data.update({"splitMode": mode})  # type: ignore[attr-defined,misc]
         return self
 
@@ -87,7 +86,6 @@ class SplitModeMixin:
         return self
 
     def split_unify(self, *, split_unify: bool) -> Self:
-        self._response_is_zip = split_unify
         self._form_data.update(bool_to_form("splitUnify", split_unify))  # type: ignore[attr-defined,misc]
         return self
 

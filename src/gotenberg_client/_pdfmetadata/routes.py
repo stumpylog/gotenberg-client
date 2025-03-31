@@ -89,7 +89,6 @@ class _BaseWritePdfMetadataRoute(MetadataMixin):
 
     def write(self, input_file_path: Path) -> Self:
         self._add_file_map(input_file_path)  # type: ignore[attr-defined]
-        self._response_is_zip = len(self._file_map) > 1  # type: ignore[attr-defined,misc]
         return self
 
     def write_files(self, file_paths: list[Path]) -> Self:

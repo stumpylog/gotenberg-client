@@ -27,7 +27,6 @@ class _BaseSplitRoute(PdfFormatMixin, PfdUniversalAccessMixin, SplitModeMixin, M
         """
 
         self._add_file_map(file_path)  # type: ignore[attr-defined]
-        self._response_is_zip = len(self._file_map) > 1  # type: ignore[attr-defined,misc]
         return self
 
     def split_files(self, file_paths: list[Path]) -> Self:
@@ -61,7 +60,6 @@ class _BaseFlattenRoute:
         """
 
         self._add_file_map(file_path)  # type: ignore[attr-defined]
-        self._response_is_zip = len(self._file_map) > 1  # type: ignore[attr-defined,misc]
         return self
 
     def flatten_files(self, file_paths: list[Path]) -> Self:
