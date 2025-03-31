@@ -92,6 +92,19 @@ class TestConvertChromiumHtml:
             .run_with_retry(),
         )
 
+    async def test_convert_split_mode_async(
+        self,
+        async_html_to_pdf_route: AsyncHtmlToPdfRoute,
+        basic_html_file: Path,
+    ):
+        await (
+            async_html_to_pdf_route.index(basic_html_file)
+            .split_mode("pages")
+            .split_span("1,2")
+            .split_unify(split_unify=False)
+            .run_with_retry()
+        )
+
     def test_convert_html_from_string_sync(self, sync_html_to_pdf_route: SyncHtmlToPdfRoute, basic_html_file: Path):
         html_str = basic_html_file.read_text()
 

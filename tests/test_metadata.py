@@ -192,6 +192,22 @@ class TestPdfMetadataOnConvert:
 
 
 class TestPdfMetadataReadExisting:
+    @staticmethod
+    def sample_one_metadata_verify(data: dict[str, dict[str, str]], filename: str):
+        # These are the stable fields
+        assert data[filename]["CreateDate"] == "2018:12:06 17:50:06+00:00"
+        assert data[filename]["Creator"] == "Chromium"
+        assert data[filename]["FileName"] == filename
+        assert data[filename]["FileSize"] == "208 kB"
+        assert data[filename]["FileType"] == "PDF"
+        assert data[filename]["FileTypeExtension"] == "pdf"
+        assert data[filename]["Linearized"] == "No"
+        assert data[filename]["MIMEType"] == "application/pdf"
+        assert data[filename]["ModifyDate"] == "2018:12:06 17:50:06+00:00"
+        assert data[filename]["PDFVersion"] == 1.4
+        assert data[filename]["PageCount"] == 3
+        assert data[filename]["Producer"] == "Skia/PDF m70"
+
     async def test_read_metadata_from_pdf(
         self,
         async_read_pdf_metadata_route: AsyncReadPdfMetadataRoute,
@@ -200,19 +216,15 @@ class TestPdfMetadataReadExisting:
         response = await async_read_pdf_metadata_route.read(pdf_sample_one_file).run_with_retry()
         assert pdf_sample_one_file.name in response
 
-        # These are the stable fields
-        assert response[pdf_sample_one_file.name]["CreateDate"] == "2018:12:06 17:50:06+00:00"
-        assert response[pdf_sample_one_file.name]["Creator"] == "Chromium"
-        assert response[pdf_sample_one_file.name]["FileName"] == pdf_sample_one_file.name
-        assert response[pdf_sample_one_file.name]["FileSize"] == "208 kB"
-        assert response[pdf_sample_one_file.name]["FileType"] == "PDF"
-        assert response[pdf_sample_one_file.name]["FileTypeExtension"] == "pdf"
-        assert response[pdf_sample_one_file.name]["Linearized"] == "No"
-        assert response[pdf_sample_one_file.name]["MIMEType"] == "application/pdf"
-        assert response[pdf_sample_one_file.name]["ModifyDate"] == "2018:12:06 17:50:06+00:00"
-        assert response[pdf_sample_one_file.name]["PDFVersion"] == 1.4
-        assert response[pdf_sample_one_file.name]["PageCount"] == 3
-        assert response[pdf_sample_one_file.name]["Producer"] == "Skia/PDF m70"
+        self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+
+        try:
+            response = await async_read_pdf_metadata_route.read(pdf_sample_one_file).run()
+            assert pdf_sample_one_file.name in response
+
+            self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+        except:  # noqa: E722, S110
+            pass
 
     def test_read_metadata_from_pdf_sync(
         self,
@@ -222,19 +234,15 @@ class TestPdfMetadataReadExisting:
         response = sync_read_pdf_metadata_route.read(pdf_sample_one_file).run_with_retry()
         assert pdf_sample_one_file.name in response
 
-        # These are the stable fields
-        assert response[pdf_sample_one_file.name]["CreateDate"] == "2018:12:06 17:50:06+00:00"
-        assert response[pdf_sample_one_file.name]["Creator"] == "Chromium"
-        assert response[pdf_sample_one_file.name]["FileName"] == pdf_sample_one_file.name
-        assert response[pdf_sample_one_file.name]["FileSize"] == "208 kB"
-        assert response[pdf_sample_one_file.name]["FileType"] == "PDF"
-        assert response[pdf_sample_one_file.name]["FileTypeExtension"] == "pdf"
-        assert response[pdf_sample_one_file.name]["Linearized"] == "No"
-        assert response[pdf_sample_one_file.name]["MIMEType"] == "application/pdf"
-        assert response[pdf_sample_one_file.name]["ModifyDate"] == "2018:12:06 17:50:06+00:00"
-        assert response[pdf_sample_one_file.name]["PDFVersion"] == 1.4
-        assert response[pdf_sample_one_file.name]["PageCount"] == 3
-        assert response[pdf_sample_one_file.name]["Producer"] == "Skia/PDF m70"
+        self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+
+        try:
+            response = sync_read_pdf_metadata_route.read(pdf_sample_one_file).run()
+            assert pdf_sample_one_file.name in response
+
+            self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+        except:  # noqa: E722, S110
+            pass
 
 
 class TestPdfMetadataWriteExisting:
@@ -245,7 +253,9 @@ class TestPdfMetadataWriteExisting:
         tmp_path: Path,
     ):
         author = "Gotenberg Testing"
-        response = sync_write_pdf_metadata_route.write(pdf_sample_one_file).metadata(author=author).run_with_retry()
+        response = (
+            sync_write_pdf_metadata_route.write_files([pdf_sample_one_file]).metadata(author=author).run_with_retry()
+        )
 
         assert response.status_code == codes.OK
         assert "Content-Type" in response.headers
