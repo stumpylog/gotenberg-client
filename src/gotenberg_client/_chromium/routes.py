@@ -287,6 +287,7 @@ class _BaseScreenShotSettingsMixin(
     InvalidStatusCodesMixin,
     ConsoleExceptionMixin,
     PerformanceModeMixin,
+    OmitBackgroundMixin,
     ScreenShotSettingsMixin,
 ):
     """

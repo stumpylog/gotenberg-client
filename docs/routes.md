@@ -32,8 +32,7 @@ Required Properties:
 Optional Properties:
 
 - Provide additional resource files as needed:
-    - `.resource("file-here")` or `resources(["file1", "file2"])` adds the file or files
-      as a resource for the HTML index
+    - `.resource("file-here")` or `resources(["file1", "file2"])` adds the file or files as a resource for the HTML index
     - Add string resources with `string_resource("file content")`.
 
 See also [common Chromium options](#chromium-common-options).
@@ -46,7 +45,7 @@ See also [common Chromium options](#chromium-common-options).
 
 [Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route)
 
-Route Access: `chromium.markdown_to_pdf`
+Route Access: `chromium.markdown_to_pdf()`
 
 Required Properties:
 
@@ -69,17 +68,35 @@ See also [common Chromium options](#chromium-common-options).
 
 ### Screenshot Routes
 
-#### From URL
-
-#### From HTML
-
-#### From Markdown
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#screenshots-route)
 
 #### Common Settings
+
+| Gotenberg Option | Route Configuration                                                                | Python Type                     | Notes |
+| ---------------- | ---------------------------------------------------------------------------------- | ------------------------------- | ----- |
+| width            | `.width()`                                                                         | int                             |       |
+| height           | `height()`                                                                         | int                             |       |
+| clip             | `clip()` or `clip_to_dimensions()` or `no_clip_to_dimensions()`                    | bool                            |       |
+| format           | `output_format()`                                                                  | one of "png", "jpeg" or "webp". |       |
+| quality          | `quality()`                                                                        | int, between 1 and 100          |       |
+| omitBackground   | `omit_background()` or `hide_background()` or `show_background()`                  | bool                            |       |
+| optimizeForSpeed | `image_optimize()` or `image_optimize_for_speed()` or `image_optimize_for_quality` | bool                            |       |
+
+This route also supports other Chromium options:
+
+- [Wait Before Rendering](#render-control)
+- [Emulated Media Type](#emulated-media-type)
+- [Cookies](#cookies)
+- [Custom HTTP headers](#custom-http-headers)
+- [Invalid HTTP Status Codes](#http-status-codes)
+- [Console Exceptions](#console-exceptions)
+- [Performance Mode](#performance-mode)
 
 ### Chromium Common Options
 
 #### Page Properties
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#page-properties-chromium)
 
 | Gotenberg Option                                                                                | Route Configuration                                                     | Python Type                   | Notes                                            |
 | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------ |
@@ -95,12 +112,16 @@ See also [common Chromium options](#chromium-common-options).
 
 #### Header & Footer
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#header-footer-chromium)
+
 | Gotenberg Option | Route Configuration | Python Type | Notes |
 | ---------------- | ------------------- | ----------- | ----- |
 | `header.html`    | `.header()`         | `Path`      |       |
 | `footer.html`    | `.footer()`         | `Path`      |       |
 
 #### Render Control
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#wait-before-rendering-chromium)
 
 | Gotenberg Option    | Route Configuration | Python Type                   | Notes |
 | ------------------- | ------------------- | ----------------------------- | ----- |
