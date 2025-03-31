@@ -11,9 +11,9 @@
 - [Installation](#installation)
 - [What](#what)
 - [Why](#why)
-  - [Features](#features)
+    - [Features](#features)
 - [How](#how)
-  - [Examples](#examples)
+    - [Examples](#examples)
 - [License](#license)
 
 ## Installation
@@ -35,10 +35,11 @@ As far as I can tell, no active Python library exists to interface with the Gote
 ### Features
 
 - HTTP/2 enabled by default
-- Abstract away the handling of multi-part/form-data and deal with `Path`s instead
+- Abstract away the handling of `multi-part/form-data` requests and deal with `Path`s instead
 - Based on the modern [httpx](https://github.com/encode/httpx) library
 - Full support for type hinting and concrete return types as much as possible
 - Nearly full test coverage run against an actual Gotenberg server for multiple Python and PyPy versions
+- Asynchronous support
 
 ## How
 
@@ -59,11 +60,16 @@ For more detailed examples, check the [documentation](https://stumpylog.github.i
 Converting a single HTML file into a PDF:
 
 ```python
-from gotenberg_client import GotenbergClient
+from gotenberg_client import GotenbergClient, AsyncGotenbergClient
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
       response = route.index("my-index.html").run()
+      response.to_file(Path("my-index.pdf"))
+
+async with AsyncGotenbergClient("http://localhost:3000") as client:
+    async with client.chromium.html_to_pdf() as route:
+      response = await route.index("my-index.html").run()
       response.to_file(Path("my-index.pdf"))
 ```
 

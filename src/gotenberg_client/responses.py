@@ -33,16 +33,27 @@ class _BaseApiResponse:
 
     @cached_property
     def is_zip(self) -> bool:
+        """
+        True if the response is a zip file, False otherwise
+        """
         return "Content-Type" in self.headers and self.headers["Content-Type"] == "application/zip"
 
 
 @dataclasses.dataclass
 class SingleFileResponse(_BaseApiResponse):
-    pass
+    """
+    The response type when it contains a single PDF file, such as when
+    converting to a PDF or merging several PDFs
+    """
 
 
 @dataclasses.dataclass
 class ZipFileResponse(_BaseApiResponse):
+    """
+    The response type when it is a zip file, containing multiple PDFs,
+    such as when converting multiple files or if a split operation is done
+    """
+
     def extract_to(self, directory: Path) -> None:
         """
         Extracts the multiple files of a zip file response into the given directory
