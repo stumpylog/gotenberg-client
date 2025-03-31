@@ -223,7 +223,7 @@ class TestPdfMetadataReadExisting:
             assert pdf_sample_one_file.name in response
 
             self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
-        except:  # noqa: E722, S110
+        except:  # noqa: E722, S110, pragma: no cover
             pass
 
     def test_read_metadata_from_pdf_sync(
@@ -241,7 +241,7 @@ class TestPdfMetadataReadExisting:
             assert pdf_sample_one_file.name in response
 
             self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
-        except:  # noqa: E722, S110
+        except:  # noqa: E722, S110, pragma: no cover
             pass
 
 
