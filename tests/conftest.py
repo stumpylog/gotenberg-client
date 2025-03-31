@@ -34,6 +34,10 @@ from gotenberg_client._libreoffice.routes import AsyncOfficeDocumentToPdfRoute
 from gotenberg_client._libreoffice.routes import SyncOfficeDocumentToPdfRoute
 from gotenberg_client._merge.routes import AsyncMergePdfsRoute
 from gotenberg_client._merge.routes import SyncMergePdfsRoute
+from gotenberg_client._others.routes import AsyncFlattenRoute
+from gotenberg_client._others.routes import AsyncSplitRoute
+from gotenberg_client._others.routes import SyncFlattenRoute
+from gotenberg_client._others.routes import SyncSplitRoute
 from gotenberg_client._pdfa_ua.routes import AsyncConvertToArchiveFormatRoute
 from gotenberg_client._pdfa_ua.routes import SyncConvertToArchiveFormatRoute
 from gotenberg_client._pdfmetadata.routes import AsyncReadPdfMetadataRoute
@@ -576,4 +580,28 @@ async def async_write_pdf_metadata_route(
     async_client: AsyncGotenbergClient,
 ) -> AsyncGenerator[AsyncWritePdfMetadataRoute, None]:
     async with async_client.metadata.write() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_flatten_route(sync_client: SyncGotenbergClient) -> Generator[SyncFlattenRoute, None, None]:
+    with sync_client.flatten.flatten() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_flatten_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncFlattenRoute, None]:
+    async with async_client.flatten.flatten() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_split_route(sync_client: SyncGotenbergClient) -> Generator[SyncSplitRoute, None, None]:
+    with sync_client.split.split() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_split_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncSplitRoute, None]:
+    async with async_client.split.split() as route:
         yield route

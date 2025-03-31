@@ -206,7 +206,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         Args:
             extra_headers (Dict[str, str]): A dictionary of additional headers to include in webhook calls.
         """
-        self._client.headers.update({"Gotenberg-Output-Filename": filename})
+        self._headers.update({"Gotenberg-Output-Filename": filename})
         return self
 
     def trace_id(self, trace_id: str) -> Self:
@@ -214,7 +214,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         Configures the trace ID for Gotenberg. See
         https://gotenberg.dev/docs/routes#request-tracing
         """
-        self._client.headers.update({"Gotenberg-Trace": trace_id})
+        self._headers.update({"Gotenberg-Trace": trace_id})
         return self
 
 

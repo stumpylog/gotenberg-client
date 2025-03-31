@@ -31,6 +31,10 @@ from gotenberg_client._libreoffice import AsyncLibreOfficeApi
 from gotenberg_client._libreoffice import SyncLibreOfficeApi
 from gotenberg_client._merge import AsyncMergePdfsApi
 from gotenberg_client._merge import SyncMergePdfsApi
+from gotenberg_client._others import AyncFlattenApi
+from gotenberg_client._others import AyncSplitApi
+from gotenberg_client._others import SyncFlattenApi
+from gotenberg_client._others import SyncSplitApi
 from gotenberg_client._pdfa_ua import AsyncPdfAApi
 from gotenberg_client._pdfa_ua import SyncPdfAApi
 from gotenberg_client._pdfmetadata import AsyncPdfMetadataApi
@@ -257,15 +261,13 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
     def merge(self) -> SyncMergePdfsApi:
         return SyncMergePdfsApi(self._client, self._log)
 
-    # TODO: Implement this
     @property
-    def split(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
-        raise NotImplementedError
+    def split(self) -> SyncSplitApi:
+        return SyncSplitApi(self._client, self._log)
 
-    # TODO: Implement this
     @property
-    def flatten(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
-        raise NotImplementedError
+    def flatten(self) -> SyncFlattenApi:
+        return SyncFlattenApi(self._client, self._log)
 
     @property
     def health(self) -> SyncHealthCheckApi:
@@ -329,15 +331,13 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
     def merge(self) -> AsyncMergePdfsApi:
         return AsyncMergePdfsApi(self._client, self._log)
 
-    # TODO: Implement this
     @property
-    def split(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
-        raise NotImplementedError
+    def split(self) -> AyncSplitApi:
+        return AyncSplitApi(self._client, self._log)
 
-    # TODO: Implement this
     @property
-    def flatten(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
-        raise NotImplementedError
+    def flatten(self) -> AyncFlattenApi:
+        return AyncFlattenApi(self._client, self._log)
 
     @property
     def health(self) -> AsyncHealthCheckApi:

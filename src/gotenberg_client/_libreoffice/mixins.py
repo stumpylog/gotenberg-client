@@ -157,13 +157,3 @@ class LibreOfficeMergeOptionMixin:
     def do_merge(self) -> Self:
         self.merge(merge=True)
         return self
-
-
-class LibreOfficeFlattenOptionMixin:
-    """
-    https://gotenberg.dev/docs/routes#flatten-libreoffice
-    """
-
-    def flatten(self, *, flatten: bool = False) -> Self:
-        self._form_data.update(bool_to_form("flatten", flatten))  # type: ignore[attr-defined,misc]
-        return self

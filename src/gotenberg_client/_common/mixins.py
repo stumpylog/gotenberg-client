@@ -197,3 +197,15 @@ class MetadataMixin:
         self._form_data.update({"metadata": json.dumps({**existing_metadata, **metadata})})  # type: ignore[attr-defined,misc]
 
         return self
+
+
+class FlattenOptionMixin:
+    """
+    https://gotenberg.dev/docs/routes#flatten-libreoffice
+    https://gotenberg.dev/docs/routes#merge-pdfs-route
+    https://gotenberg.dev/docs/routes#split-pdfs-route
+    """
+
+    def flatten(self, *, flatten: bool = False) -> Self:
+        self._form_data.update(bool_to_form("flatten", flatten))  # type: ignore[attr-defined,misc]
+        return self
