@@ -26,8 +26,8 @@ class CookieJar:
     http_only: Optional[bool] = None
     same_site: Optional[Literal["Strict", "Lax", "None"]] = None
 
-    def asdict(self) -> dict[str, str]:
-        data = {
+    def asdict(self) -> dict[str, Union[str, bool]]:
+        data: dict[str, Union[str, bool]] = {
             "name": self.name,
             "value": self.value,
             "domain": self.domain,
@@ -35,9 +35,9 @@ class CookieJar:
         if self.path:
             data["path"] = self.path
         if self.secure:
-            data.update(bool_to_form("secure", self.secure))
+            data.update({"secure": self.secure})
         if self.http_only:
-            data.update(bool_to_form("httpOnly", self.http_only))
+            data.update({"httpOnly": self.http_only})
         if self.same_site:
             data["sameSite"] = self.same_site
         return data

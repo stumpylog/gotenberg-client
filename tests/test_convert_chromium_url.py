@@ -11,6 +11,7 @@ from gotenberg_client import GotenbergClient
 from gotenberg_client import NegativeWaitDurationError
 from gotenberg_client._chromium.routes import AsyncUrlToPdfRoute
 from gotenberg_client._chromium.routes import SyncUrlToPdfRoute
+from gotenberg_client.options import CookieJar
 from tests.utils import verify_basic_response_values_pdf
 from tests.utils import verify_stream_contains
 
@@ -27,6 +28,17 @@ class TestConvertChromiumUrl:
     ):
         verify_basic_response_values_pdf(
             await async_url_to_pdf_route.url(webserver_docker_internal_url).run_with_retry(),
+        )
+
+    async def test_basic_convert_cookies(
+        self,
+        async_url_to_pdf_route: AsyncUrlToPdfRoute,
+        webserver_docker_internal_url: str,
+    ):
+        verify_basic_response_values_pdf(
+            await async_url_to_pdf_route.url(webserver_docker_internal_url)
+            .cookies([CookieJar("someCookie", "someValue", "mydomain.com", "/path", True, True, "Lax")])
+            .run_with_retry(),
         )
 
 
