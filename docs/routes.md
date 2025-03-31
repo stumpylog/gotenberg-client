@@ -74,13 +74,13 @@ See also [common Chromium options](#chromium-common-options).
 
 | Gotenberg Option | Route Configuration                                                                | Python Type                     | Notes |
 | ---------------- | ---------------------------------------------------------------------------------- | ------------------------------- | ----- |
-| width            | `.width()`                                                                         | int                             |       |
-| height           | `height()`                                                                         | int                             |       |
-| clip             | `clip()` or `clip_to_dimensions()` or `no_clip_to_dimensions()`                    | bool                            |       |
+| width            | `.width()`                                                                         | `int`                           |       |
+| height           | `height()`                                                                         | `int`                           |       |
+| clip             | `clip()` or `clip_to_dimensions()` or `no_clip_to_dimensions()`                    | `bool`                          |       |
 | format           | `output_format()`                                                                  | one of "png", "jpeg" or "webp". |       |
-| quality          | `quality()`                                                                        | int, between 1 and 100          |       |
-| omitBackground   | `omit_background()` or `hide_background()` or `show_background()`                  | bool                            |       |
-| optimizeForSpeed | `image_optimize()` or `image_optimize_for_speed()` or `image_optimize_for_quality` | bool                            |       |
+| quality          | `quality()`                                                                        | `int`, between 1 and 100        |       |
+| omitBackground   | `omit_background()` or `hide_background()` or `show_background()`                  | `bool`                          |       |
+| optimizeForSpeed | `image_optimize()` or `image_optimize_for_speed()` or `image_optimize_for_quality` | `bool`                          |       |
 
 This route also supports other Chromium options:
 
@@ -130,11 +130,15 @@ This route also supports other Chromium options:
 
 #### Emulated Media Type
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#emulated-media-type-chromium)
+
 | Gotenberg Option    | Route Configuration | Python Type         | Notes |
 | ------------------- | ------------------- | ------------------- | ----- |
 | `emulatedMediaType` | `.media_type()`     | `EmulatedMediaType` |       |
 
 #### Cookies
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#cookies-chromium)
 
 | Gotenberg Option | Route Configuration | Python Type       | Notes |
 | ---------------- | ------------------- | ----------------- | ----- |
@@ -142,11 +146,15 @@ This route also supports other Chromium options:
 
 #### Custom HTTP Headers
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#custom-http-headers-chromium)
+
 | Gotenberg Option   | Route Configuration | Python Type      | Notes                                                 |
 | ------------------ | ------------------- | ---------------- | ----------------------------------------------------- |
 | `extraHttpHeaders` | `.headers()`        | `dict[str, str]` | The dictionary of values will be JSON encoded for you |
 
 #### HTTP Status Codes
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#invalid-http-status-codes-chromium)
 
 | Gotenberg Option        | Route Configuration       | Python Type     | Notes |
 | ----------------------- | ------------------------- | --------------- | ----- |
@@ -154,7 +162,15 @@ This route also supports other Chromium options:
 
 #### Network Errors
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#network-errors-chromium)
+
+| Gotenberg Option              | Route Configuration               | Python Type | Notes |
+| ----------------------------- | --------------------------------- | ----------- | ----- |
+| `failOnResourceLoadingFailed` | `fail_on_resource_loading_failed` | `bool`      |       |
+
 #### Console Exceptions
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#console-exceptions-chromium)
 
 | Gotenberg Option          | Route Configuration                                                     | Python Type | Notes |
 | ------------------------- | ----------------------------------------------------------------------- | ----------- | ----- |
@@ -162,11 +178,21 @@ This route also supports other Chromium options:
 
 #### Performance Mode
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#performance-mode-chromium)
+
 | Gotenberg Option       | Route Configuration                                             | Python Type | Notes |
 | ---------------------- | --------------------------------------------------------------- | ----------- | ----- |
 | `skipNetworkIdleEvent` | <ul><li>`skip_network_idle()`<li>`use_network_idle()`</li></ul> | N/A         |       |
 
 #### Split
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#performance-mode-chromium)
+
+| Gotenberg Option | Route Configuration | Python Type                 | Notes |
+| ---------------- | ------------------- | --------------------------- | ----- |
+| splitMode        | `.split_mode()`     | one of "pages", "intervals" |       |
+| splitSpan        | `split_span()`      | `str`                       |       |
+| splitUnify       | `split_unify()`     | `bool`                      |       |
 
 #### PDF/A & PDF/UA
 
@@ -233,6 +259,8 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 
 #### Page Properties
 
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#page-properties-libreoffice)
+
 | Gotenberg Option   | Route Configuration | Python Type       | Notes                              |
 | ------------------ | ------------------- | ----------------- | ---------------------------------- |
 | `landscape`        | `.orient()`         | `PageOrientation` |                                    |
@@ -242,7 +270,11 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 
 #### Compress
 
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#compress-libreoffice)
+
 #### Merge
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-libreoffice)
 
 | Gotenberg Option | Route Configuration                         | Python Type | Notes |
 | ---------------- | ------------------------------------------- | ----------- | ----- |
@@ -253,7 +285,11 @@ If multiple files are provided, and the merge is left as default or `no_merge()`
 
 #### Split
 
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#split-libreoffice)
+
 #### PDF/A & PDF/UA
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#pdfa-libreoffice)
 
 | Gotenberg Option | Route Configuration                                                           | Python Type  | Notes |
 | ---------------- | ----------------------------------------------------------------------------- | ------------ | ----- |
@@ -268,36 +304,48 @@ See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 
 #### Flatten
 
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#flatten-libreoffice)
+
 ## Convert into PDF/A & PDF/UA
 
-| Gotenberg Link                                                                    | Route Access                                                                  | Required Properties                                                                          | Optional Properties |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) | `pdf_a.to_pdfa`                                                               | <ul><li>`.convert("mydoc.pdf")`</li><li>or</li><li>`.convert_files(["mydoc.pdf"])`</li></ul> |                     |
-| `pdfa`                                                                            | `.pdf_format()`                                                               | `PdfAFormat`                                                                                 |                     |
-| `pdfua`                                                                           | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                                                          |                     |
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route)
+
+| Gotenberg Link | Route Access                                                                  | Required Properties | Optional Properties |
+| -------------- | ----------------------------------------------------------------------------- | ------------------- | ------------------- |
+| `pdfa`         | `.pdf_format()`                                                               | `PdfAFormat`        |                     |
+| `pdfua`        | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                 |                     |
 
 !!! note
 At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
 
 ## Read PDF metadata
 
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#read-pdf-metadata-route)
+
 ## Write PDF metadata
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#write-pdf-metadata-route)
 
 ## Merge PDFs
 
-| Gotenberg Link                                                      | Route Access                                                                  | Required Properties                                    | Optional Properties                                                      |
-| ------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
-| [Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route) | `merge.merge`                                                                 | <ul><li>`.merge(["file1.pdf", "file2.pdf"])`</li></ul> |                                                                          |
-| `pdfa`                                                              | `.pdf_format()`                                                               | `PdfAFormat`                                           |                                                                          |
-| `pdfua`                                                             | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                    |                                                                          |
-| `metadata`                                                          | N/A                                                                           | N/A                                                    | See [PDF Metadata Support](#pdf-metadata-support) for the API interface. |
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route)
+
+| Gotenberg Link | Route Access                                                                  | Required Properties | Optional Properties                                                      |
+| -------------- | ----------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------ |
+| `pdfa`         | `.pdf_format()`                                                               | `PdfAFormat`        |                                                                          |
+| `pdfua`        | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                 |                                                                          |
+| `metadata`     | N/A                                                                           | N/A                 | See [PDF Metadata Support](#pdf-metadata-support) for the API interface. |
 
 !!! note
 Prefixes will be added to the file to ensure they are merged in the order provided to `merge()`, even with multiple calls
 
 ## Split PDFs
 
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route)
+
 ## Flatten PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route)
 
 ## Health Check
 
@@ -305,9 +353,18 @@ Prefixes will be added to the file to ensure they are merged in the order provid
 
 ## Metrics
 
+!!! warning
+This route is not implemented
+
 ## Version
 
+!!! warning
+This route is not implemented
+
 ## Debug
+
+!!! warning
+This route is not implemented
 
 ## Global Options
 
@@ -316,3 +373,6 @@ Prefixes will be added to the file to ensure they are merged in the order provid
 ### Output Filename
 
 ### Download From
+
+!!! warning
+This feature is not implemented

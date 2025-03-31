@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 
 - Asynchronous support for all implemented routes ([#53](https://github.com/stumpylog/gotenberg-client/pull/53))
+    - Also implemented split and flatten routes
+    - Also added support for cookies, and other new fields as of Gotenberg 8.19
+    - Be sure to check the documentation for more!
 
 ## [0.9.0] - 2025-01-09
 
