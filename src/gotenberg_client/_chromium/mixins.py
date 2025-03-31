@@ -240,13 +240,22 @@ class ConsoleExceptionMixin:
     """
 
     def fail_on_console_exception(self, *, fail_on_console_exception: bool = False) -> Self:
+        """
+        Enable or disable failing on console exceptions
+        """
         self._form_data.update(bool_to_form("failOnConsoleExceptions", fail_on_console_exception))  # type: ignore[attr-defined,misc]
         return self
 
     def fail_on_exceptions(self) -> Self:
+        """
+        Enable failing on console exceptions
+        """
         return self.fail_on_console_exception(fail_on_console_exception=True)
 
     def dont_fail_on_exceptions(self) -> Self:
+        """
+        Disable failing on console exceptions
+        """
         return self.fail_on_console_exception(fail_on_console_exception=False)
 
 

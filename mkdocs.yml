@@ -10,6 +10,7 @@ nav:
   - "index.md"
   - "usage.md"
   - "routes.md"
+  - "reference.md"
   - "contributing.md"
   - "roadmap.md"
   - "changelog.md"
@@ -66,6 +67,14 @@ plugins:
       minify_html: true
       minify_js: true
       minify_css: true
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            extensions: []
+          inventories:
+            - https://docs.python.org/3/objects.inv
 
 extra:
   version:

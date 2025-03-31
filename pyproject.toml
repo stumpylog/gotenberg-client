@@ -143,11 +143,12 @@ update = [ "pre-commit autoupdate" ]
 
 [tool.hatch.envs.docs]
 template = "docs"
-detached = true
+#detached = true
 dependencies = [
   "mkdocs-material[imaging] ~= 9.6",
   "mike ~= 2.1",
   "mkdocs-minify-plugin ~= 0.8",
+  "mkdocstrings[python] ~= 0.29.1",
 ]
 
 [tool.hatch.envs.docs.scripts]
