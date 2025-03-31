@@ -286,9 +286,6 @@ def docx_sample_file(sample_directory: Path) -> Path:
     """
     Fixture to provide the path to a DOCX sample file.
 
-    Args:
-        sample_directory (Path): Directory containing sample files
-
     Returns:
         Path: Path to the DOCX sample file
     """
@@ -300,13 +297,34 @@ def odt_sample_file(sample_directory: Path) -> Path:
     """
     Fixture to provide the path to an ODT sample file.
 
-    Args:
-        sample_directory (Path): Directory containing sample files
-
     Returns:
         Path: Path to the ODT sample file
     """
     return sample_directory / "sample.odt"
+
+
+@pytest.fixture(scope="session")
+def odt_sample_file_with_password(sample_directory: Path) -> Path:
+    """
+    Fixture to provide the path to an ODT sample file.
+
+
+    Returns:
+        Path: Path to the ODT sample file with a password of password
+    """
+    return sample_directory / "sample-password.odt"
+
+
+@pytest.fixture(scope="session")
+def odt_sample_file_with_images(sample_directory: Path) -> Path:
+    """
+    Fixture to provide the path to an ODT sample file.
+
+
+    Returns:
+        Path: Path to the ODT sample file with a password of password
+    """
+    return sample_directory / "sample-with-images.odt"
 
 
 @pytest.fixture(scope="session")

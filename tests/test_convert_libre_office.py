@@ -13,6 +13,7 @@ from gotenberg_client import SingleFileResponse
 from gotenberg_client import ZipFileResponse
 from gotenberg_client._libreoffice.routes import AsyncOfficeDocumentToPdfRoute
 from gotenberg_client._utils import guess_mime_type_stdlib
+from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PdfAFormat
 
 
@@ -73,6 +74,29 @@ class TestLibreOfficeConvert:
     ):
         with sync_client.libre_office.to_pdf() as route:
             resp = route.convert_files([docx_sample_file, odt_sample_file]).no_merge().run_with_retry()
+
+        assert resp.status_code == HTTPStatus.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/zip"
+        assert isinstance(resp, ZipFileResponse)
+        assert resp.is_zip
+
+        resp.extract_to(tmp_path)
+
+        assert len(list(tmp_path.iterdir())) == 2
+
+    async def test_libre_office_convert_multiples_format_no_merge_async(
+        self,
+        async_office_to_pdf_route: AsyncOfficeDocumentToPdfRoute,
+        docx_sample_file: Path,
+        odt_sample_file: Path,
+        tmp_path: Path,
+    ):
+        resp = (
+            await async_office_to_pdf_route.convert_files([docx_sample_file, odt_sample_file])
+            .no_merge()
+            .run_with_retry()
+        )
 
         assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers
@@ -146,6 +170,92 @@ class TestLibreOfficeConvertAsync:
         docx_sample_file: Path,
     ):
         resp = await async_office_to_pdf_route.convert(docx_sample_file).run_with_retry()
+
+        assert resp.status_code == HTTPStatus.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+
+class TestLibreOfficeProperties:
+    async def test_libre_office_password(
+        self,
+        async_office_to_pdf_route: AsyncOfficeDocumentToPdfRoute,
+        odt_sample_file_with_password: Path,
+    ):
+        resp = (
+            await async_office_to_pdf_route.convert(odt_sample_file_with_password).password("password").run_with_retry()
+        )
+
+        assert resp.status_code == HTTPStatus.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+    async def test_libre_office_settings(
+        self,
+        async_office_to_pdf_route: AsyncOfficeDocumentToPdfRoute,
+        docx_sample_file: Path,
+    ):
+        resp = (
+            await async_office_to_pdf_route.convert(docx_sample_file)
+            .orient(PageOrientation.Landscape)
+            .page_ranges("1-4")
+            .update_indexes(update_indexes=True)
+            .export_form_fields(export_form_fields=True)
+            .allow_duplicate_form_fields(allow_duplicate_form_fields=False)
+            .export_bookmarks(export_bookmarks=True)
+            .export_bookmarks_to_pdf_destination(export_bookmarks_to_pdf_destination=False)
+            .export_notes(export_notes=True)
+            .export_notes_pages(export_notes_pages=True)
+            .export_only_notes_pages(export_only_notes_pages=True)
+            .export_notes_in_margin(export_notes_in_margin=False)
+            .convert_ooo_target_to_pdf_target()
+            .export_links_relative_fsys()
+            .skip_empty_pages(skip_empty_pages=True)
+            .add_original_document_as_stream(add_original_document_as_stream=True)
+            .single_page_sheets()
+            .flatten()
+            .run_with_retry()
+        )
+
+        assert resp.status_code == HTTPStatus.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+    async def test_libre_office_compress_settings(
+        self,
+        async_office_to_pdf_route: AsyncOfficeDocumentToPdfRoute,
+        docx_sample_file: Path,
+    ):
+        resp = (
+            await async_office_to_pdf_route.convert(docx_sample_file)
+            .lossless_image_compression(lossless_image_compression=True)
+            .reduce_image_resolution(reduce_image_resolution=True)
+            .max_image_resolution(600)
+            .quality(90)
+            .run_with_retry()
+        )
+
+        assert resp.status_code == HTTPStatus.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+    async def test_libre_office_image_quality_too_low(
+        self,
+        async_office_to_pdf_route: AsyncOfficeDocumentToPdfRoute,
+        odt_sample_file_with_images: Path,
+    ):
+        resp = await async_office_to_pdf_route.convert(odt_sample_file_with_images).quality(-1).run_with_retry()
+
+        assert resp.status_code == HTTPStatus.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+    async def test_libre_office_image_quality_too_high(
+        self,
+        async_office_to_pdf_route: AsyncOfficeDocumentToPdfRoute,
+        odt_sample_file_with_images: Path,
+    ):
+        resp = await async_office_to_pdf_route.convert(odt_sample_file_with_images).quality(101).run_with_retry()
 
         assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers

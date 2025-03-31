@@ -104,7 +104,7 @@ class LibreOfficeCompressOptionsMixin:
     """
 
     _QUALITY_MAX: Final[int] = 100
-    _QUALITY_MIN: Final[int] = 0
+    _QUALITY_MIN: Final[int] = 1
 
     def lossless_image_compression(self, *, lossless_image_compression: bool = False) -> Self:
         self._form_data.update(bool_to_form("losslessImageCompression", lossless_image_compression))  # type: ignore[attr-defined,misc]
@@ -135,7 +135,7 @@ class LibreOfficeCompressOptionsMixin:
         self._form_data.update(bool_to_form("reduceImageResolution", reduce_image_resolution))  # type: ignore[attr-defined,misc]
         return self
 
-    def max_image_resolution(self, max_resolution: Literal[75, 150, 3500, 600, 1200]) -> Self:
+    def max_image_resolution(self, max_resolution: Literal[75, 150, 300, 600, 1200]) -> Self:
         self._form_data.update({"quality": str(max_resolution)})  # type: ignore[attr-defined,misc]
         return self
 

@@ -13,6 +13,7 @@ from httpx import HTTPStatusError
 from httpx import Request
 from pytest_httpx import HTTPXMock
 
+from gotenberg_client import AsyncGotenbergClient
 from gotenberg_client import CannotExtractHereError
 from gotenberg_client import GotenbergClient
 from gotenberg_client import MaxRetriesExceededError
@@ -109,6 +110,28 @@ class TestServerErrorRetry:
                 _ = route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
+    async def test_server_error_retry_async(
+        self,
+        async_client: AsyncGotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        # Response 1
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+        # Response 2
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.SERVICE_UNAVAILABLE)
+        # Response 3
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.GATEWAY_TIMEOUT)
+        # Response 4
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.BAD_GATEWAY)
+        # Response 5
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.SERVICE_UNAVAILABLE)
+
+        async with async_client.chromium.html_to_pdf() as route:
+            with pytest.raises(MaxRetriesExceededError) as exc_info:
+                _ = await route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
+            assert exc_info.value.response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
+
     def test_not_a_server_error(self, sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         # Response 1
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.NOT_FOUND)
@@ -117,6 +140,20 @@ class TestServerErrorRetry:
             with pytest.raises(HTTPStatusError) as exc_info:
                 _ = route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
+
+    async def test_not_a_server_error_async(
+        self,
+        async_client: AsyncGotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        # Response 1
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.BAD_REQUEST)
+
+        async with async_client.chromium.html_to_pdf() as route:
+            with pytest.raises(HTTPStatusError) as exc_info:
+                _ = await route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
+            assert exc_info.value.response.status_code == HTTPStatus.BAD_REQUEST
 
 
 class TestWebhookHeaders:
