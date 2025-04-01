@@ -138,15 +138,16 @@ class HealthStatus:
 
         (year, month, day, hour, minute, second, frac_sec, timezone_str) = m.groups()
 
-        microseconds = int(float(frac_sec) * 1000000.0) if frac_sec is not None else 0
+        microseconds = int(float(frac_sec) * 1_000_000.0) if frac_sec is not None else 0
+
         tzinfo = None
         if timezone_str is not None:
-            if timezone_str.lower() == "z":
+            if timezone_str.lower() == "z":  # type: ignore[misc]
                 tzinfo = datetime.timezone.utc
             else:  # pragma: no cover
-                multi = -1 if timezone_str[0:1] == "-" else 1
-                hours = int(timezone_str[1:3])
-                minutes = int(timezone_str[4:])
+                multi = -1 if timezone_str[0:1] == "-" else 1  # type: ignore[misc]
+                hours = int(timezone_str[1:3])  # type: ignore[misc]
+                minutes = int(timezone_str[4:])  # type: ignore[misc]
                 delta = datetime.timedelta(hours=hours, minutes=minutes) * multi
                 tzinfo = datetime.timezone(delta)
 
