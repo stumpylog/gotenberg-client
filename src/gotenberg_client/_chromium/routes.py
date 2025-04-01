@@ -62,37 +62,57 @@ class _BaseChromiumConvertMixin(
     MetadataMixin,
 ):
     """
-    The common form fields for the following:
+    Common form fields for Chromium-based PDF conversion routes.
 
       - https://gotenberg.dev/docs/routes#url-into-pdf-route
       - https://gotenberg.dev/docs/routes#html-file-into-pdf-route
       - https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route
+
+    Provides shared functionality for URL, HTML and Markdown PDF conversion routes:
+      - Page layout control (size, margins, orientation)
+      - Content rendering options (backgrounds, scaling)
+      - Document properties (outlines, metadata)
+      - Browser emulation settings (headers, cookies)
+      - Error handling (network errors, status codes)
+
     """
 
 
 class _BaseIndexFilesMixin:
     """
-    Mixin for routes which require an index.html and supporting resources
+    Mixin for routes requiring an index.html file and supporting resources.
+
+    Provides methods to add HTML content and related resources for conversion.
     """
 
     def index(self, index: Path) -> Self:
         """
-        Adds the given HTML file as the index file.
+        Sets the main HTML file for conversion.
 
-        The file name will be ignored and cannot be configured
+        Args:
+            index (Path): Path to the HTML file to use as the main entry point.
+
+        Returns:
+            Self: This object for method chaining.
+
+        Note:
+            The file name will be normalized to "index.html" regardless of original name.
         """
         self._add_file_map(index, name="index.html")  # type: ignore[attr-defined]
         return self
 
     def string_index(self, index: str) -> Self:
         """
-        Provides the given string data as the index HTML for conversion.
+        Sets the main HTML content as a string.
 
         Args:
-            index (str): The HTML content to be used as the index file.
+            index (str): HTML content to use as the main entry point.
 
         Returns:
-            Self: This object itself for method chaining.
+            Self: This object for method chaining.
+
+        Note:
+            The file name will be normalized to "index.html" regardless of original name.
         """
 
         self._add_in_memory_file(index, name="index.html", mime_type="text/html")  # type: ignore[attr-defined]
@@ -100,27 +120,29 @@ class _BaseIndexFilesMixin:
 
     def resource(self, resource: Path, *, name: Optional[str] = None) -> Self:
         """
-        Adds additional resources for the index HTML file to reference.
+        Adds a resource file for the HTML to reference.
 
-        The filename may optionally be overridden if the HTML refers to the file with a different name
+        Args:
+            resource (Path): Path to the resource file (CSS, JS, images, etc.).
+            name (Optional[str]): Override the filename if HTML references it differently.
+
+        Returns:
+            Self: This object for method chaining.
         """
         self._add_file_map(resource, name=name)  # type: ignore[attr-defined]
         return self
 
     def string_resource(self, resource: str, name: str, mime_type: Optional[str] = None) -> Self:
         """
-        Adds a string resource to the conversion process.
-
-        The provided string data will be made available to the index HTML file during conversion,
-        using the specified name and MIME type.
+        Adds an in-memory string resource.
 
         Args:
-            resource (str): The string data to be added as a resource.
-            name (str): The name to assign to the resource.
-            mime_type (Optional[str]): The MIME type of the resource (optional).
+            resource (str): String content of the resource.
+            name (str): Name to reference this resource in the HTML.
+            mime_type (Optional[str]): MIME type of the resource.
 
         Returns:
-            Self: This object itself for method chaining.
+            Self: This object for method chaining.
         """
 
         self._add_in_memory_file(resource, name=name, mime_type=mime_type)  # type: ignore[attr-defined]
@@ -128,9 +150,16 @@ class _BaseIndexFilesMixin:
 
     def resources(self, resources: list[Path]) -> Self:
         """
-        Adds multiple resource files for the index HTML file to reference.
+        Adds multiple resource files at once.
 
-        At this time, the name cannot be set
+        Args:
+            resources (list[Path]): List of paths to resource files.
+
+        Returns:
+            Self: This object for method chaining.
+
+        Note:
+            Uses original filenames; cannot override names in batch mode.
         """
         for x in resources:
             self.resource(x)
@@ -141,19 +170,16 @@ class _BaseIndexFilesMixin:
         resources: list[tuple[str, str, Optional[str]]],
     ) -> Self:
         """
-        Process string resources.
-
-        This method takes a list of resource tuples and processes them.
+        Adds multiple in-memory string resources.
 
         Args:
-            resources: A list of resource tuples.
-                Each tuple contains:
-                - str: Resource Data - The content or data of the resource.
-                - str: Resource Filename - The filename of the resource for reference in the index
-                - Optional[str]: Resource mimetype - The MIME type of the resource, if available.
+            resources: List of tuples, each containing:
+                - str: Resource content
+                - str: Resource filename
+                - Optional[str]: Resource MIME type
 
         Returns:
-            Self: Returns the instance of the class for method chaining.
+            Self: This object for method chaining.
 
         Note:
             The third element of each tuple (Resource Mime-Type) is optional.
@@ -166,7 +192,9 @@ class _BaseIndexFilesMixin:
 
 class _BaseUrlFormMixin:
     """
-    Mixin for routes which have no files but provide the url form field
+    Mixin for routes that accept a URL parameter.
+
+    Provides URL handling functionality for routes that convert web pages.
     """
 
     def url(self, url: str) -> Self:
@@ -195,61 +223,88 @@ class _BaseUrlFormMixin:
 
 class _BaseUrlToPdfChromiumConvertRoute(_BaseUrlFormMixin, _BaseChromiumConvertMixin):
     """
-    https://gotenberg.dev/docs/routes#url-into-pdf-route
+    Base route for converting URLs to PDFs using Chromium.
+
+    Provides the functionality to convert a web page at a specified URL to PDF.
+
+    See https://gotenberg.dev/docs/routes#url-into-pdf-route
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/convert/url"
 
 
 class SyncUrlToPdfRoute(_BaseUrlToPdfChromiumConvertRoute, SyncBaseRoute):
-    pass
+    """
+    Synchronous route for converting URLs to PDFs using Chromium.
+
+    Implements the synchronous API for converting web pages at specified URLs to PDF documents.
+
+    See https://gotenberg.dev/docs/routes#url-into-pdf-route
+    """
 
 
 class AsyncUrlToPdfRoute(_BaseUrlToPdfChromiumConvertRoute, AsyncBaseRoute):
-    pass
+    """
+    Asynchronous route for converting URLs to PDFs using Chromium.
+
+    Implements the asynchronous API for converting web pages at specified URLs to PDF documents.
+
+    See https://gotenberg.dev/docs/routes#url-into-pdf-route
+    """
 
 
 class _BaseHtmlToPdfRoute(_BaseIndexFilesMixin, _BaseChromiumConvertMixin):
     """
-    https://gotenberg.dev/docs/routes#html-file-into-pdf-route
+    Base route for converting HTML files to PDFs using Chromium.
+
+    Provides the functionality to convert HTML files with associated resources to PDF.
+
+    See https://gotenberg.dev/docs/routes#html-file-into-pdf-route
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/convert/html"
 
 
 class SyncHtmlToPdfRoute(_BaseHtmlToPdfRoute, _BaseChromiumConvertMixin, SyncBaseRoute):
-    pass
+    """
+    Synchronous route for converting HTML files to PDFs using Chromium.
+
+    Implements the synchronous API for converting HTML files with associated resources to PDF documents.
+
+    See https://gotenberg.dev/docs/routes#html-file-into-pdf-route
+    """
 
 
 class AsyncHtmlToPdfRoute(_BaseHtmlToPdfRoute, _BaseChromiumConvertMixin, AsyncBaseRoute):
-    pass
+    """
+    Asynchronous route for converting HTML files to PDFs using Chromium.
+
+    Implements the asynchronous API for converting HTML files with associated resources to PDF documents.
+
+    See https://gotenberg.dev/docs/routes#html-file-into-pdf-route
+    """
 
 
 class _BaseMarkdownToPdfRoute(_BaseIndexFilesMixin, _BaseChromiumConvertMixin):
     """
-    Represents the Gotenberg route for converting Markdown files to a PDF.
+    Base route for converting Markdown files to PDFs using Chromium.
 
-    This class inherits from various mixins that provide functionalities such as
-    - Page properties (margins, size)
-    - Headers and footers
-    - Handling file resources
-    - File-based route behavior
+    Provides methods to add Markdown files and supporting resources for PDF conversion.
 
-    See the Gotenberg documentation (https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route)
-    for detailed information on these functionalities.
+    See https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/convert/markdown"
 
     def markdown_file(self, markdown_file: Path) -> Self:
         """
-        Adds a single Markdown file to be converted.
+        Adds a Markdown file to be converted.
 
         Args:
-            markdown_file (Path): The path to the Markdown file.
+            markdown_file (Path): Path to the Markdown file.
 
         Returns:
-            MarkdownRoute: This object itself for method chaining.
+            Self: This object for method chaining.
         """
 
         self._add_file_map(markdown_file)  # type: ignore[attr-defined]
@@ -261,10 +316,13 @@ class _BaseMarkdownToPdfRoute(_BaseIndexFilesMixin, _BaseChromiumConvertMixin):
         Adds multiple Markdown files to be converted.
 
         Args:
-            markdown_files (List[Path]): A list of paths to Markdown files.
+            markdown_files (list[Path]): List of paths to Markdown files.
 
         Returns:
-            MarkdownRoute: This object itself for method chaining.
+            Self: This object for method chaining.
+
+        Note:
+            Files will be processed in the order they're provided.
         """
         for x in markdown_files:
             self.markdown_file(x)
@@ -272,11 +330,23 @@ class _BaseMarkdownToPdfRoute(_BaseIndexFilesMixin, _BaseChromiumConvertMixin):
 
 
 class SyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, SyncBaseRoute):
-    pass
+    """
+    Asynchronous route for converting Markdown files to PDFs using Chromium.
+
+    Implements the asynchronous API for converting Markdown files with associated resources to PDF documents.
+
+    See https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route
+    """
 
 
 class AsyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, AsyncBaseRoute):
-    pass
+    """
+    Synchronous route for capturing screenshots from URLs.
+
+    Implements the synchronous API for capturing screenshots of web pages at specified URLs.
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
+    """
 
 
 class _BaseScreenShotSettingsMixin(
@@ -291,70 +361,110 @@ class _BaseScreenShotSettingsMixin(
     ScreenShotSettingsMixin,
 ):
     """
-    The common form field settings for the following route:
-      - https://gotenberg.dev/docs/routes#screenshots-route
+    Common settings for screenshot capture routes.
+
+    Provides shared functionality for screenshot routes:
+    - Rendering control (timing, waiting)
+    - Media emulation settings
+    - Browser configuration (cookies, headers)
+    - Error handling
+    - Screenshot options (format, quality, scale)
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
     """
 
 
 class _BaseScreenshotFromUrlRoute(_BaseScreenShotSettingsMixin, _BaseUrlFormMixin):
     """
-    Represents the Gotenberg route for capturing screenshots from URLs.
+    Base route for capturing screenshots from URLs.
 
-    Inherits from ScreenshotRoute and provides a specific URL-based method.
+    Provides the functionality to capture screenshots of web pages at specified URLs.
 
-    https://gotenberg.dev/docs/routes#screenshots-route
+    See https://gotenberg.dev/docs/routes#screenshots-route
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/screenshot/url"
 
 
 class SyncScreenshotFromUrlRoute(_BaseScreenshotFromUrlRoute, SyncBaseRoute):
-    pass
+    """
+    Synchronous route for capturing screenshots from URLs.
+
+    Implements the synchronous API for capturing screenshots of web pages at specified URLs.
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
+    """
 
 
 class AsyncScreenshotFromUrlRoute(_BaseScreenshotFromUrlRoute, AsyncBaseRoute):
-    pass
+    """
+    Asynchronous route for capturing screenshots from URLs.
+
+    Implements the asynchronous API for capturing screenshots of web pages at specified URLs.
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
+    """
 
 
 class _BaseScreenshotFromHtmlRoute(_BaseIndexFilesMixin, _BaseScreenShotSettingsMixin):
     """
-    Represents the Gotenberg route for capturing screenshots from HTML files.
+    Base route for capturing screenshots from HTML files.
 
-    Inherits from _FileBasedRoute, _RouteWithResources, and ScreenshotRoute,
-    combining functionalities for file-based operations, resource handling,
-    and screenshot capture.
+    Provides the functionality to capture screenshots of HTML files with associated resources.
 
-    https://gotenberg.dev/docs/routes#screenshots-route
+    See https://gotenberg.dev/docs/routes#screenshots-route
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/screenshot/html"
 
 
 class SyncScreenshotFromHtmlRoute(_BaseScreenshotFromHtmlRoute, SyncBaseRoute):
-    pass
+    """
+    Synchronous route for capturing screenshots from HTML files.
+
+    Implements the synchronous API for capturing screenshots of HTML files with associated resources.
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
+    """
 
 
 class AsyncScreenshotFromHtmlRoute(_BaseScreenshotFromHtmlRoute, AsyncBaseRoute):
-    pass
+    """
+    Asynchronous route for capturing screenshots from HTML files.
+
+    Implements the asynchronous API for capturing screenshots of HTML files with associated resources.
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
+    """
 
 
 class _BaseScreenshotFromMarkdownRoute(_BaseIndexFilesMixin, _BaseScreenShotSettingsMixin):
     """
-    Represents the Gotenberg route for capturing screenshots from Markdown files.
+    Base route for capturing screenshots from Markdown files.
 
-    Inherits from _FileBasedRoute, _RouteWithResources, and ScreenshotRoute,
-    combining functionalities for file-based operations, resource handling,
-    and screenshot capture.
+    Provides the functionality to capture screenshots of rendered Markdown content.
 
-    https://gotenberg.dev/docs/routes#screenshots-route
+    See https://gotenberg.dev/docs/routes#screenshots-route
     """
 
     ENDPOINT_URL: Final[str] = "/forms/chromium/screenshot/markdown"
 
 
 class SyncScreenshotFromMarkdownRoute(_BaseScreenshotFromMarkdownRoute, SyncBaseRoute):
-    pass
+    """
+    Synchronous route for capturing screenshots from Markdown files.
+
+    Implements the synchronous API for capturing screenshots of rendered Markdown content.
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
+    """
 
 
 class AsyncScreenshotFromMarkdownRoute(_BaseScreenshotFromMarkdownRoute, AsyncBaseRoute):
-    pass
+    """
+    Asynchronous route for capturing screenshots from Markdown files.
+
+    Implements the asynchronous API for capturing screenshots of rendered Markdown content.
+
+    See https://gotenberg.dev/docs/routes#screenshots-route
+    """

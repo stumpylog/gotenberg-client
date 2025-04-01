@@ -90,6 +90,14 @@ class SyncChromiumApi(SyncBaseApi):
 
 
 class AsyncChromiumApi(AsyncBaseApi):
+    """
+    Represents the asynchronous Gotenberg API for Chromium-based conversions and screenshots.
+
+    Provides methods to create specific route objects for different conversion and screenshot types.
+
+    https://gotenberg.dev/docs/routes#convert-with-chromium
+    """
+
     def html_to_pdf(self) -> AsyncHtmlToPdfRoute:
         """
         Creates an AsyncHtmlToPdfRoute object for converting HTML to PDF.
