@@ -34,11 +34,31 @@ from gotenberg_client.responses import ZipFileResponse
 
 class BaseRoute(ABC, Generic[ClientT]):
     """
-    The base implementation of a Gotenberg API route.  Anything shared between all routes,
-    and common utilities such as posting the data or returning the response goes here
+    The base implementation of a Gotenberg API route.
+
+    This abstract class provides shared functionality between all routes and common
+    utilities for posting data and processing responses. It handles file management,
+    form data, headers, and other common operations.
+
+    Attributes:
+        _client (ClientT): The HTTP client used to connect to Gotenberg.
+        _route_url (str): The URL of the specific Gotenberg route.
+        _log (logging.Logger): Logger for recording operations.
+        _stack (ExitStack): Context manager stack for resource management.
+        _form_data (dict): Form data options to be sent to Gotenberg.
+        _file_map (dict): Mapping of file names to their Path objects.
+        _in_memory_resources (dict): Mapping of resource names to their content and MIME types.
     """
 
     def __init__(self, client: ClientT, route_url: str, log: logging.Logger) -> None:
+        """
+        Initialize a new BaseRoute instance.
+
+        Args:
+            client (ClientT): The HTTP client used to connect to Gotenberg.
+            route_url (str): The URL of the specific Gotenberg route.
+            log (logging.Logger): Logger for recording operations.
+        """
         self._client = client
         self._route_url = route_url
         self._log = log
@@ -54,14 +74,23 @@ class BaseRoute(ABC, Generic[ClientT]):
         self._next = 1
 
     @abstractmethod
-    def post_data(self) -> Union[Response, Coroutine[Any, Any, Response]]:
+    def _post_data(self) -> Union[Response, Coroutine[Any, Any, Response]]:
         """
-        Executes the configured route against the server and returns the resulting
-        Response.
+        Execute the configured route request against the Gotenberg server.
+
+        This method sends the request with all configured files, form data, and headers
+        to the Gotenberg API endpoint.
+
+        Returns:
+            Response or Coroutine[Any, Any, Response]: The HTTP response from Gotenberg
+                or a coroutine that will return the response.
+
+        Raises:
+            httpx.HTTPStatusError: If the HTTP request returns an error status code.
         """
 
     @abstractmethod
-    def post_data_with_retry(
+    def _post_data_with_retry(
         self,
         *,
         max_retry_count: int = 5,
@@ -69,20 +98,31 @@ class BaseRoute(ABC, Generic[ClientT]):
         retry_scale: Union[float, int] = 2.0,
     ) -> Union[Response, Coroutine[Any, Any, Response]]:
         """
-        For whatever reason, Gotenberg often returns HTTP 503 errors, even with the same files.
-        Hopefully v8 will improve upon this with its updates, but this is provided for convenience.
+        Execute the route request with automatic retries for server errors.
 
-        This function will retry the given method/function up to X times, with larger backoff
-        periods between each attempt, in hopes the issue resolves itself during
-        one attempt to parse.
+        Gotenberg sometimes returns HTTP 503 errors even with valid inputs. This method
+        implements an exponential backoff strategy to retry the request multiple times
+        in case of server errors.
 
-        This will wait the following (by default):
+        The default retry pattern waits the following times between attempts:
             - Attempt 1 - 5s following failure
             - Attempt 2 - 10s following failure
             - Attempt 3 - 20s following failure
             - Attempt 4 - 40s following failure
             - Attempt 5 - 80s following failure
 
+        Args:
+            max_retry_count (int, optional): Maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (float or int, optional): Initial wait time in seconds. Defaults to 5.0.
+            retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
+
+        Returns:
+            Response or Coroutine[Any, Any, Response]: The successful HTTP response or a
+                coroutine that will return the response.
+
+        Raises:
+            MaxRetriesExceededError: If all retry attempts fail with server errors.
+            httpx.HTTPStatusError: If the request fails with a client error (4xx).
         """
 
     @abstractmethod
@@ -90,15 +130,17 @@ class BaseRoute(ABC, Generic[ClientT]):
         self,
     ) -> Union[SingleFileResponse, ZipFileResponse, Coroutine[Any, Any, Union[SingleFileResponse, ZipFileResponse]]]:
         """
-        Execute the API request to Gotenberg.
+        Execute the API request to Gotenberg and process the response.
 
-        This method sends the configured request to the Gotenberg service and returns the response.
+        This method sends the configured request to the Gotenberg service and returns
+        an appropriate response object based on the content type of the response.
 
         Returns:
-            SingleFileResponse: An object containing the response from the Gotenberg API
+            SingleFileResponse, ZipFileResponse, or Coroutine: A response object containing
+                the result from Gotenberg, or a coroutine that will return such an object.
 
         Raises:
-            httpx.Error: Any errors from httpx will be raised
+            httpx.Error: Any errors from the HTTP client will be raised.
         """
 
     @abstractmethod
@@ -110,29 +152,31 @@ class BaseRoute(ABC, Generic[ClientT]):
         retry_scale: Union[float, int] = 2.0,
     ) -> Union[SingleFileResponse, ZipFileResponse, Coroutine[Any, Any, Union[SingleFileResponse, ZipFileResponse]]]:
         """
-        Execute the API request with a retry mechanism.
+        Execute the API request with automatic retries and process the response.
 
-        This method attempts to run the API request and automatically retries in case of failures.
-        It uses an exponential backoff strategy for retries.
+        This method combines post_data_with_retry() with response processing to provide
+        a complete operation with retry capability for server errors.
 
         Args:
-            max_retry_count (int, optional): The maximum number of retry attempts. Defaults to 5.
-            initial_retry_wait (float or int, optional): The initial wait time between retries in seconds.
-                Defaults to 5. Can be int or float.
-            retry_scale (float or int, optional): The scale factor for the exponential backoff.
-                Defaults to 2. Can be int or float.
+            max_retry_count (int, optional): Maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (float or int, optional): Initial wait time in seconds. Defaults to 5.0.
+            retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
 
         Returns:
-            SingleFileResponse: The response object containing the result of the API call.
+            SingleFileResponse, ZipFileResponse, or Coroutine: A response object containing
+                the result from Gotenberg, or a coroutine that will return such an object.
 
         Raises:
-            MaxRetriesExceededError: If the maximum number of retries is exceeded without a successful response.
+            MaxRetriesExceededError: If all retry attempts fail with server errors.
+            httpx.HTTPStatusError: If the request fails with a client error (4xx).
         """
 
     def reset(self) -> None:
         """
-        Calls all context manager __exit__ via the ExitStack and clears
-        all set files and form data options
+        Reset the route to its initial state.
+
+        Closes all context managers via the ExitStack and clears all set files,
+        form data options, and route-specific headers.
         """
         self._stack.close()
         self._form_data.clear()
@@ -142,15 +186,23 @@ class BaseRoute(ABC, Generic[ClientT]):
 
     def close(self) -> None:
         """
-        Alias for reset
+        Close and clean up resources used by this route.
+
+        This is an alias for reset().
         """
         self.reset()
 
     def _get_all_resources(self) -> RequestFiles:
         """
-        Deals with opening all provided files for multi-part uploads, including
-        pushing their new contexts onto the stack to ensure resources like file
-        handles are cleaned up
+        Prepare all file resources for upload to Gotenberg.
+
+        Opens all provided files for multi-part uploads and manages their contexts
+        to ensure proper resource cleanup. Handles both file system files and
+        in-memory resources.
+
+        Returns:
+            RequestFiles: A dictionary suitable for use as the 'files' parameter
+                in httpx request methods.
         """
         resources = {}
         for filename in self._file_map:
@@ -176,9 +228,12 @@ class BaseRoute(ABC, Generic[ClientT]):
 
     def _add_file_map(self, filepath: Path, *, name: Optional[str] = None) -> None:
         """
-        Small helper to handle bookkeeping of files for later opening.  The name is
-        optional to support those things which are required to have a certain name
-        generally for ordering or just to be found at all
+        Add a file path to the file map for later processing.
+
+        Args:
+            filepath (Path): Path to the file to be uploaded.
+            name (Optional[str], optional): Name to use for the file in the request.
+                If None, the file's basename will be used. Defaults to None.
         """
         if name is None:
             name = filepath.name
@@ -190,7 +245,12 @@ class BaseRoute(ABC, Generic[ClientT]):
 
     def _add_in_memory_file(self, data: str, *, name: str, mime_type: Optional[str] = None) -> None:
         """
-        Adds a file with the given name and optional mime type, but its data is fully in memory
+        Add an in-memory file to the resources to be uploaded.
+
+        Args:
+            data (str): The content of the file.
+            name (str): Name to use for the file in the request.
+            mime_type (Optional[str], optional): MIME type of the file. Defaults to None.
         """
         if name in self._in_memory_resources:  # pragma: no cover
             self._log.warning(f"{name} has already been provided, overwriting anyway")
@@ -199,26 +259,60 @@ class BaseRoute(ABC, Generic[ClientT]):
 
     def output_filename(self, filename: str) -> Self:
         """
-        Sets the header for controlling the output filename.  See
-        https://gotenberg.dev/docs/routes#output-filename
+        Set the desired output filename for the generated file.
+
+        Sets the Gotenberg-Output-Filename header to control the output filename.
+        See [documentation](https://gotenberg.dev/docs/routes#output-filename) for more details.
 
         Args:
-            extra_headers (Dict[str, str]): A dictionary of additional headers to include in webhook calls.
+            filename (str): The desired filename for the output file.
+
+        Returns:
+            Self: The route instance for method chaining.
+
+        Note:
+            This setting will only be applied for the current route instantiation.
         """
         self._headers.update({"Gotenberg-Output-Filename": filename})
         return self
 
     def trace_id(self, trace_id: str) -> Self:
         """
-        Configures the trace ID for Gotenberg. See
-        https://gotenberg.dev/docs/routes#request-tracing
+        Set a trace ID for request tracing in Gotenberg.
+
+        Sets the Gotenberg-Trace header for request tracing.
+        See [documentation](https://gotenberg.dev/docs/routes#request-tracing) for more details.
+
+        Args:
+            trace_id (str): The trace ID to use for the request.
+
+        Returns:
+            Self: The route instance for method chaining.
+
+        Note:
+            This setting will only be applied for the current route instantiation.
         """
         self._headers.update({"Gotenberg-Trace": trace_id})
         return self
 
 
 class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
+    """
+    Synchronous implementation of the BaseRoute for the Gotenberg API.
+
+    This class implements the BaseRoute abstract methods using synchronous HTTP
+    requests. It can be used as a context manager for automatic resource cleanup.
+    """
+
     def __enter__(self) -> Self:
+        """
+        Enter the context manager scope.
+
+        Resets the route state and returns the route instance.
+
+        Returns:
+            Self: The route instance.
+        """
         self.reset()
         return self
 
@@ -228,9 +322,31 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
+        """
+        Exit the context manager scope.
+
+        Performs cleanup by calling close() to release resources.
+
+        Args:
+            exc_type: The exception type, if an exception was raised.
+            exc_val: The exception instance, if an exception was raised.
+            exc_tb: The traceback, if an exception was raised.
+        """
         self.close()
 
-    def post_data(self) -> Response:
+    def _post_data(self) -> Response:
+        """
+        Send the configured request data to the Gotenberg server synchronously.
+
+        Executes a POST request with all configured files, form data, and headers
+        to the Gotenberg API endpoint.
+
+        Returns:
+            Response: The HTTP response from Gotenberg.
+
+        Raises:
+            httpx.HTTPStatusError: If the HTTP request returns an error status code.
+        """
         resp = self._client.post(
             url=self._route_url,
             headers=self._headers,
@@ -240,13 +356,34 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         resp.raise_for_status()
         return resp
 
-    def post_data_with_retry(
+    def _post_data_with_retry(
         self,
         *,
         max_retry_count: int = 5,
         initial_retry_wait: Union[float, int] = 5.0,
         retry_scale: Union[float, int] = 2.0,
     ) -> Response:
+        """
+        Send the request to Gotenberg with automatic retries for server errors.
+
+        Implements an exponential backoff retry strategy for handling server errors.
+
+        Args:
+            max_retry_count (int, optional): Maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (float or int, optional): Initial wait time in seconds. Defaults to 5.0.
+            retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
+
+        Returns:
+            Response: The successful HTTP response from Gotenberg.
+
+        Raises:
+            MaxRetriesExceededError: If all retry attempts fail with server errors.
+            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+
+        Note:
+            Only 5xx server errors will trigger retries; 4xx client errors will be raised immediately.
+
+        """
         retry_time = initial_retry_wait
         current_retry_count = 0
 
@@ -254,7 +391,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
             current_retry_count = current_retry_count + 1
 
             try:
-                return self.post_data()
+                return self._post_data()
             except HTTPStatusError as e:
                 self._log.warning(f"HTTP error: {e}", stacklevel=1)
 
@@ -278,7 +415,19 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         raise UnreachableCodeError  # pragma: no cover
 
     def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
-        response = self.post_data()
+        """
+        Execute the API request to Gotenberg and process the response.
+
+        Sends the request and returns an appropriate response object based on the
+        content type of the response (either SingleFileResponse or ZipFileResponse).
+
+        Returns:
+            SingleFileResponse or ZipFileResponse: A response object containing the result.
+
+        Raises:
+            httpx.Error: Any errors from the HTTP client will be raised.
+        """
+        response = self._post_data()
         if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
             return ZipFileResponse(response.status_code, response.headers, response.content)
         return SingleFileResponse(response.status_code, response.headers, response.content)
@@ -290,7 +439,25 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         initial_retry_wait: Union[float, int] = 5.0,
         retry_scale: Union[float, int] = 2.0,
     ) -> Union[SingleFileResponse, ZipFileResponse]:
-        response = self.post_data_with_retry(
+        """
+        Execute the API request with retries and process the response.
+
+        Combines post_data_with_retry() with response processing to provide a complete
+        operation with retry capability for server errors.
+
+        Args:
+            max_retry_count (int, optional): Maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (float or int, optional): Initial wait time in seconds. Defaults to 5.0.
+            retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
+
+        Returns:
+            SingleFileResponse or ZipFileResponse: A response object containing the result.
+
+        Raises:
+            MaxRetriesExceededError: If all retry attempts fail with server errors.
+            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+        """
+        response = self._post_data_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,
             retry_scale=retry_scale,
@@ -301,7 +468,22 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
 
 class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
+    """
+    Asynchronous implementation of the BaseRoute for the Gotenberg API.
+
+    This class implements the BaseRoute abstract methods using asynchronous HTTP
+    requests. It can be used as an async context manager for automatic resource cleanup.
+    """
+
     async def __aenter__(self) -> Self:
+        """
+        Enter the async context manager scope.
+
+        Resets the route state and returns the route instance.
+
+        Returns:
+            Self: The route instance.
+        """
         self.reset()
         return self
 
@@ -311,11 +493,30 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
+        """
+        Exit the async context manager scope.
+
+        Performs cleanup by calling close() to release resources.
+
+        Args:
+            exc_type: The exception type, if an exception was raised.
+            exc_val: The exception instance, if an exception was raised.
+            exc_tb: The traceback, if an exception was raised.
+        """
         self.close()
 
-    async def post_data(self) -> Response:
+    async def _post_data(self) -> Response:
         """
-        Sends the configured data to the Gotenberg server
+        Send the configured request data to the Gotenberg server asynchronously.
+
+        Executes an asynchronous POST request with all configured files, form data,
+        and headers to the Gotenberg API endpoint.
+
+        Returns:
+            Response: The HTTP response from Gotenberg.
+
+        Raises:
+            httpx.HTTPStatusError: If the HTTP request returns an error status code.
         """
         resp = await self._client.post(
             url=self._route_url,
@@ -326,13 +527,34 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         resp.raise_for_status()
         return resp
 
-    async def post_data_with_retry(
+    async def _post_data_with_retry(
         self,
         *,
         max_retry_count: int = 5,
         initial_retry_wait: Union[float, int] = 5.0,
         retry_scale: Union[float, int] = 2.0,
     ) -> Response:
+        """
+        Send the request to Gotenberg asynchronously with automatic retries.
+
+        Implements an asynchronous exponential backoff retry strategy for handling
+        server errors.
+
+        Args:
+            max_retry_count (int, optional): Maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (float or int, optional): Initial wait time in seconds. Defaults to 5.0.
+            retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
+
+        Returns:
+            Response: The successful HTTP response from Gotenberg.
+
+        Raises:
+            MaxRetriesExceededError: If all retry attempts fail with server errors.
+            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+
+        Note:
+            Only 5xx server errors will trigger retries; 4xx client errors will be raised immediately.
+        """
         retry_time = initial_retry_wait
         current_retry_count = 0
 
@@ -340,7 +562,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
             current_retry_count = current_retry_count + 1
 
             try:
-                return await self.post_data()
+                return await self._post_data()
             except HTTPStatusError as e:
                 self._log.warning(f"HTTP error: {e}", stacklevel=1)
 
@@ -364,7 +586,19 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         raise UnreachableCodeError  # pragma: no cover
 
     async def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
-        response = await self.post_data()
+        """
+        Execute the asynchronous API request and process the response.
+
+        Sends the request asynchronously and returns an appropriate response object
+        based on the content type of the response.
+
+        Returns:
+            SingleFileResponse or ZipFileResponse: A response object containing the result.
+
+        Raises:
+            httpx.Error: Any errors from the HTTP client will be raised.
+        """
+        response = await self._post_data()
         if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
             return ZipFileResponse(response.status_code, response.headers, response.content)
         return SingleFileResponse(response.status_code, response.headers, response.content)
@@ -376,7 +610,25 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         initial_retry_wait: Union[float, int] = 5.0,
         retry_scale: Union[float, int] = 2.0,
     ) -> Union[SingleFileResponse, ZipFileResponse]:
-        response = await self.post_data_with_retry(
+        """
+        Execute the asynchronous API request with retries and process the response.
+
+        Combines post_data_with_retry() with response processing to provide a complete
+        asynchronous operation with retry capability for server errors.
+
+        Args:
+            max_retry_count (int, optional): Maximum number of retry attempts. Defaults to 5.
+            initial_retry_wait (float or int, optional): Initial wait time in seconds. Defaults to 5.0.
+            retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
+
+        Returns:
+            SingleFileResponse or ZipFileResponse: A response object containing the result.
+
+        Raises:
+            MaxRetriesExceededError: If all retry attempts fail with server errors.
+            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+        """
+        response = await self._post_data_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,
             retry_scale=retry_scale,

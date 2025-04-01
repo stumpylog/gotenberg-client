@@ -29,7 +29,7 @@ class PdfFormatMixin:
 
     which allow the user to configure the resulting PDF/A version.
 
-    See https://en.wikipedia.org/wiki/PDF/A
+    See [PDF/A](https://en.wikipedia.org/wiki/PDF/A) for more information.
     """
 
     def pdf_format(self, pdf_format: PdfAFormat) -> Self:
@@ -57,13 +57,36 @@ class PfdUniversalAccessMixin:
     """
 
     def universal_access(self, *, universal_access: bool) -> Self:
+        """
+        Enables or disables PDF/UA based on the provided boolean value.
+
+        Args:
+            universal_access (bool): Whether to enable or disable PDF/UA.
+                - `True`: Enable PDF/UA
+                - `False`: Disable PDF/UA
+
+        Returns:
+            Self: The instance with the updated form data.
+        """
         self._form_data.update(bool_to_form("pdfua", universal_access))  # type: ignore[attr-defined,misc]
         return self
 
     def enable_universal_access(self) -> Self:
+        """
+        Enables PDF/UA for the route options.
+
+        Returns:
+            Self: The instance with the updated form data.
+        """
         return self.universal_access(universal_access=True)
 
     def disable_universal_access(self) -> Self:
+        """
+        Disables PDF/UA for the route options.
+
+        Returns:
+            Self: The instance with the updated form data.
+        """
         return self.universal_access(universal_access=False)
 
 
@@ -78,14 +101,46 @@ class SplitModeMixin:
     """
 
     def split_mode(self, mode: Literal["intervals", "pages"]) -> Self:
+        """
+        Configures the splitting operation for the route options.
+
+        Args:
+            mode (Literal["intervals", "pages"]): The type of splitting operation.
+                - `intervals`: Split into intervals
+                - `pages`: Split into pages
+
+        Returns:
+            Self: The instance with the updated form data.
+        """
         self._form_data.update({"splitMode": mode})  # type: ignore[attr-defined,misc]
         return self
 
     def split_span(self, span: str) -> Self:
+        """
+        Configures the splitting span for the route options.
+
+        Args:
+            span (str): The splitting span.
+                - Example: "1-3"
+
+        Returns:
+            Self: The instance with the updated form data.
+        """
         self._form_data.update({"splitSpan": span})  # type: ignore[attr-defined,misc]
         return self
 
     def split_unify(self, *, split_unify: bool) -> Self:
+        """
+        Enables or disables splitting for the route options.
+
+        Args:
+            split_unify (bool): Whether to enable or disable splitting.
+                - `True`: Enable splitting
+                - `False`: Disable splitting
+
+        Returns:
+            Self: The instance with the updated form data.
+        """
         self._form_data.update(bool_to_form("splitUnify", split_unify))  # type: ignore[attr-defined,misc]
         return self
 
@@ -123,7 +178,7 @@ class MetadataMixin:
 
         Args:
             author: Document author name
-            copyright: Copyright information
+            pdf_copyright: Copyright information
             creation_date: Document creation date (Note: Gotenberg will override this)
             creator: Name of the creating application
             keywords: List of keywords/tags for the document
@@ -205,5 +260,19 @@ class FlattenOptionMixin:
     """
 
     def flatten(self, *, flatten: bool = False) -> Self:
+        """
+        Enables or disables flattening for the route options.
+
+        By default, flattening is disabled (`flatten=False`). This option controls
+        whether to flatten PDF documents (e.g., remove page breaks).
+
+        Args:
+            flatten (bool): Whether to enable or disable flattening.
+                - `True`: Enable flattening
+                - `False` (default): Disable flattening
+
+        Returns:
+            Self: The instance with the updated form data.
+        """
         self._form_data.update(bool_to_form("flatten", flatten))  # type: ignore[attr-defined,misc]
         return self

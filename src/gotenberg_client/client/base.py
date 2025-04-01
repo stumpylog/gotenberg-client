@@ -45,18 +45,8 @@ SyncOrAsyncApiT = TypeVar("SyncOrAsyncApiT", bound="SyncBaseApi | AsyncBaseApi")
 
 class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
     """
-    The user's primary interface to the Gotenberg instance.
-
-    This class provides methods to configure and interact with a Gotenberg service,
-    including setting up API endpoints for various Gotenberg features and managing
-    webhook configurations.
-
-    Attributes:
-        chromium (ChromiumApi): Interface for Chromium-related operations.
-        libre_office (LibreOfficeApi): Interface for LibreOffice-related operations.
-        pdf_a (PdfAApi): Interface for PDF/A-related operations.
-        merge (MergeApi): Interface for PDF merging operations.
-        health (HealthCheckApi): Interface for health check operations.
+    Internal base class for Gotenberg clients.
+    Provides core functionalities for handling HTTP clients and API integrations.
     """
 
     def __init__(
@@ -69,17 +59,6 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         log_level: int = logging.ERROR,
         http2: bool = True,
     ):
-        """
-        Initialize a new GotenbergClient instance.
-
-        Args:
-            host (str): The base URL of the Gotenberg service.
-            user_agent (str): The value of the User-Agent header to set.  Defaults to gotenberg-client/{version}
-            auth (httpx.BasicAuth, optional): The value of the authentication for the server.  Defaults to None
-            timeout (float, optional): The timeout for API requests in seconds. Defaults to 30.0.
-            log_level (int, optional): The logging level for httpx and httpcore. Defaults to logging.ERROR.
-            http2 (bool, optional): Whether to use HTTP/2. Defaults to True.
-        """
         # Configure the client
         self._client = self._get_client(host, timeout, user_agent, auth, http2=http2)
 
@@ -154,7 +133,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
 
     def add_headers(self, header: dict[str, str]) -> None:
         """
-        Update the httpx Client headers with the given values.
+        Add custom headers to the request, such as authentication, etc
 
         Args:
             header (Dict[str, str]): A dictionary of header names and values to add.
@@ -163,7 +142,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
 
     def add_webhook_url(self, url: str) -> None:
         """
-        Add the webhook URL to the headers.
+        Configure the [webhook](https://gotenberg.dev/docs/webhook) URL value.
 
         Args:
             url (str): The URL to be used as the webhook endpoint.
@@ -172,16 +151,16 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
 
     def add_error_webhook_url(self, url: str) -> None:
         """
-        Add the webhook error URL to the headers.
+        Configure the [webhook](https://gotenberg.dev/docs/webhook) error URL value.
 
         Args:
-            url (str): The URL to be used as the error webhook endpoint.
+            url (str): The URL to be used as the webhook endpoint.
         """
         self.add_headers({"Gotenberg-Webhook-Error-Url": url})
 
     def set_webhook_http_method(self, method: Literal["POST", "PATCH", "PUT"]) -> None:
         """
-        Set the HTTP method Gotenberg will use to call the webhooks.
+        Set the HTTP method Gotenberg will use to call the [webhook](https://gotenberg.dev/docs/webhook) url.
 
         Args:
             method: The HTTP method to use.
@@ -190,16 +169,16 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
 
     def set_error_webhook_http_method(self, method: Literal["POST", "PATCH", "PUT"]) -> None:
         """
-        Set the HTTP method Gotenberg will use to call the error webhooks.
+        Set the HTTP method Gotenberg will use to call the error [webhook](https://gotenberg.dev/docs/webhook) url.
 
-        Args:
-            method: The HTTP method to use.
+         Args:
+             method: The HTTP method to use.
         """
         self.add_headers({"Gotenberg-Webhook-Error-Method": method})
 
     def set_webhook_extra_headers(self, extra_headers: dict[str, str]) -> None:
         """
-        Set additional HTTP headers for Gotenberg to use when calling webhooks.
+        Add custom headers to the [webhook](https://gotenberg.dev/docs/webhook) request, such as authentication, etc
 
         Args:
             extra_headers (Dict[str, str]): A dictionary of additional headers to include in webhook calls.
@@ -210,6 +189,23 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
 
 
 class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, SyncBaseApi]):
+    """
+    A synchronous client for interacting with a Gotenberg instance.
+
+    This client provides methods to interact with various Gotenberg APIs, including:
+
+      - [Chromium](https://gotenberg.dev/docs/routes#convert-with-chromium)
+      - [Libreoffice](https://gotenberg.dev/docs/routes#convert-with-libreoffice)
+      - [PDF/A & PDF/UA](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route)
+      - [Read PDF Metadata](https://gotenberg.dev/docs/routes#read-pdf-metadata-route)
+      - [Write PDF Metadata](https://gotenberg.dev/docs/routes#write-pdf-metadata-route)
+      - [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route)
+      - [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route)
+      - [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route)
+      - [Health](https://gotenberg.dev/docs/routes#health-check-route)
+      - [Version](https://gotenberg.dev/docs/routes#version-route)
+    """
+
     @staticmethod
     def _get_client(
         base_url: str,
@@ -219,6 +215,9 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
         *,
         http2: bool,
     ) -> Client:
+        """
+        Create and configure an HTTP client for synchronous requests.
+        """
         return Client(
             base_url=base_url,
             timeout=timeout,
@@ -243,43 +242,107 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
 
     @property
     def chromium(self) -> SyncChromiumApi:
+        """
+        Returns a new instance for interacting with
+        [Chromium](https://gotenberg.dev/docs/routes#convert-with-chromium) routes
+        for the conversion of URLs, HTML, Markdown into PDFs and the generation of screenshots from those types
+        """
         return SyncChromiumApi(self._client, self._log)
 
     @property
     def libre_office(self) -> SyncLibreOfficeApi:
+        """
+        Returns a new instance for interacting with
+        [Libreoffice](https://gotenberg.dev/docs/routes#convert-with-libreoffice) routes
+        for the conversion of a variety of office documents into PDFs
+        """
         return SyncLibreOfficeApi(self._client, self._log)
 
     @property
     def pdf_convert(self) -> SyncPdfAApi:
+        """
+        Returns a new instance for interacting with
+        [PDF/A & PDF/UA](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) routes
+        for the conversion of PDFs to [PDF/A](https://en.wikipedia.org/wiki/PDF/A) and/or
+        [PDF/UA](https://en.wikipedia.org/wiki/PDF/UA)
+        """
         return SyncPdfAApi(self._client, self._log)
 
     @property
     def metadata(self) -> SyncPdfMetadataApi:
+        """
+        Returns a new instance for interacting with
+        [Read PDF Metadata](https://gotenberg.dev/docs/routes#read-pdf-metadata-route) and
+         [Write PDF Metadata](https://gotenberg.dev/docs/routes#write-pdf-metadata-route) routes
+        for the manipulation or reading of metadata
+        """
         return SyncPdfMetadataApi(self._client, self._log)
 
     @property
     def merge(self) -> SyncMergePdfsApi:
+        """
+        Returns a new instance for interacting with
+        [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route) route
+        for merging multiple PDFs into one
+        """
         return SyncMergePdfsApi(self._client, self._log)
 
     @property
     def split(self) -> SyncSplitApi:
+        """
+        Returns a new instance for interacting with
+        [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route) route
+        for splitting PDFs
+        """
         return SyncSplitApi(self._client, self._log)
 
     @property
     def flatten(self) -> SyncFlattenApi:
+        """
+        Returns a new instance for interacting with
+        [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route) route
+        for flattening PDFs
+        """
         return SyncFlattenApi(self._client, self._log)
 
     @property
     def health(self) -> SyncHealthCheckApi:
+        """
+        Returns a new instance for reading the [Health](https://gotenberg.dev/docs/routes#health-check-route) route
+        """
         return SyncHealthCheckApi(self._client, self._log)
 
     # TODO: Implement this
     @property
     def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
+        """
+        Returns a new instance for reading the
+        [Version](https://gotenberg.dev/docs/routes#version-route) route
+
+        Raises:
+            NotImplementedError: This API is not yet implemented
+        """
         raise NotImplementedError
 
 
 class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[AsyncClient, AsyncBaseApi]):
+    """
+    An asynchronous client for interacting with a Gotenberg instance.
+
+    This client provides methods to interact with various Gotenberg APIs, including:
+
+      - [Chromium](https://gotenberg.dev/docs/routes#convert-with-chromium)
+      - [Libreoffice](https://gotenberg.dev/docs/routes#convert-with-libreoffice)
+      - [PDF/A & PDF/UA](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route)
+      - [Read PDF Metadata](https://gotenberg.dev/docs/routes#read-pdf-metadata-route)
+      - [Write PDF Metadata](https://gotenberg.dev/docs/routes#write-pdf-metadata-route)
+      - [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route)
+      - [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route)
+      - [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route)
+      - [Health](https://gotenberg.dev/docs/routes#health-check-route)
+      - [Version](https://gotenberg.dev/docs/routes#version-route)
+    """
+
     @staticmethod
     def _get_client(
         base_url: str,
@@ -289,6 +352,9 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         *,
         http2: bool,
     ) -> AsyncClient:
+        """
+        Create and configure an HTTP client for asynchronous requests.
+        """
         return AsyncClient(
             base_url=base_url,
             timeout=timeout,
@@ -307,45 +373,92 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
 
     async def close(self) -> None:
         """
-        Close the underlying HTTP client connection.
+        Close the underlying asynchronous HTTP client connection.
         """
         await self._client.aclose()
 
     @property
     def chromium(self) -> AsyncChromiumApi:
+        """
+        Returns a new instance for interacting with
+        [Chromium](https://gotenberg.dev/docs/routes#convert-with-chromium) routes
+        for the conversion of URLs, HTML, Markdown into PDFs and the generation of screenshots from those types
+        """
         return AsyncChromiumApi(self._client, self._log)
 
     @property
     def libre_office(self) -> AsyncLibreOfficeApi:
+        """
+        Returns a new instance for interacting with
+        [Libreoffice](https://gotenberg.dev/docs/routes#convert-with-libreoffice) routes
+        for the conversion of a variety of office documents into PDFs
+        """
         return AsyncLibreOfficeApi(self._client, self._log)
 
     @property
     def pdf_convert(self) -> AsyncPdfAApi:
+        """
+        Returns a new instance for interacting with
+        [PDF/A & PDF/UA](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) routes
+        for the conversion of PDFs to [PDF/A](https://en.wikipedia.org/wiki/PDF/A) and/or
+        [PDF/UA](https://en.wikipedia.org/wiki/PDF/UA)
+        """
         return AsyncPdfAApi(self._client, self._log)
 
     @property
     def metadata(self) -> AsyncPdfMetadataApi:
+        """
+        Returns a new instance for interacting with
+        [Read PDF Metadata](https://gotenberg.dev/docs/routes#read-pdf-metadata-route) and
+         [Write PDF Metadata](https://gotenberg.dev/docs/routes#write-pdf-metadata-route) routes
+        for the manipulation or reading of metadata
+        """
         return AsyncPdfMetadataApi(self._client, self._log)
 
     @property
     def merge(self) -> AsyncMergePdfsApi:
+        """
+        Returns a new instance for interacting with
+        [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route) route
+        for merging multiple PDFs into one
+        """
         return AsyncMergePdfsApi(self._client, self._log)
 
     @property
     def split(self) -> AyncSplitApi:
+        """
+        Returns a new instance for interacting with
+        [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route) route
+        for splitting PDFs
+        """
         return AyncSplitApi(self._client, self._log)
 
     @property
     def flatten(self) -> AyncFlattenApi:
+        """
+        Returns a new instance for interacting with
+        [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route) route
+        for flattening PDFs
+        """
         return AyncFlattenApi(self._client, self._log)
 
     @property
     def health(self) -> AsyncHealthCheckApi:
+        """
+        Returns a new instance for reading the [Health](https://gotenberg.dev/docs/routes#health-check-route) route
+        """
         return AsyncHealthCheckApi(self._client, self._log)
 
     # TODO: Implement this
     @property
     def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
+        """
+        Returns a new instance for reading the
+        [Version](https://gotenberg.dev/docs/routes#version-route) route
+
+        Raises:
+            NotImplementedError: This API is not yet implemented
+        """
         raise NotImplementedError
 
 
