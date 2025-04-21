@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 
-from httpx import codes
+from gotenberg_client._chromium.routes import AsyncMarkdownToPdfRoute
+from gotenberg_client._chromium.routes import SyncMarkdownToPdfRoute
+from tests.utils import verify_basic_response_values_pdf
 
-from gotenberg_client import GotenbergClient
 
-
-class TestConvertChromiumUrlRoute:
-    def test_basic_convert(
+class TestConvertChromiumMarkdown:
+    def test_basic_convert_markdown_to_pdf_sync(
         self,
-        client: GotenbergClient,
+        sync_markdown_to_pdf_route: SyncMarkdownToPdfRoute,
         markdown_index_file: Path,
         markdown_sample_one_file: Path,
         markdown_sample_two_file: Path,
@@ -19,22 +19,18 @@ class TestConvertChromiumUrlRoute:
         font_file: Path,
         css_style_file: Path,
     ):
-        with client.chromium.markdown_to_pdf() as route:
-            resp = (
-                route.index(markdown_index_file)
-                .markdown_files([markdown_sample_one_file, markdown_sample_two_file])
-                .resources([img_gif_file, font_file])
-                .resource(css_style_file)
-                .run_with_retry()
-            )
+        response = (
+            sync_markdown_to_pdf_route.index(markdown_index_file)
+            .markdown_files([markdown_sample_one_file, markdown_sample_two_file])
+            .resources([img_gif_file, font_file])
+            .resource(css_style_file)
+            .run_with_retry()
+        )
+        verify_basic_response_values_pdf(response)
 
-        assert resp.status_code == codes.OK
-        assert "Content-Type" in resp.headers
-        assert resp.headers["Content-Type"] == "application/pdf"
-
-    def test_basic_convert_string_references(
+    async def test_basic_convert_markdown_to_pdf_async(
         self,
-        client: GotenbergClient,
+        async_markdown_to_pdf_route: AsyncMarkdownToPdfRoute,
         markdown_index_file: Path,
         markdown_sample_one_file: Path,
         markdown_sample_two_file: Path,
@@ -42,20 +38,61 @@ class TestConvertChromiumUrlRoute:
         font_file: Path,
         css_style_file: Path,
     ):
-        with client.chromium.markdown_to_pdf() as route:
-            resp = (
-                route.index(markdown_index_file)
-                .string_resources(
-                    [
-                        (markdown_sample_one_file.read_text(), "markdown1.md", "text/markdown"),
-                        (markdown_sample_two_file.read_text(), "markdown2.md", "text/markdown"),
-                    ],
-                )
-                .resources([img_gif_file, font_file])
-                .resource(css_style_file)
-                .run_with_retry()
-            )
+        response = await (
+            async_markdown_to_pdf_route.index(markdown_index_file)
+            .markdown_files([markdown_sample_one_file, markdown_sample_two_file])
+            .resources([img_gif_file, font_file])
+            .resource(css_style_file)
+            .run_with_retry()
+        )
+        verify_basic_response_values_pdf(response)
 
-        assert resp.status_code == codes.OK
-        assert "Content-Type" in resp.headers
-        assert resp.headers["Content-Type"] == "application/pdf"
+    def test_basic_convert_string_references_sync(
+        self,
+        sync_markdown_to_pdf_route: SyncMarkdownToPdfRoute,
+        markdown_index_file: Path,
+        markdown_sample_one_file: Path,
+        markdown_sample_two_file: Path,
+        img_gif_file: Path,
+        font_file: Path,
+        css_style_file: Path,
+    ):
+        response = (
+            sync_markdown_to_pdf_route.index(markdown_index_file)
+            .string_resources(
+                [
+                    (markdown_sample_one_file.read_text(), "markdown1.md", "text/markdown"),
+                    (markdown_sample_two_file.read_text(), "markdown2.md", "text/markdown"),
+                ],
+            )
+            .resources([img_gif_file, font_file])
+            .resource(css_style_file)
+            .run_with_retry()
+        )
+
+        verify_basic_response_values_pdf(response)
+
+    async def test_basic_convert_string_references_async(
+        self,
+        async_markdown_to_pdf_route: AsyncMarkdownToPdfRoute,
+        markdown_index_file: Path,
+        markdown_sample_one_file: Path,
+        markdown_sample_two_file: Path,
+        img_gif_file: Path,
+        font_file: Path,
+        css_style_file: Path,
+    ):
+        response = await (
+            async_markdown_to_pdf_route.index(markdown_index_file)
+            .string_resources(
+                [
+                    (markdown_sample_one_file.read_text(), "markdown1.md", "text/markdown"),
+                    (markdown_sample_two_file.read_text(), "markdown2.md", "text/markdown"),
+                ],
+            )
+            .resources([img_gif_file, font_file])
+            .resource(css_style_file)
+            .run_with_retry()
+        )
+
+        verify_basic_response_values_pdf(response)

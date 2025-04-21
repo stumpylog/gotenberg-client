@@ -10,14 +10,17 @@ from httpx import codes
 from gotenberg_client import GotenbergClient
 from gotenberg_client import InvalidKeywordError
 from gotenberg_client import InvalidPdfRevisionError
-from gotenberg_client._convert.common import MetadataMixin
+from gotenberg_client._common import MetadataMixin
+from gotenberg_client._pdfmetadata.routes import AsyncReadPdfMetadataRoute
+from gotenberg_client._pdfmetadata.routes import SyncReadPdfMetadataRoute
+from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
 from gotenberg_client.options import TrappedStatus
 
 
-class TestPdfMetadata:
+class TestPdfMetadataOnConvert:
     def test_metadata_basic(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         tmp_path: Path,
         webserver_docker_internal_url: str,
     ):
@@ -36,7 +39,7 @@ class TestPdfMetadata:
         title = "An override title"
         trapped = TrappedStatus.TRUE
 
-        with client.chromium.url_to_pdf() as route:
+        with sync_client.chromium.url_to_pdf() as route:
             resp = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -87,8 +90,13 @@ class TestPdfMetadata:
 
             # TODO(stumpylog): Investigate why certain fields seems to not be possible to set
 
-    def test_metadata_trapped_bool(self, client: GotenbergClient, tmp_path: Path, webserver_docker_internal_url: str):
-        with client.chromium.url_to_pdf() as route:
+    def test_metadata_trapped_bool(
+        self,
+        sync_client: GotenbergClient,
+        tmp_path: Path,
+        webserver_docker_internal_url: str,
+    ):
+        with sync_client.chromium.url_to_pdf() as route:
             resp = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -110,7 +118,7 @@ class TestPdfMetadata:
 
     def test_metadata_merging(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         tmp_path: Path,
         webserver_docker_internal_url: str,
     ):
@@ -118,7 +126,7 @@ class TestPdfMetadata:
         new_title = "An New Title"
         trapped = TrappedStatus.UNKNOWN
 
-        with client.chromium.url_to_pdf() as route:
+        with sync_client.chromium.url_to_pdf() as route:
             resp = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -149,12 +157,12 @@ class TestPdfMetadata:
     )
     def test_metadata_invalid_pdf_revision(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         webserver_docker_internal_url: str,
         base_value: float,
         delta: float,
     ):
-        with client.chromium.url_to_pdf() as route, pytest.raises(InvalidPdfRevisionError):
+        with sync_client.chromium.url_to_pdf() as route, pytest.raises(InvalidPdfRevisionError):
             _ = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -169,11 +177,11 @@ class TestPdfMetadata:
     )
     def test_metadata_invalid_pdf_keyword(
         self,
-        client: GotenbergClient,
+        sync_client: GotenbergClient,
         webserver_docker_internal_url: str,
         keywords: list[str],
     ):
-        with client.chromium.url_to_pdf() as route, pytest.raises(InvalidKeywordError):
+        with sync_client.chromium.url_to_pdf() as route, pytest.raises(InvalidKeywordError):
             _ = (
                 route.url(webserver_docker_internal_url)
                 .metadata(
@@ -181,3 +189,81 @@ class TestPdfMetadata:
                 )
                 .run_with_retry()
             )
+
+
+class TestPdfMetadataReadExisting:
+    @staticmethod
+    def sample_one_metadata_verify(data: dict[str, dict[str, str]], filename: str):
+        # These are the stable fields
+        assert data[filename]["CreateDate"] == "2018:12:06 17:50:06+00:00"
+        assert data[filename]["Creator"] == "Chromium"
+        assert data[filename]["FileName"] == filename
+        assert data[filename]["FileSize"] == "208 kB"
+        assert data[filename]["FileType"] == "PDF"
+        assert data[filename]["FileTypeExtension"] == "pdf"
+        assert data[filename]["Linearized"] == "No"
+        assert data[filename]["MIMEType"] == "application/pdf"
+        assert data[filename]["ModifyDate"] == "2018:12:06 17:50:06+00:00"
+        assert data[filename]["PDFVersion"] == 1.4
+        assert data[filename]["PageCount"] == 3
+        assert data[filename]["Producer"] == "Skia/PDF m70"
+
+    async def test_read_metadata_from_pdf(
+        self,
+        async_read_pdf_metadata_route: AsyncReadPdfMetadataRoute,
+        pdf_sample_one_file: Path,
+    ):
+        response = await async_read_pdf_metadata_route.read(pdf_sample_one_file).run_with_retry()
+        assert pdf_sample_one_file.name in response
+
+        self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+
+        try:
+            response = await async_read_pdf_metadata_route.read(pdf_sample_one_file).run()
+            assert pdf_sample_one_file.name in response
+
+            self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+        except:  # noqa: E722, S110, pragma: no cover
+            pass
+
+    def test_read_metadata_from_pdf_sync(
+        self,
+        sync_read_pdf_metadata_route: SyncReadPdfMetadataRoute,
+        pdf_sample_one_file: Path,
+    ):
+        response = sync_read_pdf_metadata_route.read(pdf_sample_one_file).run_with_retry()
+        assert pdf_sample_one_file.name in response
+
+        self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+
+        try:
+            response = sync_read_pdf_metadata_route.read(pdf_sample_one_file).run()
+            assert pdf_sample_one_file.name in response
+
+            self.sample_one_metadata_verify(response, pdf_sample_one_file.name)
+        except:  # noqa: E722, S110, pragma: no cover
+            pass
+
+
+class TestPdfMetadataWriteExisting:
+    def test_write_metadata_to_pdf(
+        self,
+        sync_write_pdf_metadata_route: SyncWritePdfMetadataRoute,
+        pdf_sample_one_file: Path,
+        tmp_path: Path,
+    ):
+        author = "Gotenberg Testing"
+        response = (
+            sync_write_pdf_metadata_route.write_files([pdf_sample_one_file]).metadata(author=author).run_with_retry()
+        )
+
+        assert response.status_code == codes.OK
+        assert "Content-Type" in response.headers
+        assert response.headers["Content-Type"] == "application/pdf"
+
+        output = tmp_path / "test_write_metadata_to_pdf.pdf"
+        response.to_file(output)
+
+        with pikepdf.Pdf.open(output) as pdf:
+            assert "/Author" in pdf.docinfo
+            assert pdf.docinfo["/Author"] == author

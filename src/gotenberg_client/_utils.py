@@ -7,8 +7,6 @@ from typing import Final
 from typing import Optional
 from typing import Union
 
-from gotenberg_client._types import FormFieldType
-
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128
 class ForceMultipartDict(dict):
@@ -16,7 +14,7 @@ class ForceMultipartDict(dict):
         return True
 
 
-def optional_to_form(value: Optional[FormFieldType], name: str) -> dict[str, str]:
+def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> dict[str, str]:
     """
     Converts an optional value to a form data field with the given name,
     handling None values gracefully.
@@ -33,6 +31,17 @@ def optional_to_form(value: Optional[FormFieldType], name: str) -> dict[str, str
         return {}
     else:
         return {name: str(value).lower()}
+
+
+def bool_to_form(name: str, value: bool) -> dict[str, str]:  # noqa: FBT001
+    """
+    Converts an boolean value to a form data field with the given name, correcting the casing
+    """
+    bool_to_form_name: Final[dict[bool, str]] = {
+        True: "true",
+        False: "false",
+    }
+    return {name: bool_to_form_name[value]}
 
 
 def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:  # pragma: no cover

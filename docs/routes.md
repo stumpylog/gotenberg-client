@@ -1,32 +1,102 @@
-# Implemented Routes
+# API Routes
 
 ## Chromium
 
-Access to the Chromium module of Gotenberg, as documented [here](https://gotenberg.dev/docs/routes#convert-with-chromium).
+Access to the Chromium module of Gotenberg, as documented
+[here](https://gotenberg.dev/docs/routes#convert-with-chromium).
 
 ### URL into PDF
 
-| Gotenberg Link                                                        | Route Access          | Required Properties                               | Optional Properties                                     |
-| --------------------------------------------------------------------- | --------------------- | ------------------------------------------------- | ------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#url-into-pdf-route) | `chromium.url_to_pdf` | <ul><li>`.url("http://localhost:8888")`</li></ul> | See [common Chromium options](#chromium-common-options) |
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#url-into-pdf-route)
+
+Route Access: `client.chromium.url_to_pdf()`
+
+Required Properties:
+
+- `.url("http://localhost:8888")`
+
+See also [common Chromium options](#chromium-common-options)
 
 ### HTML file into PDF
 
-| Gotenberg Link                                                              | Route Access           | Required Properties                      | Optional Properties                                                                                                                     |
-| --------------------------------------------------------------------------- | ---------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#html-file-into-pdf-route) | `chromium.html_to_pdf` | <ul><li>`.index("index.html")`</li></ul> | <ul><li>Add extra files by chaining `.resource("file-here")`</li><li> See [common Chromium options](#chromium-common-options)</li></ul> |
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#html-file-into-pdf-route)
+
+Route Access: `client.chromium.html_to_pdf()`
+
+Required Properties:
+
+- An index file is required:
+    - `.index("index.html")` sets the index from an HTML file
+    - `string_index(<html></html>")` sets the index as the HTML string
+
+Optional Properties:
+
+- Provide additional resource files as needed:
+    - `.resource("file-here")` or `resources(["file1", "file2"])` adds the file or files as a resource for the HTML index
+    - Add string resources with `string_resource("file content")`.
+
+See also [common Chromium options](#chromium-common-options).
+
+!!! note
+
+    `string_resource` currently only supports text data, not binary data
 
 ### Markdown file(s) into PDF
 
-| Gotenberg Link                                                                   | Route Access               | Required Properties                                                                   | Optional Properties                                                                                                                     |
-| -------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route) | `chromium.markdown_to_pdf` | <ul><li>`.index("index.html")`</li><li>`.markdown_file` or `markdown_files`</li></ul> | <ul><li>Add extra files by chaining `.resource("file-here")`</li><li> See [common Chromium options](#chromium-common-options)</li></ul> |
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route)
 
-### Screenshots
+Route Access: `chromium.markdown_to_pdf()`
+
+Required Properties:
+
+- An index file is required:
+    - `.index("index.html")` sets the index from an HTML file
+    - `string_index(<html></html>")` sets the index as the HTML string
+
+Optional Properties:
+
+- Provide additional resource files as needed:
+    - `.resource("file-here")` or `resources(["file1", "file2"])` adds the file or files
+      as a resource for the HTML index
+    - Add string resources with `string_resource("file content")`.
+
+See also [common Chromium options](#chromium-common-options).
+
+!!! note
+
+    `string_resource` currently only supports text data, not binary data
+
+### Screenshot Routes
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#screenshots-route)
+
+#### Common Settings
+
+| Gotenberg Option | Route Configuration                                                                | Python Type                     | Notes |
+| ---------------- | ---------------------------------------------------------------------------------- | ------------------------------- | ----- |
+| width            | `.width()`                                                                         | `int`                           |       |
+| height           | `height()`                                                                         | `int`                           |       |
+| clip             | `clip()` or `clip_to_dimensions()` or `no_clip_to_dimensions()`                    | `bool`                          |       |
+| format           | `output_format()`                                                                  | one of "png", "jpeg" or "webp". |       |
+| quality          | `quality()`                                                                        | `int`, between 1 and 100        |       |
+| omitBackground   | `omit_background()` or `hide_background()` or `show_background()`                  | `bool`                          |       |
+| optimizeForSpeed | `image_optimize()` or `image_optimize_for_speed()` or `image_optimize_for_quality` | `bool`                          |       |
+
+This route also supports other Chromium options:
+
+- [Wait Before Rendering](#render-control)
+- [Emulated Media Type](#emulated-media-type)
+- [Cookies](#cookies)
+- [Custom HTTP headers](#custom-http-headers)
+- [Invalid HTTP Status Codes](#http-status-codes)
+- [Console Exceptions](#console-exceptions)
+- [Performance Mode](#performance-mode)
 
 ### Chromium Common Options
 
 #### Page Properties
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#page-properties-chromium)
 
 | Gotenberg Option                                                                                | Route Configuration                                                     | Python Type                   | Notes                                            |
 | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------ |
@@ -42,12 +112,16 @@ Access to the Chromium module of Gotenberg, as documented [here](https://gotenbe
 
 #### Header & Footer
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#header-footer-chromium)
+
 | Gotenberg Option | Route Configuration | Python Type | Notes |
 | ---------------- | ------------------- | ----------- | ----- |
 | `header.html`    | `.header()`         | `Path`      |       |
 | `footer.html`    | `.footer()`         | `Path`      |       |
 
 #### Render Control
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#wait-before-rendering-chromium)
 
 | Gotenberg Option    | Route Configuration | Python Type                   | Notes |
 | ------------------- | ------------------- | ----------------------------- | ----- |
@@ -56,15 +130,23 @@ Access to the Chromium module of Gotenberg, as documented [here](https://gotenbe
 
 #### Emulated Media Type
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#emulated-media-type-chromium)
+
 | Gotenberg Option    | Route Configuration | Python Type         | Notes |
 | ------------------- | ------------------- | ------------------- | ----- |
 | `emulatedMediaType` | `.media_type()`     | `EmulatedMediaType` |       |
 
 #### Cookies
 
-These options are not yet implemented
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#cookies-chromium)
+
+| Gotenberg Option | Route Configuration | Python Type       | Notes |
+| ---------------- | ------------------- | ----------------- | ----- |
+| `cookies`        | `.cookies()`        | `list[CookieJar]` |       |
 
 #### Custom HTTP Headers
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#custom-http-headers-chromium)
 
 | Gotenberg Option   | Route Configuration | Python Type      | Notes                                                 |
 | ------------------ | ------------------- | ---------------- | ----------------------------------------------------- |
@@ -72,11 +154,23 @@ These options are not yet implemented
 
 #### HTTP Status Codes
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#invalid-http-status-codes-chromium)
+
 | Gotenberg Option        | Route Configuration       | Python Type     | Notes |
 | ----------------------- | ------------------------- | --------------- | ----- |
 | `failOnHttpStatusCodes` | `.fail_on_status_codes()` | `Iterable[int]` |       |
 
+#### Network Errors
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#network-errors-chromium)
+
+| Gotenberg Option              | Route Configuration               | Python Type | Notes |
+| ----------------------------- | --------------------------------- | ----------- | ----- |
+| `failOnResourceLoadingFailed` | `fail_on_resource_loading_failed` | `bool`      |       |
+
 #### Console Exceptions
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#console-exceptions-chromium)
 
 | Gotenberg Option          | Route Configuration                                                     | Python Type | Notes |
 | ------------------------- | ----------------------------------------------------------------------- | ----------- | ----- |
@@ -84,9 +178,21 @@ These options are not yet implemented
 
 #### Performance Mode
 
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#performance-mode-chromium)
+
 | Gotenberg Option       | Route Configuration                                             | Python Type | Notes |
 | ---------------------- | --------------------------------------------------------------- | ----------- | ----- |
 | `skipNetworkIdleEvent` | <ul><li>`skip_network_idle()`<li>`use_network_idle()`</li></ul> | N/A         |       |
+
+#### Split
+
+[Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#performance-mode-chromium)
+
+| Gotenberg Option | Route Configuration | Python Type                 | Notes |
+| ---------------- | ------------------- | --------------------------- | ----- |
+| splitMode        | `.split_mode()`     | one of "pages", "intervals" |       |
+| splitSpan        | `split_span()`      | `str`                       |       |
+| splitUnify       | `split_unify()`     | `bool`                      |       |
 
 #### PDF/A & PDF/UA
 
@@ -135,6 +241,9 @@ Supported metadata fields:
 - `marked`: PDF marked status
 - `pdf_version`: PDF version number
 
+!!! note
+Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
+
 ## LibreOffice
 
 ### Office Documents to PDF
@@ -143,14 +252,14 @@ Supported metadata fields:
 | ----------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <ul><li>`.convert("mydoc.docx")`</li><li>or</li><li>`.convert_files(["mydoc.docx"])`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
 
-Additional Notes:
-
-- `convert` may be called multiple times
-- `convert_files` is a convenience method to convert a list of file into PDF
+!!! note
+`convert` may be called multiple times" !!! note "`convert_files` is a convenience method to convert a list of file into PDF
 
 ### LibreOffice Properties
 
 #### Page Properties
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#page-properties-libreoffice)
 
 | Gotenberg Option   | Route Configuration | Python Type       | Notes                              |
 | ------------------ | ------------------- | ----------------- | ---------------------------------- |
@@ -159,17 +268,28 @@ Additional Notes:
 | `exportFormFields` | N/A                 | N/A               | This option is not implemented yet |
 | `singlePageSheets` | N/A                 | N/A               | This option is not implemented yet |
 
+#### Compress
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#compress-libreoffice)
+
 #### Merge
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-libreoffice)
 
 | Gotenberg Option | Route Configuration                         | Python Type | Notes |
 | ---------------- | ------------------------------------------- | ----------- | ----- |
 | `merge`          | <ul><li>`merge()`<li>`no_merge()`</li></ul> | N/A         |       |
 
-Additional Notes:
+!!! note
+If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
 
-- If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
+#### Split
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#split-libreoffice)
 
 #### PDF/A & PDF/UA
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#pdfa-libreoffice)
 
 | Gotenberg Option | Route Configuration                                                           | Python Type  | Notes |
 | ---------------- | ----------------------------------------------------------------------------- | ------------ | ----- |
@@ -180,31 +300,79 @@ Additional Notes:
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#metadata-libreoffice)
 
-These options are not yet implemented
+See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 
-## Convert
+#### Flatten
 
-| Gotenberg Link                                                                    | Route Access                                                                  | Required Properties                                                                          | Optional Properties |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) | `pdf_a.to_pdfa`                                                               | <ul><li>`.convert("mydoc.pdf")`</li><li>or</li><li>`.convert_files(["mydoc.pdf"])`</li></ul> |                     |
-| `pdfa`                                                                            | `.pdf_format()`                                                               | `PdfAFormat`                                                                                 |                     |
-| `pdfua`                                                                           | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                                                          |                     |
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#flatten-libreoffice)
 
-Additional Notes:
+## Convert into PDF/A & PDF/UA
 
-- At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route)
 
-## Merge
+| Gotenberg Link | Route Access                                                                  | Required Properties | Optional Properties |
+| -------------- | ----------------------------------------------------------------------------- | ------------------- | ------------------- |
+| `pdfa`         | `.pdf_format()`                                                               | `PdfAFormat`        |                     |
+| `pdfua`        | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                 |                     |
 
-| Gotenberg Link                                                      | Route Access                                                                  | Required Properties                                    | Optional Properties                |
-| ------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route) | `merge.merge`                                                                 | <ul><li>`.merge(["file1.pdf", "file2.pdf"])`</li></ul> |                                    |
-| `pdfa`                                                              | `.pdf_format()`                                                               | `PdfAFormat`                                           |                                    |
-| `pdfua`                                                             | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                                                    |                                    |
-| `metadata`                                                          | N/A                                                                           | N/A                                                    | This option is not implemented yet |
+!!! note
+At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
 
-Additional Notes:
+## Read PDF metadata
 
-- The library will add prefixes to the file to ensure they are merged in the order provided to `merge()`
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#read-pdf-metadata-route)
+
+## Write PDF metadata
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#write-pdf-metadata-route)
+
+## Merge PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route)
+
+| Gotenberg Link | Route Access                                                                  | Required Properties | Optional Properties                                                      |
+| -------------- | ----------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------ |
+| `pdfa`         | `.pdf_format()`                                                               | `PdfAFormat`        |                                                                          |
+| `pdfua`        | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                 |                                                                          |
+| `metadata`     | N/A                                                                           | N/A                 | See [PDF Metadata Support](#pdf-metadata-support) for the API interface. |
+
+!!! note
+Prefixes will be added to the file to ensure they are merged in the order provided to `merge()`, even with multiple calls
+
+## Split PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route)
+
+## Flatten PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#merge-pdfs-route)
 
 ## Health Check
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#health-check-route)
+
+## Metrics
+
+!!! warning
+This route is not implemented
+
+## Version
+
+!!! warning
+This route is not implemented
+
+## Debug
+
+!!! warning
+This route is not implemented
+
+## Global Options
+
+### Request Tracing
+
+### Output Filename
+
+### Download From
+
+!!! warning
+This feature is not implemented
