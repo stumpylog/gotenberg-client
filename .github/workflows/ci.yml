@@ -1,22 +1,18 @@
 name: ci
-
 on:
   push:
   pull_request:
     branches:
       - main
       - develop
-
 concurrency:
   group: test-${{ github.ref_name }}
   cancel-in-progress: true
-
 env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
   DEFAULT_PYTHON_VERSION: "3.11"
   DEFAULT_UV_VERSION: "0.6.x"
-
 jobs:
   lint:
     name: Lint
@@ -24,43 +20,36 @@ jobs:
     permissions:
       contents: read
     steps:
-      -
-        uses: actions/checkout@v4
-      -
-        name: Set up Python 3.11
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - name: Set up Python 3.11
         id: setup-python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      -
-        name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.0.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      -
-        name: Install Hatch & pre-commit
+      - name: Install Hatch & pre-commit
         run: |
           uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
           uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade pre-commit --with pre-commit-uv
-      -
-        name: Lint project
+      - name: Lint project
         run: |
           hatch fmt --check
-      -
-        name: Check project typing
+      - name: Check project typing
         run: |
           hatch run typing:run
-      -
-        uses: actions/cache@v4
+      - uses: actions/cache@v4.2.3
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
-      -
-        name: Check files with pre-commit
+      - name: Check files with pre-commit
         run: |
           pre-commit run --all-files --show-diff-on-failure --color=always
-
   tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -72,74 +61,61 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', 'pypy3.10']
-
     steps:
-    -
-      uses: actions/checkout@v4
-    -
-      name: Install poppler-utils
-      run: |
-        sudo apt-get update
-        sudo apt-get install --yes --no-install-recommends poppler-utils
-    -
-      name: Pull Docker images
-      run: |
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install poppler-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends poppler-utils
+      - name: Pull Docker images
+        run: |
           docker compose --file tests/docker/docker-compose.ci-test-edge.yml pull --quiet
           docker compose --file tests/docker/docker-compose.ci-test.yml pull --quiet
-    -
-      name: Set up Python ${{ matrix.python-version }}
-      id: setup-python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    -
-      name: Install uv (PyPy)
-      if: contains(matrix.python-version, 'pypy')
-      uses: astral-sh/setup-uv@v5
-      with:
-        version: ${{ env.DEFAULT_UV_VERSION }}
-        python-version: ${{ steps.setup-python.outputs.python-path }}
-    -
-      name: Install uv (CPython)
-      if: ${{ !contains(matrix.python-version, 'pypy') }}
-      uses: astral-sh/setup-uv@v5
-      with:
-        version: ${{ env.DEFAULT_UV_VERSION }}
-        python-version: ${{ matrix.python-version }}
-    -
-      name: Install Hatch (PyPy)
-      if: contains(matrix.python-version, 'pypy')
-      run: |
-        uv tool install --python ${{ steps.setup-python.outputs.python-path }} --upgrade hatch
-    -
-      name: Install Hatch (CPython)
-      if: ${{ !contains(matrix.python-version, 'pypy') }}
-      run: |
-        uv tool install --python ${{ matrix.python-version }} --upgrade hatch
-    -
-      name: Show environment
-      run: |
-        hatch test --show --python ${{ matrix.python-version }}
-    -
-      name: Run tests
-      run: |
-        hatch test --cover --junitxml=junit.xml -o junit_family=legacy --python ${{ matrix.python-version }}
-    -
-      name: Upload coverage to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: ${{ matrix.python-version }}
-    -
-      name: Upload test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: ${{ matrix.python-version }}
-
-
+      - name: Set up Python ${{ matrix.python-version }}
+        id: setup-python
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv (PyPy)
+        if: contains(matrix.python-version, 'pypy')
+        uses: astral-sh/setup-uv@v6.0.0
+        with:
+          version: ${{ env.DEFAULT_UV_VERSION }}
+          python-version: ${{ steps.setup-python.outputs.python-path }}
+      - name: Install uv (CPython)
+        if: ${{ !contains(matrix.python-version, 'pypy') }}
+        uses: astral-sh/setup-uv@v6.0.0
+        with:
+          version: ${{ env.DEFAULT_UV_VERSION }}
+          python-version: ${{ matrix.python-version }}
+      - name: Install Hatch (PyPy)
+        if: contains(matrix.python-version, 'pypy')
+        run: |
+          uv tool install --python ${{ steps.setup-python.outputs.python-path }} --upgrade hatch
+      - name: Install Hatch (CPython)
+        if: ${{ !contains(matrix.python-version, 'pypy') }}
+        run: |
+          uv tool install --python ${{ matrix.python-version }} --upgrade hatch
+      - name: Show environment
+        run: |
+          hatch test --show --python ${{ matrix.python-version }}
+      - name: Run tests
+        run: |
+          hatch test --cover --junitxml=junit.xml -o junit_family=legacy --python ${{ matrix.python-version }}
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ matrix.python-version }}
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ matrix.python-version }}
   test-edge:
     name: Test Gotenberg :edge
     runs-on: ubuntu-latest
@@ -150,38 +126,32 @@ jobs:
     env:
       GOTENBERG_CLIENT_EDGE_TEST: 1
     steps:
-    -
-      uses: actions/checkout@v4
-    -
-      name: Install poppler-utils
-      run: |
-        sudo apt-get update
-        sudo apt-get install --yes --no-install-recommends poppler-utils
-    -
-      name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
-      id: setup-python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-    -
-      name: Install uv
-      uses: astral-sh/setup-uv@v5
-      with:
-        version: ${{ env.DEFAULT_UV_VERSION }}
-        python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-    -
-      name: Install Hatch
-      run: |
-        uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
-    -
-      name: Show environment
-      run: |
-        hatch test --show --python ${{ env.DEFAULT_PYTHON_VERSION }}
-    -
-      name: Run tests
-      run: |
-        hatch test --cover --python ${{ env.DEFAULT_PYTHON_VERSION }}
-
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install poppler-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends poppler-utils
+      - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
+        id: setup-python
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.0.0
+        with:
+          version: ${{ env.DEFAULT_UV_VERSION }}
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+      - name: Install Hatch
+        run: |
+          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
+      - name: Show environment
+        run: |
+          hatch test --show --python ${{ env.DEFAULT_PYTHON_VERSION }}
+      - name: Run tests
+        run: |
+          hatch test --cover --python ${{ env.DEFAULT_PYTHON_VERSION }}
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -190,35 +160,31 @@ jobs:
     needs:
       - lint
     steps:
-      -
-        uses: actions/checkout@v4
-      -
-        name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      -
-        name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.0.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      -
-        name: Install Hatch
+      - name: Install Hatch
         run: |
           uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
-      -
-        name: Build
+      - name: Build
         run: |
           hatch build --clean
-      -
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         with:
-            name: artifacts
-            path: dist/*
-            if-no-files-found: error
-            retention-days: 7
+          name: artifacts
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
   documentation:
     name: Documentation
     runs-on: ubuntu-latest
@@ -227,48 +193,41 @@ jobs:
     needs:
       - lint
     steps:
-      -
-        uses: actions/checkout@v4
-      -
-        name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      -
-        name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.0.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      -
-        name: Install Hatch
+      - name: Install Hatch
         run: |
           uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
-      -
-        name: Build Documentation
+      - name: Build Documentation
         run: |
           hatch run docs:build
-      -
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         with:
-            name: documentation
-            path: site/*
-            if-no-files-found: error
-            retention-days: 7
-      -
-        name: Configure Git user
+          name: documentation
+          path: site/*
+          if-no-files-found: error
+          retention-days: 7
+      - name: Configure Git user
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-      -
-        name: Fetch gh-pages
+      - name: Fetch gh-pages
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           git fetch origin gh-pages --depth=1
-      -
-        name: Deploy documentation
+      - name: Deploy documentation
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           hatch run docs:deploy ${{ github.ref_name }}
@@ -283,48 +242,42 @@ jobs:
       - tests
       - documentation
     steps:
-      -
-        uses: actions/checkout@v4
-      -
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4.3.0
         with:
           name: artifacts
           path: dist
-      -
-        name: Get latest release info
+      - name: Get latest release info
         id: query-release-info
-        uses: release-flow/keep-a-changelog-action@v3
+        uses: release-flow/keep-a-changelog-action@v3.0.0
         with:
           command: query
           version: ${{ github.ref_name }}
-      -
-        name: Display release info
+      - name: Display release info
         run: |
           echo "Version: ${{ steps.query-release-info.outputs.version }}"
           echo "Date: ${{ steps.query-release-info.outputs.release-date }}"
           echo "${{ steps.query-release-info.outputs.release-notes }}"
-      -
-        uses: ncipollo/release-action@v1
+      - uses: ncipollo/release-action@v1.16.0
         with:
           artifacts: "dist/*.tar.gz,dist/*.whl"
           body: ${{ steps.query-release-info.outputs.release-notes }}
-
   pypi-publish:
     name: Publish
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
-      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
     needs:
       - build
       - tests
       - documentation
     steps:
-      -
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4.3.0
         with:
           name: artifacts
           path: dist
-      -
-        name: Publish build to PyPI
+      - name: Publish build to PyPI
         uses: pypa/gh-action-pypi-publish@v1.12.4

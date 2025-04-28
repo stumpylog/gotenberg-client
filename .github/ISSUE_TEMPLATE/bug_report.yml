@@ -6,7 +6,6 @@ body:
   - type: markdown
     attributes:
       value: "Please fill out this form to help us address your bug report."
-
   - type: input
     id: python-version
     attributes:
@@ -14,7 +13,6 @@ body:
       placeholder: "e.g., 3.11.0"
     validations:
       required: true
-
   - type: input
     id: client-version
     attributes:
@@ -22,7 +20,6 @@ body:
       placeholder: "e.g., 1.0.0"
     validations:
       required: true
-
   - type: input
     id: server-version
     attributes:
@@ -30,7 +27,6 @@ body:
       placeholder: "e.g., 7.8.3"
     validations:
       required: true
-
   - type: textarea
     id: description
     attributes:
@@ -38,7 +34,6 @@ body:
       description: A clear and concise description of the bug
     validations:
       required: true
-
   - type: textarea
     id: reproduction
     attributes:
@@ -47,7 +42,6 @@ body:
       render: python
     validations:
       required: true
-
   - type: textarea
     id: expected
     attributes:
@@ -55,7 +49,6 @@ body:
       description: What you expected to happen
     validations:
       required: true
-
   - type: textarea
     id: actual
     attributes:
@@ -63,7 +56,6 @@ body:
       description: What actually happened
     validations:
       required: true
-
   - type: textarea
     id: logs
     attributes:

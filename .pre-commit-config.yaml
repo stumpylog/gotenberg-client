@@ -1,7 +1,6 @@
 # This file configures pre-commit hooks.
 # See https://pre-commit.com/ for general information
 # See https://pre-commit.com/hooks.html for a listing of possible hooks
-
 repos:
   # General hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -28,7 +27,7 @@ repos:
           - svg
       - id: check-case-conflict
       - id: detect-private-key
-    # See https://github.com/prettier/prettier/issues/15742 for the fork reason
+        # See https://github.com/prettier/prettier/issues/15742 for the fork reason
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: "v3.5.3"
     hooks:
@@ -43,9 +42,21 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
+  - repo: https://github.com/woodruffw/zizmor-pre-commit
+    rev: v1.6.0
+    hooks:
+      - id: zizmor
+        args:
+          - "--no-progress"
+          - "--quiet"
+          - "--min-severity=low"
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.16.0
+    hooks:
+      - id: yamlfmt
   # Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.11.2'
+    rev: 'v0.11.7'
     hooks:
       # Run the linter.
       - id: ruff
@@ -57,7 +68,7 @@ repos:
       - id: pyproject-fmt
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.10
+    rev: 0.6.17
     hooks:
       # Update the uv lockfile
       - id: uv-lock
