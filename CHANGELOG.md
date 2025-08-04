@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [zizmor](https://woodruffw.github.io/zizmor/) is now enabled to audi the workflows
+- [zizmor](https://woodruffw.github.io/zizmor/) is now enabled to audit the workflows
 - yamlfmt is now used to format all YAML files
 
 ### Changed
