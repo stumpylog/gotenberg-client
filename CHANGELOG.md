@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [zizmor](https://woodruffw.github.io/zizmor/) is now enabled to audi the workflows
 - yamlfmt is now used to format all YAML files
 
+### Changed
+
+- Drops testing against pypy, as pikepdf no longer provides wheels for it
+
 ## [0.10.0] - 2025-04-21
 
 ### Changed
