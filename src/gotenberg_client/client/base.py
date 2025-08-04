@@ -183,7 +183,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         Args:
             extra_headers (Dict[str, str]): A dictionary of additional headers to include in webhook calls.
         """
-        from json import dumps
+        from json import dumps  # noqa: PLC0415
 
         self.add_headers({"Gotenberg-Webhook-Extra-Http-Headers": dumps(extra_headers)})
 

@@ -29,7 +29,7 @@ repos:
       - id: detect-private-key
         # See https://github.com/prettier/prettier/issues/15742 for the fork reason
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "v3.5.3"
+    rev: "v3.6.2"
     hooks:
       - id: prettier
         types_or:
@@ -43,7 +43,7 @@ repos:
     hooks:
       - id: codespell
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.6.0
+    rev: v1.11.0
     hooks:
       - id: zizmor
         args:
@@ -51,24 +51,24 @@ repos:
           - "--quiet"
           - "--min-severity=low"
   - repo: https://github.com/google/yamlfmt
-    rev: v0.16.0
+    rev: v0.17.2
     hooks:
       - id: yamlfmt
   # Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.11.7'
+    rev: 'v0.12.7'
     hooks:
       # Run the linter.
-      - id: ruff
+      - id: ruff-check
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.5.1"
+    rev: "v2.6.0"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.6.17
+    rev: 0.8.4
     hooks:
       # Update the uv lockfile
       - id: uv-lock

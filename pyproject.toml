@@ -63,7 +63,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = [ "ruff ~= 0.11" ]
+dependencies = [ "ruff ~= 0.12" ]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]

@@ -131,7 +131,7 @@ class PdfAFormat(enum.Enum):
         format_name = format_mapping[self]
         # Warn about deprecated format usage (ideally move outside this method)
         if self is PdfAFormat.A1a:
-            import warnings
+            import warnings  # noqa: PLC0415
 
             warnings.warn(
                 "PDF Format PDF/A-1a is deprecated",
