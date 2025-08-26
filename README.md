@@ -61,15 +61,16 @@ Converting a single HTML file into a PDF:
 
 ```python
 from gotenberg_client import GotenbergClient, AsyncGotenbergClient
+from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
-      response = route.index("my-index.html").run()
+      response = route.index(Path("my-index.html")).run()
       response.to_file(Path("my-index.pdf"))
 
 async with AsyncGotenbergClient("http://localhost:3000") as client:
     async with client.chromium.html_to_pdf() as route:
-      response = await route.index("my-index.html").run()
+      response = await route.index(Path("my-index.html")).run()
       response.to_file(Path("my-index.pdf"))
 ```
 
@@ -77,10 +78,11 @@ Converting an HTML file with additional resources into a PDF:
 
 ```python
 from gotenberg_client import GotenbergClient
+from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
-      response = route.index("my-index.html").resource("image.png").resource("style.css").run()
+      response = route.index(Path("my-index.html")).resource("image.png").resource("style.css").run()
       response.to_file(Path("my-index.pdf"))
 ```
 
@@ -89,10 +91,11 @@ Converting an HTML file with additional resources into a PDF/A1a format:
 ```python
 from gotenberg_client import GotenbergClient
 from gotenberg_client.options import PdfAFormat
+from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
-      response = route.index("my-index.html").resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A2b).run()
+      response = route.index(Path("my-index.html")).resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A2b).run()
       response.to_file(Path("my-index.pdf"))
 ```
 

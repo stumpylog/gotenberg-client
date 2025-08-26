@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [zizmor](https://woodruffw.github.io/zizmor/) is now enabled to audit the workflows
 - yamlfmt is now used to format all YAML files
+- Fix examples around route.index
 
 ### Changed
 
