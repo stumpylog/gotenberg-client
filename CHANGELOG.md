@@ -11,12 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [zizmor](https://woodruffw.github.io/zizmor/) is now enabled to audit the workflows
 - yamlfmt is now used to format all YAML files
-- Fix examples around route.index
+- Fixes examples around route.index
 
 ### Changed
 
 - Drops testing against pypy, as pikepdf no longer provides wheels for it
 - Updates CI testing to use Gotenberg 8.22.0
+- Updates development dependencies
 
 ## [0.10.0] - 2025-04-21
 
