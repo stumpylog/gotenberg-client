@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Set up Python 3.11
@@ -62,7 +62,7 @@ jobs:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Install poppler-utils
@@ -126,7 +126,7 @@ jobs:
     env:
       GOTENBERG_CLIENT_EDGE_TEST: 1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Install poppler-utils
@@ -160,7 +160,7 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -193,9 +193,9 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
         with:
-          persist-credentials: false
+          persist-credentials: true
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
         uses: actions/setup-python@v5.6.0
@@ -242,7 +242,7 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - uses: actions/download-artifact@v5.0.0

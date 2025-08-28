@@ -48,7 +48,7 @@ jobs:
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       # Initializes the CodeQL tools for scanning.
