@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drops testing against pypy, as pikepdf no longer provides wheels for it
 - Updates CI testing to use Gotenberg 8.22.0
 - Updates development dependencies
+- Updates GitHub Action versions
+
+### Fixed
+
+- Fixes an issue with the actions lockdown preventing documentation deployment
 
 ## [0.10.0] - 2025-04-21
 
