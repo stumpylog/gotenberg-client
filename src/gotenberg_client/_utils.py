@@ -14,7 +14,7 @@ class ForceMultipartDict(dict):
         return True
 
 
-def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> dict[str, str]:
+def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> dict[str, str]:  # noqa: FBT001
     """
     Converts an optional value to a form data field with the given name,
     handling None values gracefully.
@@ -55,7 +55,7 @@ def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:  # pragma: n
         The guessed MIME type, or None if it could not be determined.
     """
 
-    import mimetypes
+    import mimetypes  # noqa: PLC0415
 
     mime_type, _ = mimetypes.guess_type(str(url))  # Ensure URL is a string
     return mime_type
@@ -72,7 +72,7 @@ def guess_mime_type_magic(url: Union[str, Path]) -> Optional[str]:
         The guessed MIME type, or None if it could not be determined.
     """
 
-    import magic  # type: ignore[import-not-found]
+    import magic  # type: ignore[import-not-found]  # noqa: PLC0415
 
     try:
         return magic.from_file(str(url), mime=True)  # type: ignore[misc]

@@ -1,26 +1,22 @@
 site_name: Gotenberg Client
-
 site_url: https://stumpylog.github.io/gotenberg-client/
 site_author: Trenton H
-
 repo_name: stumpylog/gotenberg-client
 repo_url: https://github.com/stumpylog/gotenberg-client
-
 nav:
   - "index.md"
   - "usage.md"
   - "routes.md"
   - API Reference:
-    - "ref_clients.md"
-    - "ref_modules.md"
-    - "ref_routes.md"
-    - "ref_options.md"
-    - "ref_responses.md"
-    - "ref_errors.md"
+      - "ref_clients.md"
+      - "ref_modules.md"
+      - "ref_routes.md"
+      - "ref_options.md"
+      - "ref_responses.md"
+      - "ref_errors.md"
   - "contributing.md"
   - "roadmap.md"
   - "changelog.md"
-
 markdown_extensions:
   - admonition
   - pymdownx.highlight:
@@ -32,7 +28,6 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - toc:
       permalink: true
-
 theme:
   name: material
   custom_dir: docs/.override
@@ -65,7 +60,6 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-
 plugins:
   - search
   - social
@@ -91,7 +85,6 @@ plugins:
             show_object_full_path: false
           inventories:
             - https://docs.python.org/3/objects.inv
-
 extra:
   version:
     provider: mike
@@ -101,7 +94,4 @@ extra:
   consent:
     title: Cookie consent
     description: >-
-      We use cookies to recognize your repeated visits and preferences, as well
-      as to measure the effectiveness of our documentation and whether users
-      find what they're searching for. With your consent, you're helping us to
-      make our documentation better.
+      We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.

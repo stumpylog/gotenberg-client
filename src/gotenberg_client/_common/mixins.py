@@ -165,12 +165,13 @@ class MetadataMixin:
         creation_date: Optional[datetime] = None,
         creator: Optional[str] = None,
         keywords: Optional[list[str]] = None,
-        marked: Optional[bool] = None,
         modification_date: Optional[datetime] = None,
         pdf_version: Optional[float] = None,
         producer: Optional[str] = None,
         subject: Optional[str] = None,
         title: Optional[str] = None,
+        *,
+        marked: Optional[bool] = None,
         trapped: Optional[Union[bool, TrappedStatus]] = None,
     ) -> Self:
         """

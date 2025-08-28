@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2025-08-28
+
+### Added
+
+- [zizmor](https://woodruffw.github.io/zizmor/) is now enabled to audit the workflows
+- yamlfmt is now used to format all YAML files
+- Fixes examples around route.index
+
+### Changed
+
+- Drops testing against pypy, as pikepdf no longer provides wheels for it
+- Updates CI testing to use Gotenberg 8.22.0
+- Updates development dependencies
+
 ## [0.10.0] - 2025-04-21
 
 ### Changed
@@ -14,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test in CI using Gotenberg 8.17.3 ([#52](https://github.com/stumpylog/gotenberg-client/pull/52))
 - Bump pypa/gh-action-pypi-publish from 1.12.3 to 1.12.4 by @dependabot ([#49](https://github.com/stumpylog/gotenberg-client/pull/49))
 
-## Added
+### Added
 
 - Asynchronous support for all implemented routes ([#53](https://github.com/stumpylog/gotenberg-client/pull/53))
     - Also implemented split and flatten routes
