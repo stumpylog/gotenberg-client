@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Set up Python 3.11
@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.4.3
+        uses: astral-sh/setup-uv@v6.6.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -43,7 +43,7 @@ jobs:
       - name: Check project typing
         run: |
           hatch run typing:run
-      - uses: actions/cache@v4.2.3
+      - uses: actions/cache@v4.2.4
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
@@ -62,7 +62,7 @@ jobs:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Install poppler-utils
@@ -80,13 +80,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install uv (PyPy)
         if: contains(matrix.python-version, 'pypy')
-        uses: astral-sh/setup-uv@v6.4.3
+        uses: astral-sh/setup-uv@v6.6.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ steps.setup-python.outputs.python-path }}
       - name: Install uv (CPython)
         if: ${{ !contains(matrix.python-version, 'pypy') }}
-        uses: astral-sh/setup-uv@v6.4.3
+        uses: astral-sh/setup-uv@v6.6.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ matrix.python-version }}
@@ -126,7 +126,7 @@ jobs:
     env:
       GOTENBERG_CLIENT_EDGE_TEST: 1
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Install poppler-utils
@@ -139,7 +139,7 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.4.3
+        uses: astral-sh/setup-uv@v6.6.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -160,7 +160,7 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -169,7 +169,7 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.4.3
+        uses: astral-sh/setup-uv@v6.6.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -193,16 +193,16 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
         with:
-          persist-credentials: false
+          persist-credentials: true
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
         uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.4.3
+        uses: astral-sh/setup-uv@v6.6.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -242,10 +242,10 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v5.0.0
         with:
           name: artifacts
           path: dist
@@ -275,7 +275,7 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v5.0.0
         with:
           name: artifacts
           path: dist
