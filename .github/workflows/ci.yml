@@ -269,7 +269,7 @@ jobs:
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_VERSION: ${{ steps.query-release-info.outputs.version }}
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_DATE: ${{ steps.query-release-info.outputs.release-date }}
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES: ${{ steps.query-release-info.outputs.release-notes }}
-      - uses: ncipollo/release-action@v1.18.0
+      - uses: ncipollo/release-action@v1.20.0
         with:
           artifacts: "dist/*.tar.gz,dist/*.whl"
           body: ${{ steps.query-release-info.outputs.release-notes }}
