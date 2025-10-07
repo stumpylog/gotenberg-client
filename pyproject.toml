@@ -121,6 +121,7 @@ dependencies = [
   "pytest",
   "pikepdf",
   "pytest-httpx ~= 0.35",
+  "pypdf",
 ]
 
 [tool.hatch.envs.typing.scripts]
