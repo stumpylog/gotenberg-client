@@ -64,8 +64,8 @@ class TestMergePdfs:
             resp.to_file(out_file)
 
             lines = extract_text(out_file)
-            # Extra is empty line
-            assert len(lines) == 3
+
+            assert len(lines) == 2
             assert "first PDF to be merged." in lines[0]
             assert "second PDF to be merged." in lines[1]
 
@@ -90,7 +90,7 @@ class TestMergePdfsAsync:
         resp.to_file(out_file)
 
         lines = extract_text(out_file)
-        # Extra is empty line
-        assert len(lines) == 3
+
+        assert len(lines) == 2
         assert "first PDF to be merged." in lines[0]
         assert "second PDF to be merged." in lines[1]
