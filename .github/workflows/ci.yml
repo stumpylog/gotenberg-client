@@ -11,7 +11,7 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
-  DEFAULT_PYTHON_VERSION: "3.11"
+  DEFAULT_PYTHON_VERSION: "3.12"
   DEFAULT_UV_VERSION: "0.8.x"
 jobs:
   lint:
@@ -23,13 +23,13 @@ jobs:
       - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.6.0
+        uses: astral-sh/setup-uv@v6.8.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -43,13 +43,18 @@ jobs:
       - name: Check project typing
         run: |
           hatch run typing:run
-      - uses: actions/cache@v4.2.4
+      - uses: actions/cache@v4.3.0
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
       - name: Check files with pre-commit
         run: |
           pre-commit run --all-files --show-diff-on-failure --color=always
+      - name: Validate the changelog
+        uses: release-flow/keep-a-changelog-action@v3
+        with:
+          command: query
+          version: unreleased
   tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -75,18 +80,18 @@ jobs:
           docker compose --file tests/docker/docker-compose.ci-test.yml pull --quiet
       - name: Set up Python ${{ matrix.python-version }}
         id: setup-python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install uv (PyPy)
         if: contains(matrix.python-version, 'pypy')
-        uses: astral-sh/setup-uv@v6.6.0
+        uses: astral-sh/setup-uv@v6.8.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ steps.setup-python.outputs.python-path }}
       - name: Install uv (CPython)
         if: ${{ !contains(matrix.python-version, 'pypy') }}
-        uses: astral-sh/setup-uv@v6.6.0
+        uses: astral-sh/setup-uv@v6.8.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ matrix.python-version }}
@@ -135,11 +140,11 @@ jobs:
           sudo apt-get install --yes --no-install-recommends poppler-utils
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.6.0
+        uses: astral-sh/setup-uv@v6.8.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -165,11 +170,11 @@ jobs:
           persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.6.0
+        uses: astral-sh/setup-uv@v6.8.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -198,11 +203,11 @@ jobs:
           persist-credentials: true
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v6.6.0
+        uses: astral-sh/setup-uv@v6.8.0
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -230,7 +235,7 @@ jobs:
       - name: Deploy documentation
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          hatch run docs:deploy ${{ github.ref_name }}
+          hatch run docs:deploy ${GITHUB_REF_NAME}
   create-release:
     name: Release
     runs-on: ubuntu-latest
@@ -257,10 +262,14 @@ jobs:
           version: ${{ github.ref_name }}
       - name: Display release info
         run: |
-          echo "Version: ${{ steps.query-release-info.outputs.version }}"
-          echo "Date: ${{ steps.query-release-info.outputs.release-date }}"
-          echo "${{ steps.query-release-info.outputs.release-notes }}"
-      - uses: ncipollo/release-action@v1.18.0
+          echo "Version: ${STEPS_QUERY_RELEASE_INFO_OUTPUTS_VERSION}"
+          echo "Date: ${STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_DATE}"
+          echo "${STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES}"
+        env:
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_VERSION: ${{ steps.query-release-info.outputs.version }}
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_DATE: ${{ steps.query-release-info.outputs.release-date }}
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES: ${{ steps.query-release-info.outputs.release-notes }}
+      - uses: ncipollo/release-action@v1.20.0
         with:
           artifacts: "dist/*.tar.gz,dist/*.whl"
           body: ${{ steps.query-release-info.outputs.release-notes }}
@@ -280,4 +289,4 @@ jobs:
           name: artifacts
           path: dist
       - name: Publish build to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.12.4
+        uses: pypa/gh-action-pypi-publish@v1.13.0
