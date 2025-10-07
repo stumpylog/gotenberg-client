@@ -242,7 +242,8 @@ Supported metadata fields:
 - `pdf_version`: PDF version number
 
 !!! note
-Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
+
+    Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
 
 ## LibreOffice
 
@@ -254,11 +255,11 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 
 !!! note
 
-    `convert` / `convert_in_memory_file` may be called multiple times"
+    `convert` / `convert_in_memory_file` may be called multiple times
 
 !!! note
 
-    "`convert_files` is a convenience method to convert a list of files into PDF
+    `convert_files` is a convenience method to convert a list of files into PDF
 
 ### LibreOffice Properties
 
@@ -286,7 +287,8 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 | `merge`          | <ul><li>`merge()`<li>`no_merge()`</li></ul> | N/A         |       |
 
 !!! note
-If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
+
+    If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
 
 #### Split
 
@@ -321,7 +323,8 @@ See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 | `pdfua`        | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                 |                     |
 
 !!! note
-At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
+
+    At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
 
 ## Read PDF metadata
 
@@ -342,7 +345,8 @@ At least one of `pdf_format()`, `enable_universal_access()` or `disable_universa
 | `metadata`     | N/A                                                                           | N/A                 | See [PDF Metadata Support](#pdf-metadata-support) for the API interface. |
 
 !!! note
-Prefixes will be added to the file to ensure they are merged in the order provided to `merge()`, even with multiple calls
+
+    Prefixes will be added to the file to ensure they are merged in the order provided to `merge()`, even with multiple calls
 
 ## Split PDFs
 
