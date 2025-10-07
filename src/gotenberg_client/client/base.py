@@ -314,7 +314,7 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
 
     # TODO: Implement this
     @property
-    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
+    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var,misc]
         """
         Returns a new instance for reading the
         [Version](https://gotenberg.dev/docs/routes#version-route) route
@@ -451,7 +451,7 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
 
     # TODO: Implement this
     @property
-    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var]
+    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var,misc]
         """
         Returns a new instance for reading the
         [Version](https://gotenberg.dev/docs/routes#version-route) route
