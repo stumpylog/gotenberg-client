@@ -253,7 +253,12 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 | [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <p>Any of:</p><ul><li>`.convert("mydoc.docx")`</li><li>`.convert_files(["mydoc.docx"])`</li><li>`.convert_in_memory_file(data, name="mydoc.docx")`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
 
 !!! note
-`convert` / `convert_in_memory_file` may be called multiple times" !!! note "`convert_files` is a convenience method to convert a list of files into PDF
+
+    `convert` / `convert_in_memory_file` may be called multiple times"
+
+!!! note
+
+    "`convert_files` is a convenience method to convert a list of files into PDF
 
 ### LibreOffice Properties
 
@@ -354,17 +359,20 @@ Prefixes will be added to the file to ensure they are merged in the order provid
 ## Metrics
 
 !!! warning
-This route is not implemented
+
+    This route is not implemented
 
 ## Version
 
 !!! warning
-This route is not implemented
+
+    This route is not implemented
 
 ## Debug
 
 !!! warning
-This route is not implemented
+
+    This route is not implemented
 
 ## Global Options
 
@@ -375,4 +383,5 @@ This route is not implemented
 ### Download From
 
 !!! warning
-This feature is not implemented
+
+    This feature is not implemented
