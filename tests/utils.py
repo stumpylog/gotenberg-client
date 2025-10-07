@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+import re
 from http import HTTPStatus
 from pathlib import Path
 from typing import Union
@@ -31,7 +32,8 @@ def verify_stream_contains(request, key: str, value: str) -> None:
 
 def extract_text(pdf_path: Path) -> list[str]:
     """
-    Extracts text from a PDF and returns it as a list of lines
+    Extracts text from a PDF and returns it as a list of lines.
+    All whitespace (tabs, multiple spaces) is normalized to single spaces.
     """
-    reader = PdfReader(pdf_path)
-    return [line for page in reader.pages for line in page.extract_text().splitlines()]
+    with PdfReader(pdf_path) as reader:
+        return [re.sub(r"\s+", " ", line) for page in reader.pages for line in page.extract_text().splitlines()]
