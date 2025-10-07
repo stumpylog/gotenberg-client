@@ -11,7 +11,7 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
-  DEFAULT_PYTHON_VERSION: "3.11"
+  DEFAULT_PYTHON_VERSION: "3.12"
   DEFAULT_UV_VERSION: "0.8.x"
 jobs:
   lint:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
         uses: actions/setup-python@v5.6.0
         with:
@@ -50,6 +50,12 @@ jobs:
       - name: Check files with pre-commit
         run: |
           pre-commit run --all-files --show-diff-on-failure --color=always
+      - name: Validate the changelog
+        id: query-release-info
+        uses: release-flow/keep-a-changelog-action@v3
+        with:
+          command: query
+          version: unreleased
   tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -230,7 +236,7 @@ jobs:
       - name: Deploy documentation
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          hatch run docs:deploy ${{ github.ref_name }}
+          hatch run docs:deploy ${GITHUB_REF_NAME}
   create-release:
     name: Release
     runs-on: ubuntu-latest
@@ -257,9 +263,13 @@ jobs:
           version: ${{ github.ref_name }}
       - name: Display release info
         run: |
-          echo "Version: ${{ steps.query-release-info.outputs.version }}"
-          echo "Date: ${{ steps.query-release-info.outputs.release-date }}"
-          echo "${{ steps.query-release-info.outputs.release-notes }}"
+          echo "Version: ${STEPS_QUERY_RELEASE_INFO_OUTPUTS_VERSION}"
+          echo "Date: ${STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_DATE}"
+          echo "${STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES}"
+        env:
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_VERSION: ${{ steps.query-release-info.outputs.version }}
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_DATE: ${{ steps.query-release-info.outputs.release-date }}
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES: ${{ steps.query-release-info.outputs.release-notes }}
       - uses: ncipollo/release-action@v1.18.0
         with:
           artifacts: "dist/*.tar.gz,dist/*.whl"

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+
+- Validates the changelog format is correct during CI linting job
+
 ### Changed
 
 - Bumps pypa/gh-action-pypi-publish from 1.12.4 to 1.13.0
