@@ -86,6 +86,7 @@ extra-dependencies = [
   "python-magic",
   "pytest-docker ~= 3.2",
   "pytest-asyncio",
+  "pypdf",
 ]
 extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
 
