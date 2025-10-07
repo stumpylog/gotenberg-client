@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bumps pypa/gh-action-pypi-publish from 1.12.4 to 1.13.0
 - Bumps astral-sh/setup-uv from 6.6.0 to 6.8.0
+- Bump actions/setup-python from 5.6.0 to 6.0.0
 
 ## [0.11.0] - 2025-08-28
 
