@@ -63,7 +63,7 @@ installer = "uv"
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = [ "ruff ~= 0.12" ]
+dependencies = [ "ruff ~= 0.14" ]
 config-path = "none"
 
 [tool.hatch.envs.hatch-test]
@@ -290,8 +290,10 @@ exclude_lines = [
 
 [tool.mypy]
 exclude = [
-  "tests/*",
+  "tests",
 ]
+packages = [ "gotenberg_client" ]
+python_version = "3.9"
 disallow_any_expr = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
