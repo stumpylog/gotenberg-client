@@ -98,17 +98,17 @@ This route also supports other Chromium options:
 
 [Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#page-properties-chromium)
 
-| Gotenberg Option                                                                                | Route Configuration                                                     | Python Type                   | Notes                                            |
-| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------ |
-| `singlePage`                                                                                    | `.single_page()`                                                        | `bool`                        | Set via keyword only                             |
-| <ul><li>`paperWidth`</li><li>`paperHeight`</li></ul>                                            | `.size()`                                                               | `PageSize`                    | Current only allows size configuration in inches |
-| <ul><li>`marginTop`</li><li>`marginBottom`</li><li>`marginLeft`</li><li>`marginRight`</li></ul> | `.margin()`                                                             | `PageMarginsType`             |                                                  |
-| `preferCssPageSize`                                                                             | <ul><li>`prefer_css_page_size()`<li>`prefer_set_page_size()`</li></ul>  | N/A                           |                                                  |
-| `printBackground`                                                                               | <ul><li>`background_graphics()`<li>`no_background_graphics()`</li></ul> | N/A                           |                                                  |
-| `omitBackground`                                                                                | <ul><li>`hide_background()`<li>`show_background()`</li></ul>            | N/A                           |                                                  |
-| `landscape`                                                                                     | `.orient()`                                                             | `PageOrientation`             |                                                  |
-| `scale`                                                                                         | `scale()`                                                               | <code>int &#124; float</code> |                                                  |
-| `nativePageRanges`                                                                              | `page_ranges()`                                                         | `str`                         |                                                  |
+| Gotenberg Option                                                                                | Route Configuration                                                     | Python Type                   | Notes                |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- | -------------------- |
+| `singlePage`                                                                                    | `.single_page()`                                                        | `bool`                        | Set via keyword only |
+| <ul><li>`paperWidth`</li><li>`paperHeight`</li></ul>                                            | `.size()`                                                               | `PageSize`                    |                      |
+| <ul><li>`marginTop`</li><li>`marginBottom`</li><li>`marginLeft`</li><li>`marginRight`</li></ul> | `.margin()`                                                             | `PageMarginsType`             |                      |
+| `preferCssPageSize`                                                                             | <ul><li>`prefer_css_page_size()`<li>`prefer_set_page_size()`</li></ul>  | N/A                           |                      |
+| `printBackground`                                                                               | <ul><li>`background_graphics()`<li>`no_background_graphics()`</li></ul> | N/A                           |                      |
+| `omitBackground`                                                                                | <ul><li>`hide_background()`<li>`show_background()`</li></ul>            | N/A                           |                      |
+| `landscape`                                                                                     | `.orient()`                                                             | `PageOrientation`             |                      |
+| `scale`                                                                                         | `scale()`                                                               | <code>int &#124; float</code> |                      |
+| `nativePageRanges`                                                                              | `page_ranges()`                                                         | `str`                         |                      |
 
 #### Header & Footer
 
@@ -267,12 +267,12 @@ Supported metadata fields:
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#page-properties-libreoffice)
 
-| Gotenberg Option   | Route Configuration | Python Type       | Notes                              |
-| ------------------ | ------------------- | ----------------- | ---------------------------------- |
-| `landscape`        | `.orient()`         | `PageOrientation` |                                    |
-| `nativePageRanges` | `page_ranges()`     | `str`             |                                    |
-| `exportFormFields` | N/A                 | N/A               | This option is not implemented yet |
-| `singlePageSheets` | N/A                 | N/A               | This option is not implemented yet |
+| Gotenberg Option   | Route Configuration     | Python Type       | Notes |
+| ------------------ | ----------------------- | ----------------- | ----- |
+| `landscape`        | `.orient()`             | `PageOrientation` |       |
+| `nativePageRanges` | `page_ranges()`         | `str`             |       |
+| `exportFormFields` | `.export_form_fields()` | `bool`            |       |
+| `singlePageSheets` | `.single_page_sheets()` | `bool`            |       |
 
 #### Compress
 
