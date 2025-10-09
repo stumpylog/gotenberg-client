@@ -86,6 +86,7 @@ extra-dependencies = [
   "python-magic",
   "pytest-docker ~= 3.2",
   "pytest-asyncio",
+  "pypdf",
 ]
 extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
 
@@ -116,11 +117,12 @@ python = [ "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10" ]
 [tool.hatch.envs.typing]
 detached = true
 dependencies = [
-  "mypy ~= 1.17",
+  "mypy ~= 1.18",
   "httpx",
   "pytest",
   "pikepdf",
   "pytest-httpx ~= 0.35",
+  "pypdf",
 ]
 
 [tool.hatch.envs.typing.scripts]
