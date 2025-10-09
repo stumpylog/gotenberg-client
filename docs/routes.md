@@ -27,7 +27,7 @@ Required Properties:
 
 - An index file is required:
     - `.index("index.html")` sets the index from an HTML file
-    - `string_index(<html></html>")` sets the index as the HTML string
+    - `.string_index("<html></html>")` sets the index as the HTML string
 
 Optional Properties:
 
