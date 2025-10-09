@@ -40,7 +40,7 @@ from gotenberg_client._pdfa_ua import SyncPdfAApi
 from gotenberg_client._pdfmetadata import AsyncPdfMetadataApi
 from gotenberg_client._pdfmetadata import SyncPdfMetadataApi
 
-SyncOrAsyncApiT = TypeVar("SyncOrAsyncApiT", bound="SyncBaseApi | AsyncBaseApi")
+SyncOrAsyncApiT = TypeVar("SyncOrAsyncApiT", bound=Union["SyncBaseApi", "AsyncBaseApi"])
 
 
 class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
