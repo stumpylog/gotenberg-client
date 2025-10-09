@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumps actions/cache from 4.2.4 to 4.3.0
 - Bumps ncipollo/release-action from 1.18.0 to 1.20.0
 
+### Fixed
+
+- Some note callouts were not properly formatted in the documentation
+
 ## [0.11.0] - 2025-08-28
 
 ### Added
