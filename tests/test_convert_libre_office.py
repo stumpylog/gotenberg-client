@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from http import HTTPStatus
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -36,6 +37,17 @@ class TestLibreOfficeConvert:
                 resp = route.convert(docx_sample_file).run()
             except:  # noqa: E722, pragma: no cover
                 return
+
+        assert resp.status_code == HTTPStatus.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+    def test_libre_office_convert_docx_format_in_memory(self, sync_client: GotenbergClient, docx_sample_file: Path):
+        with sync_client.libre_office.to_pdf() as route:
+            resp = route.convert_in_memory_file(
+                data=BytesIO(docx_sample_file.read_bytes()),
+                name=docx_sample_file.name,
+            ).run_with_retry()
 
         assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers

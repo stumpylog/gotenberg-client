@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Validates the changelog format is correct during CI linting job
+- LibreOffice route can use in-memory buffer for conversions by @gunnar-rydberg ([#68](https://github.com/stumpylog/gotenberg-client/pull/68))
 
 ### Changed
 

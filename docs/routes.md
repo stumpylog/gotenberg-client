@@ -248,12 +248,12 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 
 ### Office Documents to PDF
 
-| Gotenberg Link                                                                      | Route Access          | Required Properties                                                                            | Optional Properties                                       |
-| ----------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <ul><li>`.convert("mydoc.docx")`</li><li>or</li><li>`.convert_files(["mydoc.docx"])`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
+| Gotenberg Link                                                                      | Route Access          | Required Properties                                                                                                                                          | Optional Properties                                       |
+| ----------------------------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <p>Any of:</p><ul><li>`.convert("mydoc.docx")`</li><li>`.convert_files(["mydoc.docx"])`</li><li>`.convert_in_memory_file(data, name="mydoc.docx")`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
 
 !!! note
-`convert` may be called multiple times" !!! note "`convert_files` is a convenience method to convert a list of file into PDF
+`convert` / `convert_in_memory_file` may be called multiple times" !!! note "`convert_files` is a convenience method to convert a list of files into PDF
 
 ### LibreOffice Properties
 

@@ -13,6 +13,7 @@ from pathlib import Path
 from time import sleep
 from types import TracebackType
 from typing import Any
+from typing import BinaryIO
 from typing import Generic
 from typing import Optional
 from typing import Union
@@ -68,7 +69,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         # These are the names of files, mapping to their Path
         self._file_map: dict[str, Path] = {}
         # Additional in memory resources, mapping the referenced name to the content and an optional mimetype
-        self._in_memory_resources: dict[str, tuple[str, Optional[str]]] = {}
+        self._in_memory_resources: dict[str, tuple[Union[str, BinaryIO], Optional[str]]] = {}
         # Any header that will also be sent
         self._headers: dict[str, str] = {}
         self._next = 1
@@ -243,12 +244,12 @@ class BaseRoute(ABC, Generic[ClientT]):
 
         self._file_map[name] = filepath
 
-    def _add_in_memory_file(self, data: str, *, name: str, mime_type: Optional[str] = None) -> None:
+    def _add_in_memory_file(self, data: Union[str, BinaryIO], *, name: str, mime_type: Optional[str] = None) -> None:
         """
         Add an in-memory file to the resources to be uploaded.
 
         Args:
-            data (str): The content of the file.
+            data (str or BinaryIO): The content of the file.
             name (str): Name to use for the file in the request.
             mime_type (Optional[str], optional): MIME type of the file. Defaults to None.
         """
