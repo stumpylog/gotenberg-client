@@ -33,28 +33,22 @@ jobs:
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      - name: Install Hatch & pre-commit
+      - name: Install Hatch
         run: |
           uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
-          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade pre-commit --with pre-commit-uv
       - name: Lint project
         run: |
           hatch fmt --check
       - name: Check project typing
         run: |
           hatch run typing:run
-      - uses: actions/cache@v4.3.0
-        with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
-      - name: Check files with pre-commit
-        run: |
-          pre-commit run --all-files --show-diff-on-failure --color=always
+      - name: Check files with prek
+        uses: j178/prek-action@v1.0.11
       - name: Validate the changelog
         uses: release-flow/keep-a-changelog-action@v3
         with:
           command: query
-          version: unreleased
+          version: latest-or-unreleased
   tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest

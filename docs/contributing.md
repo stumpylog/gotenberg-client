@@ -37,13 +37,13 @@ If you've identified a bug:
     curl -LsSf https://astral.sh/uv/install.sh | sh  # Install uv
     ```
 1. Install [`hatch`](https://github.com/pypa/hatch) and
-   [`pre-commit`](https://github.com/pre-commit/pre-commit)
+   [`pre-commit`](https://github.com/pre-commit/pre-commit) or [`prek`](https://github.com/j178/prek)
     ```bash
     uv tool install hatch pre-commit
     ```
 1. Set up pre-commit hooks:
     ```bash
-    pre-commit install
+    prek install
     ```
 
 ## Code Style

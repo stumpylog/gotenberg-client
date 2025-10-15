@@ -21,3 +21,4 @@ rules:
         # Both these are needed
         ncipollo/release-action: ref-pin
         release-flow/keep-a-changelog-action: ref-pin
+        j178/prek-action: ref-pin

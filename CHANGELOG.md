@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumps actions/setup-python from 5.6.0 to 6.0.0
 - Bumps actions/cache from 4.2.4 to 4.3.0
 - Bumps ncipollo/release-action from 1.18.0 to 1.20.0
+- Transitions from pre-commit to prek
 
 ### Fixed
 
