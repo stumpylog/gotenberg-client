@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from typing import BinaryIO
 from typing import Final
+from typing import Optional
 
 from gotenberg_client._base import AsyncBaseRoute
 from gotenberg_client._base import SyncBaseRoute
@@ -73,6 +75,21 @@ class _BaseOfficeDocumentToPdfRoute(
         """
         for x in file_paths:
             self.convert(x)
+        return self
+
+    def convert_in_memory_file(self, data: BinaryIO, *, name: str, mime_type: Optional[str] = None) -> Self:
+        """
+        Add single file from buffer for PDF conversion.
+
+        Args:
+            data (BinaryIO): The content of the file.
+            name (str): Name to use for the file in the request.
+            mime_type (Optional[str], optional): MIME type of the file. Defaults to None.
+
+        Returns:
+            LibreOfficeConvertRoute: This object itself for method chaining.
+        """
+        self._add_in_memory_file(data, name=name, mime_type=mime_type)  # type: ignore[attr-defined]
         return self
 
 

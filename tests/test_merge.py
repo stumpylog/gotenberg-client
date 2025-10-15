@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-import shutil
 from pathlib import Path
 
 import pikepdf
@@ -51,42 +50,9 @@ class TestMergePdfs:
         sample_directory: Path,
         tmp_path: Path,
     ):
-        if shutil.which("pdftotext") is None:  # pragma: no cover
-            pytest.skip("No pdftotext executable found")
-        else:
-            with sync_client.merge.merge() as route:
-                # By default, these would not merge correctly, as it happens alphabetically
-                resp = route.merge(
-                    [sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"],
-                ).run_with_retry()
-
-                assert resp.status_code == codes.OK
-                assert "Content-Type" in resp.headers
-                assert resp.headers["Content-Type"] == "application/pdf"
-
-                out_file = tmp_path / "test.pdf"
-                resp.to_file(out_file)
-
-                text = extract_text(out_file)
-                lines = text.split("\n")
-                # Extra is empty line
-                assert len(lines) == 3
-                assert "first PDF to be merged." in lines[0]
-                assert "second PDF to be merged." in lines[1]
-
-
-class TestMergePdfsAsync:
-    async def test_merge_multiple_file(
-        self,
-        async_merge_pdfs_route: AsyncMergePdfsRoute,
-        sample_directory: Path,
-        tmp_path: Path,
-    ):
-        if shutil.which("pdftotext") is None:  # pragma: no cover
-            pytest.skip("No pdftotext executable found")
-        else:
+        with sync_client.merge.merge() as route:
             # By default, these would not merge correctly, as it happens alphabetically
-            resp = await async_merge_pdfs_route.merge(
+            resp = route.merge(
                 [sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"],
             ).run_with_retry()
 
@@ -97,9 +63,34 @@ class TestMergePdfsAsync:
             out_file = tmp_path / "test.pdf"
             resp.to_file(out_file)
 
-            text = extract_text(out_file)
-            lines = text.split("\n")
-            # Extra is empty line
-            assert len(lines) == 3
+            lines = extract_text(out_file)
+
+            assert len(lines) == 2
             assert "first PDF to be merged." in lines[0]
             assert "second PDF to be merged." in lines[1]
+
+
+class TestMergePdfsAsync:
+    async def test_merge_multiple_file(
+        self,
+        async_merge_pdfs_route: AsyncMergePdfsRoute,
+        sample_directory: Path,
+        tmp_path: Path,
+    ):
+        # By default, these would not merge correctly, as it happens alphabetically
+        resp = await async_merge_pdfs_route.merge(
+            [sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"],
+        ).run_with_retry()
+
+        assert resp.status_code == codes.OK
+        assert "Content-Type" in resp.headers
+        assert resp.headers["Content-Type"] == "application/pdf"
+
+        out_file = tmp_path / "test.pdf"
+        resp.to_file(out_file)
+
+        lines = extract_text(out_file)
+
+        assert len(lines) == 2
+        assert "first PDF to be merged." in lines[0]
+        assert "second PDF to be merged." in lines[1]

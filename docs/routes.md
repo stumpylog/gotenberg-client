@@ -27,7 +27,7 @@ Required Properties:
 
 - An index file is required:
     - `.index("index.html")` sets the index from an HTML file
-    - `string_index(<html></html>")` sets the index as the HTML string
+    - `.string_index("<html></html>")` sets the index as the HTML string
 
 Optional Properties:
 
@@ -98,17 +98,17 @@ This route also supports other Chromium options:
 
 [Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#page-properties-chromium)
 
-| Gotenberg Option                                                                                | Route Configuration                                                     | Python Type                   | Notes                                            |
-| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------ |
-| `singlePage`                                                                                    | `.single_page()`                                                        | `bool`                        | Set via keyword only                             |
-| <ul><li>`paperWidth`</li><li>`paperHeight`</li></ul>                                            | `.size()`                                                               | `PageSize`                    | Current only allows size configuration in inches |
-| <ul><li>`marginTop`</li><li>`marginBottom`</li><li>`marginLeft`</li><li>`marginRight`</li></ul> | `.margin()`                                                             | `PageMarginsType`             |                                                  |
-| `preferCssPageSize`                                                                             | <ul><li>`prefer_css_page_size()`<li>`prefer_set_page_size()`</li></ul>  | N/A                           |                                                  |
-| `printBackground`                                                                               | <ul><li>`background_graphics()`<li>`no_background_graphics()`</li></ul> | N/A                           |                                                  |
-| `omitBackground`                                                                                | <ul><li>`hide_background()`<li>`show_background()`</li></ul>            | N/A                           |                                                  |
-| `landscape`                                                                                     | `.orient()`                                                             | `PageOrientation`             |                                                  |
-| `scale`                                                                                         | `scale()`                                                               | <code>int &#124; float</code> |                                                  |
-| `nativePageRanges`                                                                              | `page_ranges()`                                                         | `str`                         |                                                  |
+| Gotenberg Option                                                                                | Route Configuration                                                     | Python Type                   | Notes                |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------- | -------------------- |
+| `singlePage`                                                                                    | `.single_page()`                                                        | `bool`                        | Set via keyword only |
+| <ul><li>`paperWidth`</li><li>`paperHeight`</li></ul>                                            | `.size()`                                                               | `PageSize`                    |                      |
+| <ul><li>`marginTop`</li><li>`marginBottom`</li><li>`marginLeft`</li><li>`marginRight`</li></ul> | `.margin()`                                                             | `PageMarginsType`             |                      |
+| `preferCssPageSize`                                                                             | <ul><li>`prefer_css_page_size()`<li>`prefer_set_page_size()`</li></ul>  | N/A                           |                      |
+| `printBackground`                                                                               | <ul><li>`background_graphics()`<li>`no_background_graphics()`</li></ul> | N/A                           |                      |
+| `omitBackground`                                                                                | <ul><li>`hide_background()`<li>`show_background()`</li></ul>            | N/A                           |                      |
+| `landscape`                                                                                     | `.orient()`                                                             | `PageOrientation`             |                      |
+| `scale`                                                                                         | `scale()`                                                               | <code>int &#124; float</code> |                      |
+| `nativePageRanges`                                                                              | `page_ranges()`                                                         | `str`                         |                      |
 
 #### Header & Footer
 
@@ -242,18 +242,24 @@ Supported metadata fields:
 - `pdf_version`: PDF version number
 
 !!! note
-Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
+
+    Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
 
 ## LibreOffice
 
 ### Office Documents to PDF
 
-| Gotenberg Link                                                                      | Route Access          | Required Properties                                                                            | Optional Properties                                       |
-| ----------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <ul><li>`.convert("mydoc.docx")`</li><li>or</li><li>`.convert_files(["mydoc.docx"])`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
+| Gotenberg Link                                                                      | Route Access          | Required Properties                                                                                                                                          | Optional Properties                                       |
+| ----------------------------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| [Documentation](https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route) | `libre_office.to_pdf` | <p>Any of:</p><ul><li>`.convert("mydoc.docx")`</li><li>`.convert_files(["mydoc.docx"])`</li><li>`.convert_in_memory_file(data, name="mydoc.docx")`</li></ul> | See [common LibreOffice options](#libreoffice-properties) |
 
 !!! note
-`convert` may be called multiple times" !!! note "`convert_files` is a convenience method to convert a list of file into PDF
+
+    `convert` / `convert_in_memory_file` may be called multiple times
+
+!!! note
+
+    `convert_files` is a convenience method to convert a list of files into PDF
 
 ### LibreOffice Properties
 
@@ -261,12 +267,12 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#page-properties-libreoffice)
 
-| Gotenberg Option   | Route Configuration | Python Type       | Notes                              |
-| ------------------ | ------------------- | ----------------- | ---------------------------------- |
-| `landscape`        | `.orient()`         | `PageOrientation` |                                    |
-| `nativePageRanges` | `page_ranges()`     | `str`             |                                    |
-| `exportFormFields` | N/A                 | N/A               | This option is not implemented yet |
-| `singlePageSheets` | N/A                 | N/A               | This option is not implemented yet |
+| Gotenberg Option   | Route Configuration     | Python Type       | Notes |
+| ------------------ | ----------------------- | ----------------- | ----- |
+| `landscape`        | `.orient()`             | `PageOrientation` |       |
+| `nativePageRanges` | `page_ranges()`         | `str`             |       |
+| `exportFormFields` | `.export_form_fields()` | `bool`            |       |
+| `singlePageSheets` | `.single_page_sheets()` | `bool`            |       |
 
 #### Compress
 
@@ -281,7 +287,8 @@ Some fields cannot be set or will be overwritten, depending on Gotenberg and its
 | `merge`          | <ul><li>`merge()`<li>`no_merge()`</li></ul> | N/A         |       |
 
 !!! note
-If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
+
+    If multiple files are provided, and the merge is left as default or `no_merge()` is called, the resulting file will be a zip
 
 #### Split
 
@@ -316,7 +323,8 @@ See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 | `pdfua`        | <ul><li>`enable_universal_access()`<li>`disable_universal_access()`</li></ul> | N/A                 |                     |
 
 !!! note
-At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
+
+    At least one of `pdf_format()`, `enable_universal_access()` or `disable_universal_access()` must be set
 
 ## Read PDF metadata
 
@@ -337,7 +345,8 @@ At least one of `pdf_format()`, `enable_universal_access()` or `disable_universa
 | `metadata`     | N/A                                                                           | N/A                 | See [PDF Metadata Support](#pdf-metadata-support) for the API interface. |
 
 !!! note
-Prefixes will be added to the file to ensure they are merged in the order provided to `merge()`, even with multiple calls
+
+    Prefixes will be added to the file to ensure they are merged in the order provided to `merge()`, even with multiple calls
 
 ## Split PDFs
 
@@ -354,17 +363,20 @@ Prefixes will be added to the file to ensure they are merged in the order provid
 ## Metrics
 
 !!! warning
-This route is not implemented
+
+    This route is not implemented
 
 ## Version
 
 !!! warning
-This route is not implemented
+
+    This route is not implemented
 
 ## Debug
 
 !!! warning
-This route is not implemented
+
+    This route is not implemented
 
 ## Global Options
 
@@ -375,4 +387,5 @@ This route is not implemented
 ### Download From
 
 !!! warning
-This feature is not implemented
+
+    This feature is not implemented
