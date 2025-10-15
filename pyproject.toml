@@ -131,16 +131,16 @@ run = [
   "mypy --install-types --non-interactive .",
 ]
 
-[tool.hatch.envs.pre-commit]
-template = "pre-commit"
+[tool.hatch.envs.prek]
+template = "prek"
 detached = true
 dependencies = [
   "pre-commit ~= 4.3",
-  "pre-commit-uv",
+  "prek ~= 0.2.8",
 ]
 
-[tool.hatch.envs.pre-commit.scripts]
-check = [ "pre-commit run --all-files" ]
+[tool.hatch.envs.prek.scripts]
+check = [ "prek run --all-files" ]
 update = [ "pre-commit autoupdate" ]
 
 [tool.hatch.envs.docs]
