@@ -172,7 +172,7 @@ jobs:
       - name: Build
         run: |
           hatch build --clean
-      - uses: actions/upload-artifact@v4.6.2
+      - uses: actions/upload-artifact@v5.0.0
         with:
           name: artifacts
           path: dist/*
@@ -205,7 +205,7 @@ jobs:
       - name: Build Documentation
         run: |
           hatch run docs:build
-      - uses: actions/upload-artifact@v4.6.2
+      - uses: actions/upload-artifact@v5.0.0
         with:
           name: documentation
           path: site/*
@@ -238,7 +238,7 @@ jobs:
       - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@v5.0.0
+      - uses: actions/download-artifact@v6.0.0
         with:
           name: artifacts
           path: dist
@@ -272,7 +272,7 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/download-artifact@v5.0.0
+      - uses: actions/download-artifact@v6.0.0
         with:
           name: artifacts
           path: dist
