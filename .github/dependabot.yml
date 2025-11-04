@@ -19,3 +19,9 @@ updates:
       interval: "monthly"
     labels:
       - "dependencies"
+    groups:
+      actions:
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
