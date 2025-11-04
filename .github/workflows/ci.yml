@@ -172,7 +172,7 @@ jobs:
       - name: Build
         run: |
           hatch build --clean
-      - uses: actions/upload-artifact@v4.6.2
+      - uses: actions/upload-artifact@v5.0.0
         with:
           name: artifacts
           path: dist/*
@@ -205,7 +205,7 @@ jobs:
       - name: Build Documentation
         run: |
           hatch run docs:build
-      - uses: actions/upload-artifact@v4.6.2
+      - uses: actions/upload-artifact@v5.0.0
         with:
           name: documentation
           path: site/*
