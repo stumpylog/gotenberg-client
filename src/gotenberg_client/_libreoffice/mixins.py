@@ -330,7 +330,7 @@ class LibreOfficeCompressOptionsMixin:
         Returns:
             Self: This object for method chaining.
         """
-        self._form_data.update({"quality": str(max_resolution)})  # type: ignore[attr-defined,misc]
+        self._form_data.update({"maxImageResolution": str(max_resolution)})  # type: ignore[attr-defined,misc]
         return self
 
 
