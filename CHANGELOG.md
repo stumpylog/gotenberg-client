@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumps actions/download-artifact from 5.0.0 to 6.0.0
 - Bumps github/codeql-action from 3 to 4
 
+### Fixed
+
+- Replace bad import from gotenberg_client.options to gotenberg_client.constants to align with the updated Gotenberg client API on usage docs
+
 ## [0.12.0] - 2025-10-15
 
 ### Added

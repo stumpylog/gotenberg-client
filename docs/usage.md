@@ -70,7 +70,7 @@ configuration, as seen here:
 
 ```python
 from gotenberg_client import GotenbergClient
-from gotenberg_client.options import A4
+from gotenberg_client.constants import A4
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.markdown_to_pdf() as route:
