@@ -16,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Replace bad import from gotenberg_client.options to gotenberg_client.constants to align with the updated Gotenberg client API on usage docs
+- Replaces bad import from gotenberg_client.options to gotenberg_client.constants to align with the updated Gotenberg client API on usage docs
+- Incorrect form field for Libreoffice maximum image resolution
 
 ## [0.12.0] - 2025-10-15
 
