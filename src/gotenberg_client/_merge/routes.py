@@ -49,7 +49,7 @@ class _BaseMergePdfFilesRoute(PdfFormatMixin, PfdUniversalAccessMixin, MetadataM
         """
         for filepath in files:
             # Include index to enforce ordering
-            self._add_file_map(filepath, name=f"{self._next}_{filepath.name}")  # type: ignore[attr-defined,misc]
+            self._add_file_map(filepath, name=f"{self._next:05d}_{filepath.name}")  # type: ignore[attr-defined,misc]
             self._next += 1  # type: ignore[attr-defined,misc]
         return self
 
