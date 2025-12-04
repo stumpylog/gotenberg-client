@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Allow for more than 10 Documents to be merged while keeping the sorting intact
+- Loosen restrictions on hatchling for building
 
 ## [0.13.0] - 2025-11-18
 
