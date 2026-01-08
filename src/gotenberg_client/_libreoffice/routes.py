@@ -4,7 +4,6 @@
 from pathlib import Path
 from typing import BinaryIO
 from typing import Final
-from typing import Optional
 
 from gotenberg_client._base import AsyncBaseRoute
 from gotenberg_client._base import SyncBaseRoute
@@ -77,7 +76,7 @@ class _BaseOfficeDocumentToPdfRoute(
             self.convert(x)
         return self
 
-    def convert_in_memory_file(self, data: BinaryIO, *, name: str, mime_type: Optional[str] = None) -> Self:
+    def convert_in_memory_file(self, data: BinaryIO, *, name: str, mime_type: str | None = None) -> Self:
         """
         Add single file from buffer for PDF conversion.
 

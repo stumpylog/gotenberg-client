@@ -11,7 +11,6 @@ from types import TracebackType
 from typing import Any
 from typing import Generic
 from typing import Literal
-from typing import Optional
 from typing import TypeVar
 from typing import Union
 
@@ -53,7 +52,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         self,
         host: str,
         user_agent: str = f"gotenberg-client/{__version__}",
-        auth: Optional[BasicAuth] = None,
+        auth: BasicAuth | None = None,
         *,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
@@ -74,14 +73,14 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: Optional[BasicAuth] = None,
+        auth: BasicAuth | None = None,
         *,
         http2: bool,
     ) -> ClientT:  # pragma: no cover
         pass
 
     @abstractmethod
-    def close(self) -> Union[None, Coroutine[Any, Any, None]]:
+    def close(self) -> None | Coroutine[Any, Any, None]:
         """
         Close the underlying HTTP client connection.
         """
@@ -211,7 +210,7 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: Optional[BasicAuth] = None,
+        auth: BasicAuth | None = None,
         *,
         http2: bool,
     ) -> Client:
@@ -228,9 +227,9 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         self.close()
 
@@ -348,7 +347,7 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: Optional[BasicAuth] = None,
+        auth: BasicAuth | None = None,
         *,
         http2: bool,
     ) -> AsyncClient:
@@ -365,9 +364,9 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
 
     async def __aexit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         await self.close()
 

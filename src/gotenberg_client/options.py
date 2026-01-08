@@ -5,8 +5,6 @@ import dataclasses
 import enum
 from typing import Final
 from typing import Literal
-from typing import Optional
-from typing import Union
 
 from gotenberg_client._utils import bool_to_form
 from gotenberg_client._utils import optional_to_form
@@ -21,13 +19,13 @@ class CookieJar:
     name: str
     value: str
     domain: str
-    path: Optional[str] = None
-    secure: Optional[bool] = None
-    http_only: Optional[bool] = None
-    same_site: Optional[Literal["Strict", "Lax", "None"]] = None
+    path: str | None = None
+    secure: bool | None = None
+    http_only: bool | None = None
+    same_site: Literal["Strict", "Lax", "None"] | None = None
 
-    def asdict(self) -> dict[str, Union[str, bool]]:
-        data: dict[str, Union[str, bool]] = {
+    def asdict(self) -> dict[str, str | bool]:
+        data: dict[str, str | bool] = {
             "name": self.name,
             "value": self.value,
             "domain": self.domain,
@@ -77,7 +75,7 @@ class Measurement:
         unit (UnitType): The unit of measurement for the measurement.
     """
 
-    value: Union[float, int]
+    value: float | int
     unit: MeasurementUnitType = MeasurementUnitType.Undefined
 
     def to_form(self, name: str) -> dict[str, str]:
@@ -180,8 +178,8 @@ class PageSize:
         height (Optional[Measurement]): The height of the page.
     """
 
-    width: Optional[Measurement] = None
-    height: Optional[Measurement] = None
+    width: Measurement | None = None
+    height: Measurement | None = None
 
     def to_form(self) -> dict[str, str]:
         """
@@ -210,10 +208,10 @@ class PageMarginsType:
         right (Optional[Measurement]): The right margin of the page.
     """
 
-    top: Optional[Measurement] = None
-    bottom: Optional[Measurement] = None
-    left: Optional[Measurement] = None
-    right: Optional[Measurement] = None
+    top: Measurement | None = None
+    bottom: Measurement | None = None
+    left: Measurement | None = None
+    right: Measurement | None = None
 
     def to_form(self) -> dict[str, str]:
         """
@@ -227,7 +225,7 @@ class PageMarginsType:
         form_data = {}
         margin_names = ["marginTop", "marginBottom", "marginLeft", "marginRight"]
 
-        for margin, name in zip([self.top, self.bottom, self.left, self.right], margin_names):
+        for margin, name in zip([self.top, self.bottom, self.left, self.right], margin_names, strict=True):
             if margin:
                 form_data.update(margin.to_form(name))
 

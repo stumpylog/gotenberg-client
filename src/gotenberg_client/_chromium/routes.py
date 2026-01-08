@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 from typing import Final
-from typing import Optional
 
 from gotenberg_client._base import AsyncBaseRoute
 from gotenberg_client._base import SyncBaseRoute
@@ -118,7 +117,7 @@ class _BaseIndexFilesMixin:
         self._add_in_memory_file(index, name="index.html", mime_type="text/html")  # type: ignore[attr-defined]
         return self
 
-    def resource(self, resource: Path, *, name: Optional[str] = None) -> Self:
+    def resource(self, resource: Path, *, name: str | None = None) -> Self:
         """
         Adds a resource file for the HTML to reference.
 
@@ -132,7 +131,7 @@ class _BaseIndexFilesMixin:
         self._add_file_map(resource, name=name)  # type: ignore[attr-defined]
         return self
 
-    def string_resource(self, resource: str, name: str, mime_type: Optional[str] = None) -> Self:
+    def string_resource(self, resource: str, name: str, mime_type: str | None = None) -> Self:
         """
         Adds an in-memory string resource.
 
@@ -167,7 +166,7 @@ class _BaseIndexFilesMixin:
 
     def string_resources(
         self,
-        resources: list[tuple[str, str, Optional[str]]],
+        resources: list[tuple[str, str, str | None]],
     ) -> Self:
         """
         Adds multiple in-memory string resources.

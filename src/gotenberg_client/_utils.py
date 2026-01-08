@@ -4,8 +4,6 @@
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Final
-from typing import Optional
-from typing import Union
 
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128
@@ -14,7 +12,7 @@ class ForceMultipartDict(dict):
         return True
 
 
-def optional_to_form(value: Optional[Union[bool, int, float, str]], name: str) -> dict[str, str]:  # noqa: FBT001
+def optional_to_form(value: bool | int | float | str | None, name: str) -> dict[str, str]:  # noqa: FBT001
     """
     Converts an optional value to a form data field with the given name,
     handling None values gracefully.
@@ -44,7 +42,7 @@ def bool_to_form(name: str, value: bool) -> dict[str, str]:  # noqa: FBT001
     return {name: bool_to_form_name[value]}
 
 
-def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:  # pragma: no cover
+def guess_mime_type_stdlib(url: str | Path) -> str | None:  # pragma: no cover
     """
     Guesses the MIME type of a URL using the standard library.
 
@@ -61,7 +59,7 @@ def guess_mime_type_stdlib(url: Union[str, Path]) -> Optional[str]:  # pragma: n
     return mime_type
 
 
-def guess_mime_type_magic(url: Union[str, Path]) -> Optional[str]:
+def guess_mime_type_magic(url: str | Path) -> str | None:
     """
     Guesses the MIME type of a file using libmagic.
 

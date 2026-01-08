@@ -6,7 +6,6 @@ import zipfile
 from functools import cached_property
 from io import BytesIO
 from pathlib import Path
-from typing import Union
 
 from httpx import Headers
 
@@ -30,7 +29,7 @@ class _BaseApiResponse:
 
     status_code: int
     headers: Headers
-    content: Union[bytes, bytearray]
+    content: bytes | bytearray
 
     def to_file(self, file_path: Path) -> None:
         """
