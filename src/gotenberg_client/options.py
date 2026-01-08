@@ -10,7 +10,7 @@ from gotenberg_client._utils import bool_to_form
 from gotenberg_client._utils import optional_to_form
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class CookieJar:
     """
     https://gotenberg.dev/docs/routes#cookies-chromium
@@ -65,7 +65,7 @@ class MeasurementUnitType(str, enum.Enum):
     Percent = "pc"
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class Measurement:
     """
     Represents a value with a specified unit of measurement.
@@ -168,7 +168,7 @@ class PageOrientation(enum.Enum):
         return orientation_mapping[self]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class PageSize:
     """
     Represents the dimensions of a page in Gotenberg.
@@ -196,7 +196,7 @@ class PageSize:
         return data
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class PageMarginsType:
     """
     Represents the margins for a page in Gotenberg.

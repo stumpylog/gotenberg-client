@@ -12,7 +12,7 @@ from httpx import Headers
 from gotenberg_client._errors import CannotExtractHereError
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class _BaseApiResponse:
     """
     Base response from the Gotenberg API containing standard HTTP response data.
@@ -54,7 +54,7 @@ class _BaseApiResponse:
         return "Content-Type" in self.headers and self.headers["Content-Type"] == "application/zip"
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class SingleFileResponse(_BaseApiResponse):
     """
     Response containing a single PDF file.
@@ -69,7 +69,7 @@ class SingleFileResponse(_BaseApiResponse):
     """
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class ZipFileResponse(_BaseApiResponse):
     """
     Response containing multiple files packaged as a ZIP archive.

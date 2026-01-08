@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- [BREAKING]: Drop support for Python 3.9
+    - This modernizes typing annotations and allows adding `slots` to all dataclasses
+
 ### Fixed
 
 - A bug in the retry logic which would have raised almost immediately
