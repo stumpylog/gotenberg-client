@@ -100,16 +100,18 @@ jobs:
           hatch test --cover --junitxml=junit.xml -o junit_family=legacy --python ${{ matrix.python-version }}
       - name: Upload coverage to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.python-version }}
+          report_type: coverage
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.python-version }}
+          report_type: test_results
   test-edge:
     name: Test Gotenberg :edge
     runs-on: ubuntu-latest
