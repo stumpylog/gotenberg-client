@@ -11,7 +11,7 @@ from gotenberg_client._base import SyncBaseRoute
 from gotenberg_client._common import FlattenOptionMixin
 from gotenberg_client._common import MetadataMixin
 from gotenberg_client._common import PdfFormatMixin
-from gotenberg_client._common import PfdUniversalAccessMixin
+from gotenberg_client._common import PdfUniversalAccessMixin
 from gotenberg_client._common import SplitModeMixin
 from gotenberg_client._libreoffice.mixins import LibreOfficeCompressOptionsMixin
 from gotenberg_client._libreoffice.mixins import LibreOfficeMergeOptionMixin
@@ -25,7 +25,7 @@ class _BaseOfficeDocumentToPdfRoute(
     LibreOfficeMergeOptionMixin,
     SplitModeMixin,
     PdfFormatMixin,
-    PfdUniversalAccessMixin,
+    PdfUniversalAccessMixin,
     MetadataMixin,
     FlattenOptionMixin,
 ):

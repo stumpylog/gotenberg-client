@@ -29,7 +29,7 @@ from gotenberg_client._chromium.mixins import ScreenShotSettingsMixin
 from gotenberg_client._chromium.mixins import SinglePageMixin
 from gotenberg_client._common import MetadataMixin
 from gotenberg_client._common import PdfFormatMixin
-from gotenberg_client._common import PfdUniversalAccessMixin
+from gotenberg_client._common import PdfUniversalAccessMixin
 from gotenberg_client._common import SplitModeMixin
 from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import FORCE_MULTIPART
@@ -58,7 +58,7 @@ class _BaseChromiumConvertMixin(
     PerformanceModeMixin,
     SplitModeMixin,
     PdfFormatMixin,
-    PfdUniversalAccessMixin,
+    PdfUniversalAccessMixin,
     MetadataMixin,
 ):
     """

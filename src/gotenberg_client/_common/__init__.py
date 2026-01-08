@@ -13,7 +13,7 @@ from gotenberg_client._common.mixins import FlattenOptionMixin
 from gotenberg_client._common.mixins import MetadataMixin
 from gotenberg_client._common.mixins import PdfAFormat
 from gotenberg_client._common.mixins import PdfFormatMixin
-from gotenberg_client._common.mixins import PfdUniversalAccessMixin
+from gotenberg_client._common.mixins import PdfUniversalAccessMixin
 from gotenberg_client._common.mixins import SplitModeMixin
 
 ClientT = TypeVar("ClientT", bound="Client | AsyncClient")
@@ -25,6 +25,6 @@ __all__ = [
     "MetadataMixin",
     "PdfAFormat",
     "PdfFormatMixin",
-    "PfdUniversalAccessMixin",
+    "PdfUniversalAccessMixin",
     "SplitModeMixin",
 ]

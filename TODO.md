@@ -167,21 +167,6 @@ Some areas could benefit from stricter typing:
 - Consider using `TypedDict` for complex dictionary structures (cookies, downloadFrom)
 - Replace `dict[str, str]` with more specific types where applicable
 
-### [MEDIUM] Consistent Mixin Naming
-
-Current pattern is inconsistent:
-
-- `PdfFormatMixin` vs `PfdUniversalAccessMixin` (typo: "Pfd" should be "Pdf")
-- Some use "Mixin" suffix, class naming is generally good otherwise
-
-**Fix:** Rename `PfdUniversalAccessMixin` to `PdfUniversalAccessMixin` (breaking change).
-
-### [LOW] ExitStack Usage Review
-
-**Location:** `src/gotenberg_client/_base/routes.py`
-
-The `ExitStack` is created but its usage pattern could be documented better. It appears to be for managing file handles opened during request preparation.
-
 ### [LOW] Logging Consistency
 
 Some modules create their own loggers (`logger = logging.getLogger(__name__)`), while routes use a passed-in logger. Consider standardizing.

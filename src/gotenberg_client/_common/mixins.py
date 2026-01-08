@@ -41,7 +41,7 @@ class PdfFormatMixin:
         return self
 
 
-class PfdUniversalAccessMixin:
+class PdfUniversalAccessMixin:
     """
     This mixin provides the form fields for the following route options:
 
