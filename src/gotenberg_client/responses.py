@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 import dataclasses
 import zipfile
-from functools import cached_property
 from io import BytesIO
 from pathlib import Path
 
@@ -43,7 +42,7 @@ class _BaseApiResponse:
         """
         file_path.write_bytes(self.content)
 
-    @cached_property
+    @property
     def is_zip(self) -> bool:
         """
         Determine if the response contains a ZIP archive.
