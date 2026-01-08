@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.4
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -61,7 +61,7 @@ jobs:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
       - name: Pull Docker images
@@ -74,13 +74,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install uv (PyPy)
         if: contains(matrix.python-version, 'pypy')
-        uses: astral-sh/setup-uv@v7.1.4
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ steps.setup-python.outputs.python-path }}
       - name: Install uv (CPython)
         if: ${{ !contains(matrix.python-version, 'pypy') }}
-        uses: astral-sh/setup-uv@v7.1.4
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ matrix.python-version }}
@@ -120,7 +120,7 @@ jobs:
     env:
       GOTENBERG_CLIENT_EDGE_TEST: 1
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
       - name: Pull Docker images
@@ -132,7 +132,7 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.4
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -153,7 +153,7 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -162,7 +162,7 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.4
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -172,7 +172,7 @@ jobs:
       - name: Build
         run: |
           hatch build --clean
-      - uses: actions/upload-artifact@v5.0.0
+      - uses: actions/upload-artifact@v6.0.0
         with:
           name: artifacts
           path: dist/*
@@ -186,7 +186,7 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: true
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -195,7 +195,7 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.4
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -205,7 +205,7 @@ jobs:
       - name: Build Documentation
         run: |
           hatch run docs:build
-      - uses: actions/upload-artifact@v5.0.0
+      - uses: actions/upload-artifact@v6.0.0
         with:
           name: documentation
           path: site/*
@@ -235,10 +235,10 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@v6.0.0
+      - uses: actions/download-artifact@v7.0.0
         with:
           name: artifacts
           path: dist
@@ -272,7 +272,7 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/download-artifact@v6.0.0
+      - uses: actions/download-artifact@v7.0.0
         with:
           name: artifacts
           path: dist
