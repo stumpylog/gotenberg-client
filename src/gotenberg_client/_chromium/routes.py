@@ -331,9 +331,9 @@ class _BaseMarkdownToPdfRoute(_BaseIndexFilesMixin, _BaseChromiumConvertMixin):
 
 class SyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, SyncBaseRoute):
     """
-    Asynchronous route for converting Markdown files to PDFs using Chromium.
+    Synchronous route for converting Markdown files to PDFs using Chromium.
 
-    Implements the asynchronous API for converting Markdown files with associated resources to PDF documents.
+    Implements the synchronous API for converting Markdown files with associated resources to PDF documents.
 
     See https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route
     """
@@ -341,11 +341,11 @@ class SyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, SyncBaseRoute):
 
 class AsyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, AsyncBaseRoute):
     """
-    Synchronous route for capturing screenshots from URLs.
+    Asynchronous route for converting Markdown files to PDFs using Chromium.
 
-    Implements the synchronous API for capturing screenshots of web pages at specified URLs.
+    Implements the asynchronous API for converting Markdown files with associated resources to PDF documents.
 
-    See https://gotenberg.dev/docs/routes#screenshots-route
+    See https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route
     """
 
 

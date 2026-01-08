@@ -14,7 +14,7 @@ class SyncFlattenApi(SyncBaseApi):
         return SyncFlattenRoute(self._client, SyncFlattenRoute.ENDPOINT_URL, self._log)
 
 
-class AyncFlattenApi(AsyncBaseApi):
+class AsyncFlattenApi(AsyncBaseApi):
     def flatten(self) -> AsyncFlattenRoute:
         return AsyncFlattenRoute(self._client, AsyncFlattenRoute.ENDPOINT_URL, self._log)
 
@@ -24,6 +24,6 @@ class SyncSplitApi(SyncBaseApi):
         return SyncSplitRoute(self._client, SyncSplitRoute.ENDPOINT_URL, self._log)
 
 
-class AyncSplitApi(AsyncBaseApi):
+class AsyncSplitApi(AsyncBaseApi):
     def split(self) -> AsyncSplitRoute:
         return AsyncSplitRoute(self._client, AsyncSplitRoute.ENDPOINT_URL, self._log)

@@ -72,6 +72,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         self._in_memory_resources: dict[str, tuple[Union[str, BinaryIO], Optional[str]]] = {}
         # Any header that will also be sent
         self._headers: dict[str, str] = {}
+        # Used to enforce ordering during merge operations
         self._next = 1
 
     @abstractmethod
@@ -407,7 +408,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
             except Exception as e:  # pragma: no cover
                 self._log.warning(f"Unexpected error: {e}", stacklevel=1)
-                if current_retry_count > -max_retry_count:
+                if current_retry_count > max_retry_count:
                     raise
 
             sleep(retry_time)
@@ -578,7 +579,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
             except Exception as e:  # pragma: no cover
                 self._log.warning(f"Unexpected error: {e}", stacklevel=1)
-                if current_retry_count > -max_retry_count:
+                if current_retry_count > max_retry_count:
                     raise
 
             await asyncio.sleep(retry_time)

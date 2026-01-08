@@ -109,6 +109,7 @@ class PdfAFormat(enum.Enum):
     """
 
     A1a = enum.auto()
+    A1b = enum.auto()
     A2b = enum.auto()
     A3b = enum.auto()
 
@@ -124,6 +125,7 @@ class PdfAFormat(enum.Enum):
 
         format_mapping: Final[dict[PdfAFormat, str]] = {
             PdfAFormat.A1a: "PDF/A-1a",  # Include deprecated format with warning
+            PdfAFormat.A1b: "PDF/A-1b",
             PdfAFormat.A2b: "PDF/A-2b",
             PdfAFormat.A3b: "PDF/A-3b",
         }

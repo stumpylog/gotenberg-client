@@ -31,8 +31,8 @@ from gotenberg_client._libreoffice import AsyncLibreOfficeApi
 from gotenberg_client._libreoffice import SyncLibreOfficeApi
 from gotenberg_client._merge import AsyncMergePdfsApi
 from gotenberg_client._merge import SyncMergePdfsApi
-from gotenberg_client._others import AyncFlattenApi
-from gotenberg_client._others import AyncSplitApi
+from gotenberg_client._others import AsyncFlattenApi
+from gotenberg_client._others import AsyncSplitApi
 from gotenberg_client._others import SyncFlattenApi
 from gotenberg_client._others import SyncSplitApi
 from gotenberg_client._pdfa_ua import AsyncPdfAApi
@@ -425,22 +425,22 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         return AsyncMergePdfsApi(self._client, self._log)
 
     @property
-    def split(self) -> AyncSplitApi:
+    def split(self) -> AsyncSplitApi:
         """
         Returns a new instance for interacting with
         [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route) route
         for splitting PDFs
         """
-        return AyncSplitApi(self._client, self._log)
+        return AsyncSplitApi(self._client, self._log)
 
     @property
-    def flatten(self) -> AyncFlattenApi:
+    def flatten(self) -> AsyncFlattenApi:
         """
         Returns a new instance for interacting with
         [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route) route
         for flattening PDFs
         """
-        return AyncFlattenApi(self._client, self._log)
+        return AsyncFlattenApi(self._client, self._log)
 
     @property
     def health(self) -> AsyncHealthCheckApi:
