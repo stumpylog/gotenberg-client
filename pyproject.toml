@@ -267,7 +267,7 @@ exclude = [
   "tests",
 ]
 packages = [ "gotenberg_client" ]
-python_version = "3.9"
+python_version = "3.10"
 disallow_any_expr = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
