@@ -43,7 +43,7 @@ jobs:
         run: |
           hatch run typing:run
       - name: Check files with prek
-        uses: j178/prek-action@v1.0.11
+        uses: j178/prek-action@v1.1.1
       - name: Validate the changelog
         uses: release-flow/keep-a-changelog-action@v3
         with:
@@ -175,7 +175,7 @@ jobs:
       - name: Build
         run: |
           hatch build --clean
-      - uses: actions/upload-artifact@v6.0.0
+      - uses: actions/upload-artifact@v7.0.0
         with:
           name: artifacts
           path: dist/*
@@ -208,7 +208,7 @@ jobs:
       - name: Build Documentation
         run: |
           hatch run docs:build
-      - uses: actions/upload-artifact@v6.0.0
+      - uses: actions/upload-artifact@v7.0.0
         with:
           name: documentation
           path: site/*
