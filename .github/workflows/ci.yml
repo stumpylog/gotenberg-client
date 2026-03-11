@@ -52,6 +52,7 @@ jobs:
   tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    environment: unit-tests
     permissions:
       contents: read
     needs:
@@ -259,10 +260,13 @@ jobs:
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_VERSION: ${{ steps.query-release-info.outputs.version }}
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_DATE: ${{ steps.query-release-info.outputs.release-date }}
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES: ${{ steps.query-release-info.outputs.release-notes }}
-      - uses: ncipollo/release-action@v1.20.0
-        with:
-          artifacts: "dist/*.tar.gz,dist/*.whl"
-          body: ${{ steps.query-release-info.outputs.release-notes }}
+      - name: Create GitHub Release
+        run: |
+          printf "%s" "${STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES}" > notes.txt
+          gh release create "${GITHUB_REF_NAME}" dist/*.tar.gz dist/*.whl --notes-file notes.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES: ${{ steps.query-release-info.outputs.release-notes }}
   pypi-publish:
     name: Publish
     runs-on: ubuntu-latest
