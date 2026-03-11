@@ -4,14 +4,13 @@
 from pathlib import Path
 from typing import BinaryIO
 from typing import Final
-from typing import Optional
 
 from gotenberg_client._base import AsyncBaseRoute
 from gotenberg_client._base import SyncBaseRoute
 from gotenberg_client._common import FlattenOptionMixin
 from gotenberg_client._common import MetadataMixin
 from gotenberg_client._common import PdfFormatMixin
-from gotenberg_client._common import PfdUniversalAccessMixin
+from gotenberg_client._common import PdfUniversalAccessMixin
 from gotenberg_client._common import SplitModeMixin
 from gotenberg_client._libreoffice.mixins import LibreOfficeCompressOptionsMixin
 from gotenberg_client._libreoffice.mixins import LibreOfficeMergeOptionMixin
@@ -25,7 +24,7 @@ class _BaseOfficeDocumentToPdfRoute(
     LibreOfficeMergeOptionMixin,
     SplitModeMixin,
     PdfFormatMixin,
-    PfdUniversalAccessMixin,
+    PdfUniversalAccessMixin,
     MetadataMixin,
     FlattenOptionMixin,
 ):
@@ -77,7 +76,7 @@ class _BaseOfficeDocumentToPdfRoute(
             self.convert(x)
         return self
 
-    def convert_in_memory_file(self, data: BinaryIO, *, name: str, mime_type: Optional[str] = None) -> Self:
+    def convert_in_memory_file(self, data: BinaryIO, *, name: str, mime_type: str | None = None) -> Self:
         """
         Add single file from buffer for PDF conversion.
 

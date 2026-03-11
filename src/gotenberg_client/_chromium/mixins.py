@@ -12,7 +12,6 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Final
 from typing import Literal
-from typing import Union
 
 from gotenberg_client._errors import NegativeWaitDurationError
 from gotenberg_client._typing_compat import Self
@@ -241,7 +240,7 @@ class ScaleMixin:
     increase or decrease the size of the content.
     """
 
-    def scale(self, scale: Union[float, int]) -> Self:
+    def scale(self, scale: float | int) -> Self:
         """
         Sets the scale factor for the generated PDF.
 
@@ -329,7 +328,7 @@ class RenderControlMixin:
 
     """
 
-    def render_wait(self, wait: Union[float, int, timedelta]) -> Self:
+    def render_wait(self, wait: float | int | timedelta) -> Self:
         """
         Specifies the delay before rendering begins.
 

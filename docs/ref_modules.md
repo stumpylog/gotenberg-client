@@ -33,13 +33,13 @@
 ::: gotenberg_client._others.SyncSplitApi
     handler: python
 
-::: gotenberg_client._others.AyncSplitApi
+::: gotenberg_client._others.AsyncSplitApi
     handler: python
 
 ::: gotenberg_client._others.SyncFlattenApi
     handler: python
 
-::: gotenberg_client._others.AyncFlattenApi
+::: gotenberg_client._others.AsyncFlattenApi
     handler: python
 
 ::: gotenberg_client._health.SyncHealthCheckApi

@@ -7,7 +7,6 @@ import shutil
 from collections.abc import AsyncGenerator
 from collections.abc import Generator
 from pathlib import Path
-from typing import Union
 
 import httpx
 import pytest
@@ -395,7 +394,7 @@ def save_output_files(output_file_save_directory: Path) -> bool:
 
 @pytest.fixture
 def output_saver_factory(request, save_output_files: bool, output_file_save_directory: Path):  # noqa: FBT001
-    def _save_the_item(response: Union[SingleFileResponse, ZipFileResponse], extra: str = ""):  # noqa: ARG001
+    def _save_the_item(response: SingleFileResponse | ZipFileResponse, extra: str = ""):  # noqa: ARG001
         if save_output_files:
             extension_mapping = {
                 "application/zip": ".zip",

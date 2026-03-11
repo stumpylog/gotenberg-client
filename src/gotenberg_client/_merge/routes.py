@@ -9,11 +9,11 @@ from gotenberg_client._base import SyncBaseRoute
 from gotenberg_client._common import FlattenOptionMixin
 from gotenberg_client._common import MetadataMixin
 from gotenberg_client._common import PdfFormatMixin
-from gotenberg_client._common import PfdUniversalAccessMixin
+from gotenberg_client._common import PdfUniversalAccessMixin
 from gotenberg_client._typing_compat import Self
 
 
-class _BaseMergePdfFilesRoute(PdfFormatMixin, PfdUniversalAccessMixin, MetadataMixin, FlattenOptionMixin):
+class _BaseMergePdfFilesRoute(PdfFormatMixin, PdfUniversalAccessMixin, MetadataMixin, FlattenOptionMixin):
     """
     Represents the Gotenberg route for converting PDFs to PDF/A format.
 

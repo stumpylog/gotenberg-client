@@ -15,8 +15,6 @@ from types import TracebackType
 from typing import Any
 from typing import BinaryIO
 from typing import Generic
-from typing import Optional
-from typing import Union
 
 from httpx import AsyncClient
 from httpx import Client
@@ -69,13 +67,14 @@ class BaseRoute(ABC, Generic[ClientT]):
         # These are the names of files, mapping to their Path
         self._file_map: dict[str, Path] = {}
         # Additional in memory resources, mapping the referenced name to the content and an optional mimetype
-        self._in_memory_resources: dict[str, tuple[Union[str, BinaryIO], Optional[str]]] = {}
+        self._in_memory_resources: dict[str, tuple[str | BinaryIO, str | None]] = {}
         # Any header that will also be sent
         self._headers: dict[str, str] = {}
+        # Used to enforce ordering during merge operations
         self._next = 1
 
     @abstractmethod
-    def _post_data(self) -> Union[Response, Coroutine[Any, Any, Response]]:
+    def _post_data(self) -> Response | Coroutine[Any, Any, Response]:
         """
         Execute the configured route request against the Gotenberg server.
 
@@ -95,9 +94,9 @@ class BaseRoute(ABC, Generic[ClientT]):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
-    ) -> Union[Response, Coroutine[Any, Any, Response]]:
+        initial_retry_wait: float | int = 5.0,
+        retry_scale: float | int = 2.0,
+    ) -> Response | Coroutine[Any, Any, Response]:
         """
         Execute the route request with automatic retries for server errors.
 
@@ -129,7 +128,7 @@ class BaseRoute(ABC, Generic[ClientT]):
     @abstractmethod
     def run(
         self,
-    ) -> Union[SingleFileResponse, ZipFileResponse, Coroutine[Any, Any, Union[SingleFileResponse, ZipFileResponse]]]:
+    ) -> SingleFileResponse | ZipFileResponse | Coroutine[Any, Any, SingleFileResponse | ZipFileResponse]:
         """
         Execute the API request to Gotenberg and process the response.
 
@@ -149,9 +148,9 @@ class BaseRoute(ABC, Generic[ClientT]):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
-    ) -> Union[SingleFileResponse, ZipFileResponse, Coroutine[Any, Any, Union[SingleFileResponse, ZipFileResponse]]]:
+        initial_retry_wait: float | int = 5.0,
+        retry_scale: float | int = 2.0,
+    ) -> SingleFileResponse | ZipFileResponse | Coroutine[Any, Any, SingleFileResponse | ZipFileResponse]:
         """
         Execute the API request with automatic retries and process the response.
 
@@ -227,7 +226,7 @@ class BaseRoute(ABC, Generic[ClientT]):
 
         return resources
 
-    def _add_file_map(self, filepath: Path, *, name: Optional[str] = None) -> None:
+    def _add_file_map(self, filepath: Path, *, name: str | None = None) -> None:
         """
         Add a file path to the file map for later processing.
 
@@ -244,7 +243,7 @@ class BaseRoute(ABC, Generic[ClientT]):
 
         self._file_map[name] = filepath
 
-    def _add_in_memory_file(self, data: Union[str, BinaryIO], *, name: str, mime_type: Optional[str] = None) -> None:
+    def _add_in_memory_file(self, data: str | BinaryIO, *, name: str, mime_type: str | None = None) -> None:
         """
         Add an in-memory file to the resources to be uploaded.
 
@@ -319,9 +318,9 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         """
         Exit the context manager scope.
@@ -361,8 +360,8 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
+        initial_retry_wait: float | int = 5.0,
+        retry_scale: float | int = 2.0,
     ) -> Response:
         """
         Send the request to Gotenberg with automatic retries for server errors.
@@ -407,7 +406,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
             except Exception as e:  # pragma: no cover
                 self._log.warning(f"Unexpected error: {e}", stacklevel=1)
-                if current_retry_count > -max_retry_count:
+                if current_retry_count > max_retry_count:
                     raise
 
             sleep(retry_time)
@@ -415,7 +414,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
         raise UnreachableCodeError  # pragma: no cover
 
-    def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
+    def run(self) -> SingleFileResponse | ZipFileResponse:
         """
         Execute the API request to Gotenberg and process the response.
 
@@ -437,9 +436,9 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
-    ) -> Union[SingleFileResponse, ZipFileResponse]:
+        initial_retry_wait: float | int = 5.0,
+        retry_scale: float | int = 2.0,
+    ) -> SingleFileResponse | ZipFileResponse:
         """
         Execute the API request with retries and process the response.
 
@@ -490,9 +489,9 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
     async def __aexit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         """
         Exit the async context manager scope.
@@ -532,8 +531,8 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
+        initial_retry_wait: float | int = 5.0,
+        retry_scale: float | int = 2.0,
     ) -> Response:
         """
         Send the request to Gotenberg asynchronously with automatic retries.
@@ -578,7 +577,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
             except Exception as e:  # pragma: no cover
                 self._log.warning(f"Unexpected error: {e}", stacklevel=1)
-                if current_retry_count > -max_retry_count:
+                if current_retry_count > max_retry_count:
                     raise
 
             await asyncio.sleep(retry_time)
@@ -586,7 +585,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
         raise UnreachableCodeError  # pragma: no cover
 
-    async def run(self) -> Union[SingleFileResponse, ZipFileResponse]:
+    async def run(self) -> SingleFileResponse | ZipFileResponse:
         """
         Execute the asynchronous API request and process the response.
 
@@ -608,9 +607,9 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: Union[float, int] = 5.0,
-        retry_scale: Union[float, int] = 2.0,
-    ) -> Union[SingleFileResponse, ZipFileResponse]:
+        initial_retry_wait: float | int = 5.0,
+        retry_scale: float | int = 2.0,
+    ) -> SingleFileResponse | ZipFileResponse:
         """
         Execute the asynchronous API request with retries and process the response.
 

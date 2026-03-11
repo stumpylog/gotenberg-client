@@ -29,7 +29,7 @@ repos:
       - id: detect-private-key
         # See https://github.com/prettier/prettier/issues/15742 for the fork reason
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "v3.7.3"
+    rev: "v3.8.1"
     hooks:
       - id: prettier
         types_or:
@@ -39,11 +39,11 @@ repos:
           - json
         exclude: "(^docs/changelog.md$)"
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.2
     hooks:
       - id: codespell
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.18.0
+    rev: v1.23.1
     hooks:
       - id: zizmor
         args:
@@ -51,25 +51,25 @@ repos:
           - "--quiet"
           - "--min-severity=low"
   - repo: https://github.com/google/yamlfmt
-    rev: v0.20.0
+    rev: v0.21.0
     hooks:
       - id: yamlfmt
   # Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.14.7'
+    rev: 'v0.15.5'
     hooks:
       # Run the linter.
       - id: ruff-check
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.11.1"
+    rev: "v2.18.1"
     hooks:
       - id: pyproject-fmt
   # TODO: mypy, but it runs differently??
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.9.14
+    rev: 0.10.9
     hooks:
       # Update the uv lockfile
       - id: uv-lock

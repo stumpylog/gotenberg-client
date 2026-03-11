@@ -9,7 +9,6 @@ from contextlib import AbstractAsyncContextManager
 from contextlib import AbstractContextManager
 from types import TracebackType
 from typing import Final
-from typing import Optional
 from typing import TypedDict
 
 from gotenberg_client._base import AsyncBaseApi
@@ -104,11 +103,11 @@ class HealthStatus:
         self.data = data
         self.overall: StatusOptions = StatusOptions(data["status"])
 
-        self.chromium: Optional[ModuleStatus] = None
+        self.chromium: ModuleStatus | None = None
         if ModuleOptions.Chromium.value in self.data["details"]:
             self.chromium = self._extract_status(ModuleOptions.Chromium)
 
-        self.uno: Optional[ModuleStatus] = None
+        self.uno: ModuleStatus | None = None
         if ModuleOptions.Libreoffice.value in self.data["details"]:
             self.uno = self._extract_status(ModuleOptions.Libreoffice)
 
@@ -212,9 +211,9 @@ class SyncHealthCheckApi(_BaseHealthCheckApi, AbstractContextManager, SyncBaseAp
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         """
         Exit the context manager.  This is provided for completeness and does nothing
@@ -264,9 +263,9 @@ class AsyncHealthCheckApi(_BaseHealthCheckApi, AbstractAsyncContextManager, Asyn
 
     async def __aexit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         """
         Exit the asynchronous context manager.  This is provided for completeness and does nothing

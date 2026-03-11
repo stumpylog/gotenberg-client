@@ -3,17 +3,15 @@
 # SPDX-License-Identifier: MPL-2.0
 import dataclasses
 import zipfile
-from functools import cached_property
 from io import BytesIO
 from pathlib import Path
-from typing import Union
 
 from httpx import Headers
 
 from gotenberg_client._errors import CannotExtractHereError
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class _BaseApiResponse:
     """
     Base response from the Gotenberg API containing standard HTTP response data.
@@ -30,7 +28,7 @@ class _BaseApiResponse:
 
     status_code: int
     headers: Headers
-    content: Union[bytes, bytearray]
+    content: bytes | bytearray
 
     def to_file(self, file_path: Path) -> None:
         """
@@ -44,7 +42,7 @@ class _BaseApiResponse:
         """
         file_path.write_bytes(self.content)
 
-    @cached_property
+    @property
     def is_zip(self) -> bool:
         """
         Determine if the response contains a ZIP archive.
@@ -55,7 +53,7 @@ class _BaseApiResponse:
         return "Content-Type" in self.headers and self.headers["Content-Type"] == "application/zip"
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class SingleFileResponse(_BaseApiResponse):
     """
     Response containing a single PDF file.
@@ -70,7 +68,7 @@ class SingleFileResponse(_BaseApiResponse):
     """
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class ZipFileResponse(_BaseApiResponse):
     """
     Response containing multiple files packaged as a ZIP archive.

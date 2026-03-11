@@ -7,11 +7,11 @@ from typing import Final
 from gotenberg_client._base import AsyncBaseRoute
 from gotenberg_client._base import SyncBaseRoute
 from gotenberg_client._common import PdfFormatMixin
-from gotenberg_client._common import PfdUniversalAccessMixin
+from gotenberg_client._common import PdfUniversalAccessMixin
 from gotenberg_client._typing_compat import Self
 
 
-class _BaseConvertToArchiveFormatRoute(PdfFormatMixin, PfdUniversalAccessMixin):
+class _BaseConvertToArchiveFormatRoute(PdfFormatMixin, PdfUniversalAccessMixin):
     """
     Represents the Gotenberg route for converting PDFs to PDF/A format.
 

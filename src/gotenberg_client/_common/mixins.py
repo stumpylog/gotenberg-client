@@ -6,8 +6,6 @@ import json
 from datetime import datetime
 from typing import Final
 from typing import Literal
-from typing import Optional
-from typing import Union
 
 from gotenberg_client._errors import InvalidKeywordError
 from gotenberg_client._errors import InvalidPdfRevisionError
@@ -41,7 +39,7 @@ class PdfFormatMixin:
         return self
 
 
-class PfdUniversalAccessMixin:
+class PdfUniversalAccessMixin:
     """
     This mixin provides the form fields for the following route options:
 
@@ -160,19 +158,19 @@ class MetadataMixin:
 
     def metadata(
         self,
-        author: Optional[str] = None,
-        pdf_copyright: Optional[str] = None,
-        creation_date: Optional[datetime] = None,
-        creator: Optional[str] = None,
-        keywords: Optional[list[str]] = None,
-        modification_date: Optional[datetime] = None,
-        pdf_version: Optional[float] = None,
-        producer: Optional[str] = None,
-        subject: Optional[str] = None,
-        title: Optional[str] = None,
+        author: str | None = None,
+        pdf_copyright: str | None = None,
+        creation_date: datetime | None = None,
+        creator: str | None = None,
+        keywords: list[str] | None = None,
+        modification_date: datetime | None = None,
+        pdf_version: float | None = None,
+        producer: str | None = None,
+        subject: str | None = None,
+        title: str | None = None,
         *,
-        marked: Optional[bool] = None,
-        trapped: Optional[Union[bool, TrappedStatus]] = None,
+        marked: bool | None = None,
+        trapped: bool | TrappedStatus | None = None,
     ) -> Self:
         """
         Sets PDF metadata for the document.
@@ -215,12 +213,12 @@ class MetadataMixin:
                 raise InvalidKeywordError("Keywords cannot contain commas")  # noqa: EM101, TRY003
 
         # Get existing metadata if any
-        existing_metadata: dict[str, Union[str, bool, float]] = {}
+        existing_metadata: dict[str, str | bool | float] = {}
         if "metadata" in self._form_data:  # type: ignore[attr-defined,misc]
             existing_metadata = json.loads(self._form_data["metadata"])  # type: ignore[attr-defined,misc]
 
         # Convert validated metadata to dictionary
-        metadata: dict[str, Union[str, bool, float]] = {}
+        metadata: dict[str, str | bool | float] = {}
 
         if author:
             metadata["Author"] = author

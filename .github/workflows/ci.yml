@@ -20,16 +20,16 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.3
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -52,6 +52,7 @@ jobs:
   tests:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    environment: unit-tests
     permissions:
       contents: read
     needs:
@@ -59,9 +60,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           persist-credentials: false
       - name: Pull Docker images
@@ -69,18 +70,18 @@ jobs:
           docker compose --file tests/docker/docker-compose.ci-test.yml pull --quiet
       - name: Set up Python ${{ matrix.python-version }}
         id: setup-python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install uv (PyPy)
         if: contains(matrix.python-version, 'pypy')
-        uses: astral-sh/setup-uv@v7.1.3
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ steps.setup-python.outputs.python-path }}
       - name: Install uv (CPython)
         if: ${{ !contains(matrix.python-version, 'pypy') }}
-        uses: astral-sh/setup-uv@v7.1.3
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ matrix.python-version }}
@@ -100,16 +101,18 @@ jobs:
           hatch test --cover --junitxml=junit.xml -o junit_family=legacy --python ${{ matrix.python-version }}
       - name: Upload coverage to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.python-version }}
+          report_type: coverage
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.python-version }}
+          report_type: test_results
   test-edge:
     name: Test Gotenberg :edge
     runs-on: ubuntu-latest
@@ -120,7 +123,7 @@ jobs:
     env:
       GOTENBERG_CLIENT_EDGE_TEST: 1
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           persist-credentials: false
       - name: Pull Docker images
@@ -128,11 +131,11 @@ jobs:
           docker compose --file tests/docker/docker-compose.ci-test-edge.yml pull --quiet
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.3
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -153,16 +156,16 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.3
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -172,7 +175,7 @@ jobs:
       - name: Build
         run: |
           hatch build --clean
-      - uses: actions/upload-artifact@v5.0.0
+      - uses: actions/upload-artifact@v6.0.0
         with:
           name: artifacts
           path: dist/*
@@ -186,16 +189,16 @@ jobs:
     needs:
       - lint
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           persist-credentials: true
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.3
+        uses: astral-sh/setup-uv@v7.1.6
         with:
           version: ${{ env.DEFAULT_UV_VERSION }}
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
@@ -205,7 +208,7 @@ jobs:
       - name: Build Documentation
         run: |
           hatch run docs:build
-      - uses: actions/upload-artifact@v5.0.0
+      - uses: actions/upload-artifact@v6.0.0
         with:
           name: documentation
           path: site/*
@@ -235,10 +238,10 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/checkout@v5.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@v6.0.0
+      - uses: actions/download-artifact@v7.0.0
         with:
           name: artifacts
           path: dist
@@ -257,10 +260,13 @@ jobs:
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_VERSION: ${{ steps.query-release-info.outputs.version }}
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_DATE: ${{ steps.query-release-info.outputs.release-date }}
           STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES: ${{ steps.query-release-info.outputs.release-notes }}
-      - uses: ncipollo/release-action@v1.20.0
-        with:
-          artifacts: "dist/*.tar.gz,dist/*.whl"
-          body: ${{ steps.query-release-info.outputs.release-notes }}
+      - name: Create GitHub Release
+        run: |
+          printf "%s" "${STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES}" > notes.txt
+          gh release create "${GITHUB_REF_NAME}" dist/*.tar.gz dist/*.whl --notes-file notes.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STEPS_QUERY_RELEASE_INFO_OUTPUTS_RELEASE_NOTES: ${{ steps.query-release-info.outputs.release-notes }}
   pypi-publish:
     name: Publish
     runs-on: ubuntu-latest
@@ -272,7 +278,7 @@ jobs:
       - tests
       - documentation
     steps:
-      - uses: actions/download-artifact@v6.0.0
+      - uses: actions/download-artifact@v7.0.0
         with:
           name: artifacts
           path: dist
