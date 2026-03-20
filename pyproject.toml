@@ -41,6 +41,7 @@ name = "Trenton H"
 email = "rda0128ou@mozmail.com"
 [project.optional-dependencies]
 magic = [ "python-magic" ]
+niquests = [ "niquests>=3" ]
 [project.urls]
 Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.md"
 Documentation = "https://stumpylog.github.io/gotenberg-client/"
@@ -58,7 +59,7 @@ installer = "uv"
 template = "docs"
 # detached = true
 dependencies = [
-  "mkdocs-material[imaging] ~= 9.6",
+  "mkdocs-material[imaging] ~= 9.7",
   "mike ~= 2.1",
   "mkdocs-minify-plugin ~= 0.8",
   "mkdocstrings[python] ~= 0.30.0",
@@ -99,6 +100,8 @@ extra-dependencies = [
   "pytest-docker ~= 3.2",
   "pytest-asyncio",
   "pypdf",
+  "niquests>=3",
+  "responses",
 ]
 extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
 [[tool.hatch.envs.hatch-test.matrix]]
@@ -138,6 +141,7 @@ detached = true
 dependencies = [
   "mypy ~= 1.19",
   "httpx",
+  "niquests>=3",
   "pytest",
   "pikepdf",
   "pytest-httpx ~= 0.35",
@@ -227,7 +231,7 @@ ignore = [
   "TD002",
   "TD003",
 ]
-per-file-ignores."tests/**/*" = [ "PLR2004", "S101", "TID252" ]
+per-file-ignores."tests/**/*" = [ "PLR2004", "S101", "SLF001", "TID252" ]
 per-file-ignores."tests/utils.py" = [ "S603" ]
 flake8-tidy-imports.ban-relative-imports = "all"
 isort.force-single-line = true

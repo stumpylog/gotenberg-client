@@ -5,10 +5,9 @@
 import logging
 from typing import Generic
 
-from httpx import AsyncClient
-from httpx import Client
-
 from gotenberg_client._common import ClientT
+from gotenberg_client._http_backends._protocols import AsyncClientProtocol
+from gotenberg_client._http_backends._protocols import SyncClientProtocol
 
 
 class BaseApi(Generic[ClientT]):
@@ -32,7 +31,7 @@ class BaseApi(Generic[ClientT]):
         self._log = log
 
 
-class SyncBaseApi(BaseApi[Client]):
+class SyncBaseApi(BaseApi[SyncClientProtocol]):
     """
     Synchronous implementation of the BaseApi.
 
@@ -41,7 +40,7 @@ class SyncBaseApi(BaseApi[Client]):
     """
 
 
-class AsyncBaseApi(BaseApi[AsyncClient]):
+class AsyncBaseApi(BaseApi[AsyncClientProtocol]):
     """
     Asynchronous implementation of the BaseApi.
 

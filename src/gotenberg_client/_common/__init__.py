@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 from typing import TypeVar
 
 if TYPE_CHECKING:
-    from httpx import AsyncClient
-    from httpx import Client
+    from gotenberg_client._http_backends._protocols import AsyncClientProtocol
+    from gotenberg_client._http_backends._protocols import SyncClientProtocol
 
 from gotenberg_client._common.mixins import FlattenOptionMixin
 from gotenberg_client._common.mixins import MetadataMixin
@@ -16,7 +16,7 @@ from gotenberg_client._common.mixins import PdfFormatMixin
 from gotenberg_client._common.mixins import PdfUniversalAccessMixin
 from gotenberg_client._common.mixins import SplitModeMixin
 
-ClientT = TypeVar("ClientT", bound="Client | AsyncClient")
+ClientT = TypeVar("ClientT", bound="SyncClientProtocol | AsyncClientProtocol")
 
 
 __all__ = [

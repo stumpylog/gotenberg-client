@@ -8,15 +8,12 @@ from collections.abc import Coroutine
 from contextlib import AbstractAsyncContextManager
 from contextlib import AbstractContextManager
 from types import TracebackType
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generic
 from typing import Literal
 from typing import TypeVar
 from typing import Union
-
-from httpx import AsyncClient
-from httpx import BasicAuth
-from httpx import Client
 
 from gotenberg_client.__about__ import __version__
 from gotenberg_client._base import AsyncBaseApi
@@ -26,6 +23,11 @@ from gotenberg_client._chromium import SyncChromiumApi
 from gotenberg_client._common import ClientT
 from gotenberg_client._health import AsyncHealthCheckApi
 from gotenberg_client._health import SyncHealthCheckApi
+from gotenberg_client._http_backends import AsyncClientProtocol
+from gotenberg_client._http_backends import BackendType
+from gotenberg_client._http_backends import SyncClientProtocol
+from gotenberg_client._http_backends import make_async_client
+from gotenberg_client._http_backends import make_sync_client
 from gotenberg_client._libreoffice import AsyncLibreOfficeApi
 from gotenberg_client._libreoffice import SyncLibreOfficeApi
 from gotenberg_client._merge import AsyncMergePdfsApi
@@ -38,6 +40,9 @@ from gotenberg_client._pdfa_ua import AsyncPdfAApi
 from gotenberg_client._pdfa_ua import SyncPdfAApi
 from gotenberg_client._pdfmetadata import AsyncPdfMetadataApi
 from gotenberg_client._pdfmetadata import SyncPdfMetadataApi
+
+if TYPE_CHECKING:
+    from httpx import BasicAuth
 
 SyncOrAsyncApiT = TypeVar("SyncOrAsyncApiT", bound=Union["SyncBaseApi", "AsyncBaseApi"])
 
@@ -52,14 +57,15 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         self,
         host: str,
         user_agent: str = f"gotenberg-client/{__version__}",
-        auth: BasicAuth | None = None,
+        auth: "BasicAuth | tuple[str, str] | None" = None,
         *,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
         http2: bool = True,
+        backend: BackendType = "auto",
     ):
         # Configure the client
-        self._client = self._get_client(host, timeout, user_agent, auth, http2=http2)
+        self._client = self._get_client(host, timeout, user_agent, auth, http2=http2, backend=backend)
 
         # Set the log level
         logging.getLogger("httpx").setLevel(log_level)
@@ -73,9 +79,10 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: BasicAuth | None = None,
+        auth: "BasicAuth | tuple[str, str] | None" = None,
         *,
         http2: bool,
+        backend: BackendType,
     ) -> ClientT:  # pragma: no cover
         pass
 
@@ -187,7 +194,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         self.add_headers({"Gotenberg-Webhook-Extra-Http-Headers": dumps(extra_headers)})
 
 
-class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, SyncBaseApi]):
+class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[SyncClientProtocol, SyncBaseApi]):
     """
     A synchronous client for interacting with a Gotenberg instance.
 
@@ -210,20 +217,15 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: BasicAuth | None = None,
+        auth: "BasicAuth | tuple[str, str] | None" = None,
         *,
         http2: bool,
-    ) -> Client:
+        backend: BackendType,
+    ) -> SyncClientProtocol:
         """
         Create and configure an HTTP client for synchronous requests.
         """
-        return Client(
-            base_url=base_url,
-            timeout=timeout,
-            http2=http2,
-            auth=auth,
-            headers={"User-Agent": user_agent},
-        )
+        return make_sync_client(backend, base_url, timeout, user_agent, auth, http2=http2)
 
     def __exit__(
         self,
@@ -324,7 +326,7 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[Client, Sy
         raise NotImplementedError
 
 
-class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[AsyncClient, AsyncBaseApi]):
+class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[AsyncClientProtocol, AsyncBaseApi]):
     """
     An asynchronous client for interacting with a Gotenberg instance.
 
@@ -347,20 +349,15 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: BasicAuth | None = None,
+        auth: "BasicAuth | tuple[str, str] | None" = None,
         *,
         http2: bool,
-    ) -> AsyncClient:
+        backend: BackendType,
+    ) -> AsyncClientProtocol:
         """
         Create and configure an HTTP client for asynchronous requests.
         """
-        return AsyncClient(
-            base_url=base_url,
-            timeout=timeout,
-            http2=http2,
-            auth=auth,
-            headers={"User-Agent": user_agent},
-        )
+        return make_async_client(backend, base_url, timeout, user_agent, auth, http2=http2)
 
     async def __aexit__(
         self,

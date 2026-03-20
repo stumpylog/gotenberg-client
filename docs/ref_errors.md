@@ -3,6 +3,9 @@
 ::: gotenberg_client.BaseClientError
     handler: python
 
+::: gotenberg_client.HttpStatusError
+    handler: python
+
 ::: gotenberg_client.CannotExtractHereError
     handler: python
 

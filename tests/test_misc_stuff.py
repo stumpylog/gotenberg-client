@@ -1,23 +1,28 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+from __future__ import annotations
+
 import shutil
 import uuid
 from http import HTTPStatus
 from json import dumps
 from json import loads
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-from httpx import HTTPStatusError
-from httpx import Request
-from pytest_httpx import HTTPXMock
 
 from gotenberg_client import AsyncGotenbergClient
 from gotenberg_client import CannotExtractHereError
 from gotenberg_client import GotenbergClient
+from gotenberg_client import HttpStatusError
 from gotenberg_client import MaxRetriesExceededError
 from gotenberg_client import ZipFileResponse
+
+if TYPE_CHECKING:
+    from httpx import Request
+    from pytest_httpx import HTTPXMock
 
 
 class TestMiscFunctionality:
@@ -137,7 +142,7 @@ class TestServerErrorRetry:
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.NOT_FOUND)
 
         with sync_client.chromium.html_to_pdf() as route:
-            with pytest.raises(HTTPStatusError) as exc_info:
+            with pytest.raises(HttpStatusError) as exc_info:
                 _ = route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
 
@@ -151,7 +156,7 @@ class TestServerErrorRetry:
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.BAD_REQUEST)
 
         async with async_client.chromium.html_to_pdf() as route:
-            with pytest.raises(HTTPStatusError) as exc_info:
+            with pytest.raises(HttpStatusError) as exc_info:
                 _ = await route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.BAD_REQUEST
 

@@ -8,18 +8,26 @@
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [What](#what)
-- [Why](#why)
-    - [Features](#features)
-- [How](#how)
-    - [Examples](#examples)
-- [License](#license)
+- [Gotenberg API Client](#gotenberg-api-client)
+    - [Table of Contents](#table-of-contents)
+    - [Installation](#installation)
+    - [What](#what)
+    - [Why](#why)
+        - [Features](#features)
+    - [How](#how)
+        - [Examples](#examples)
+    - [License](#license)
 
 ## Installation
 
 ```console
 pip install gotenberg-client
+```
+
+To use the [niquests](https://github.com/jawah/niquests) HTTP backend instead of the default httpx:
+
+```console
+pip install "gotenberg-client[niquests]"
 ```
 
 ## What
@@ -36,7 +44,7 @@ As far as I can tell, no active Python library exists to interface with the Gote
 
 - HTTP/2 enabled by default
 - Abstract away the handling of `multi-part/form-data` requests and deal with `Path`s instead
-- Based on the modern [httpx](https://github.com/encode/httpx) library
+- Based on the modern [httpx](https://github.com/encode/httpx) library (with support for [niquests](https://github.com/jawah/niquests) as well)
 - Full support for type hinting and concrete return types as much as possible
 - Nearly full test coverage run against an actual Gotenberg server for multiple Python and PyPy versions
 - Asynchronous support
@@ -71,6 +79,29 @@ with GotenbergClient("http://localhost:3000") as client:
 async with AsyncGotenbergClient("http://localhost:3000") as client:
     async with client.chromium.html_to_pdf() as route:
       response = await route.index(Path("my-index.html")).run()
+      response.to_file(Path("my-index.pdf"))
+```
+
+Using the niquests backend:
+
+```python
+from gotenberg_client import GotenbergClient
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000", backend="niquests") as client:
+    with client.chromium.html_to_pdf() as route:
+      response = route.index(Path("my-index.html")).run()
+      response.to_file(Path("my-index.pdf"))
+```
+
+With basic authentication (use a tuple when using the niquests backend):
+
+```python
+from gotenberg_client import GotenbergClient
+
+with GotenbergClient("http://localhost:3000", auth=("user", "secret")) as client:
+    with client.chromium.html_to_pdf() as route:
+      response = route.index(Path("my-index.html")).run()
       response.to_file(Path("my-index.pdf"))
 ```
 

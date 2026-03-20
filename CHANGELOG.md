@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Pluggable HTTP backend: users can now choose between `httpx` (default) and
+  [`niquests`](https://niquests.readthedocs.io/) via the new `backend` parameter on
+  `SyncGotenbergClient` / `AsyncGotenbergClient`
+    - `backend="auto"` (default) — uses httpx if available, falls back to niquests
+    - `backend="httpx"` — always use httpx
+    - `backend="niquests"` — always use niquests (requires `pip install gotenberg-client[niquests]`)
+- `HttpStatusError` exception exported from `gotenberg_client` — a backend-agnostic
+  replacement for `httpx.HTTPStatusError` that is raised by `run()` and `run_with_retry()`
+- `BackendType` type alias exported from `gotenberg_client` for type-annotating the `backend` argument
+- `auth` parameter now also accepts a `tuple[str, str]` `(username, password)` in addition
+  to `httpx.BasicAuth`, for backend-independent basic authentication
+    - When using the niquests backend, `auth` must be a `tuple[str, str]`; passing
+      `httpx.BasicAuth` raises `ValueError` because its credentials are not publicly accessible
+
+### Changed
+
+- `run()` and `run_with_retry()` now raise `HttpStatusError` (from `gotenberg_client`)
+  instead of `httpx.HTTPStatusError` for non-2xx responses
+    - **Migration**: replace `except httpx.HTTPStatusError` with `except HttpStatusError`
+      after adding `from gotenberg_client import HttpStatusError`
+- `MaxRetriesExceededError.response` is now typed as `ResponseProtocol` instead of
+  `httpx.Response` — the object still exposes `.status_code`, `.headers`, `.content`
+- Response `headers` field is now typed as `Mapping[str, str]` instead of `httpx.Headers`
+  — `httpx.Headers` satisfies this interface so existing call sites are unaffected
+
 ## [0.14.0] - 2023-03-11
 
 ### Changed

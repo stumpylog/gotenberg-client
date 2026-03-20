@@ -1,4 +1,7 @@
-from httpx import Response
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gotenberg_client._http_backends._protocols import ResponseProtocol
 
 
 class BaseClientError(Exception):
@@ -21,6 +24,22 @@ class UnreachableCodeError(BaseClientError):
     """
 
 
+class HttpStatusError(BaseClientError):
+    """
+    Raised when an HTTP request returns a non-2xx status code.
+
+    This is the backend-independent replacement for httpx.HTTPStatusError.
+    Catch this instead of httpx.HTTPStatusError to be backend-agnostic.
+
+    Attributes:
+        response (ResponseProtocol): The response that triggered this exception.
+    """
+
+    def __init__(self, *, response: "ResponseProtocol") -> None:
+        super().__init__()
+        self.response = response
+
+
 class MaxRetriesExceededError(BaseClientError):
     """
     Raised if the number of retries exceeded the configured maximum.
@@ -29,10 +48,10 @@ class MaxRetriesExceededError(BaseClientError):
     exhausts all retry attempts allowed by the configuration.
 
     Attributes:
-        response (Response): The last failed response that triggered this exception.
+        response (ResponseProtocol): The last failed response that triggered this exception.
     """
 
-    def __init__(self, *, response: Response) -> None:
+    def __init__(self, *, response: "ResponseProtocol") -> None:
         super().__init__()
         self.response = response
 

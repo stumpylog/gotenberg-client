@@ -16,15 +16,14 @@ from typing import Any
 from typing import BinaryIO
 from typing import Generic
 
-from httpx import AsyncClient
-from httpx import Client
-from httpx import HTTPStatusError
-from httpx import Response
-from httpx._types import RequestFiles
-
 from gotenberg_client._common import ClientT
+from gotenberg_client._errors import HttpStatusError
 from gotenberg_client._errors import MaxRetriesExceededError
 from gotenberg_client._errors import UnreachableCodeError
+from gotenberg_client._http_backends._protocols import AsyncClientProtocol
+from gotenberg_client._http_backends._protocols import RequestFiles
+from gotenberg_client._http_backends._protocols import ResponseProtocol
+from gotenberg_client._http_backends._protocols import SyncClientProtocol
 from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import guess_mime_type
 from gotenberg_client.responses import SingleFileResponse
@@ -74,7 +73,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         self._next = 1
 
     @abstractmethod
-    def _post_data(self) -> Response | Coroutine[Any, Any, Response]:
+    def _post_data(self) -> ResponseProtocol | Coroutine[Any, Any, ResponseProtocol]:
         """
         Execute the configured route request against the Gotenberg server.
 
@@ -82,11 +81,11 @@ class BaseRoute(ABC, Generic[ClientT]):
         to the Gotenberg API endpoint.
 
         Returns:
-            Response or Coroutine[Any, Any, Response]: The HTTP response from Gotenberg
+            ResponseProtocol or Coroutine[Any, Any, ResponseProtocol]: The HTTP response from Gotenberg
                 or a coroutine that will return the response.
 
         Raises:
-            httpx.HTTPStatusError: If the HTTP request returns an error status code.
+            HttpStatusError: If the HTTP request returns an error status code.
         """
 
     @abstractmethod
@@ -96,7 +95,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         max_retry_count: int = 5,
         initial_retry_wait: float | int = 5.0,
         retry_scale: float | int = 2.0,
-    ) -> Response | Coroutine[Any, Any, Response]:
+    ) -> ResponseProtocol | Coroutine[Any, Any, ResponseProtocol]:
         """
         Execute the route request with automatic retries for server errors.
 
@@ -117,12 +116,12 @@ class BaseRoute(ABC, Generic[ClientT]):
             retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
 
         Returns:
-            Response or Coroutine[Any, Any, Response]: The successful HTTP response or a
+            ResponseProtocol or Coroutine[Any, Any, ResponseProtocol]: The successful HTTP response or a
                 coroutine that will return the response.
 
         Raises:
             MaxRetriesExceededError: If all retry attempts fail with server errors.
-            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+            HttpStatusError: If the request fails with a client error (4xx).
         """
 
     @abstractmethod
@@ -140,7 +139,7 @@ class BaseRoute(ABC, Generic[ClientT]):
                 the result from Gotenberg, or a coroutine that will return such an object.
 
         Raises:
-            httpx.Error: Any errors from the HTTP client will be raised.
+            HttpStatusError: Any HTTP errors from the client will be raised.
         """
 
     @abstractmethod
@@ -168,7 +167,7 @@ class BaseRoute(ABC, Generic[ClientT]):
 
         Raises:
             MaxRetriesExceededError: If all retry attempts fail with server errors.
-            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+            HttpStatusError: If the request fails with a client error (4xx).
         """
 
     def reset(self) -> None:
@@ -202,9 +201,9 @@ class BaseRoute(ABC, Generic[ClientT]):
 
         Returns:
             RequestFiles: A dictionary suitable for use as the 'files' parameter
-                in httpx request methods.
+                in HTTP request methods.
         """
-        resources = {}
+        resources: RequestFiles = {}
         for filename in self._file_map:
             file_path = self._file_map[filename]
 
@@ -215,14 +214,14 @@ class BaseRoute(ABC, Generic[ClientT]):
                     {filename: (filename, self._stack.enter_context(file_path.open("rb")), mime_type)},
                 )
             else:  # pragma: no cover
-                resources.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})  # type: ignore [dict-item]
+                resources.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})
 
         for resource_name in self._in_memory_resources:
             data, mime_type = self._in_memory_resources[resource_name]
             if mime_type is not None:
-                resources.update({resource_name: (resource_name, data, mime_type)})  # type: ignore [dict-item]
+                resources.update({resource_name: (resource_name, data, mime_type)})
             else:
-                resources.update({resource_name: (resource_name, data)})  # type: ignore [dict-item]
+                resources.update({resource_name: (resource_name, data)})
 
         return resources
 
@@ -296,7 +295,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         return self
 
 
-class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
+class SyncBaseRoute(BaseRoute[SyncClientProtocol], AbstractContextManager):
     """
     Synchronous implementation of the BaseRoute for the Gotenberg API.
 
@@ -334,7 +333,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         """
         self.close()
 
-    def _post_data(self) -> Response:
+    def _post_data(self) -> ResponseProtocol:
         """
         Send the configured request data to the Gotenberg server synchronously.
 
@@ -342,10 +341,10 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         to the Gotenberg API endpoint.
 
         Returns:
-            Response: The HTTP response from Gotenberg.
+            ResponseProtocol: The HTTP response from Gotenberg.
 
         Raises:
-            httpx.HTTPStatusError: If the HTTP request returns an error status code.
+            HttpStatusError: If the HTTP request returns an error status code.
         """
         resp = self._client.post(
             url=self._route_url,
@@ -362,7 +361,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         max_retry_count: int = 5,
         initial_retry_wait: float | int = 5.0,
         retry_scale: float | int = 2.0,
-    ) -> Response:
+    ) -> ResponseProtocol:
         """
         Send the request to Gotenberg with automatic retries for server errors.
 
@@ -374,11 +373,11 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
             retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
 
         Returns:
-            Response: The successful HTTP response from Gotenberg.
+            ResponseProtocol: The successful HTTP response from Gotenberg.
 
         Raises:
             MaxRetriesExceededError: If all retry attempts fail with server errors.
-            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+            HttpStatusError: If the request fails with a client error (4xx).
 
         Note:
             Only 5xx server errors will trigger retries; 4xx client errors will be raised immediately.
@@ -392,7 +391,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
             try:
                 return self._post_data()
-            except HTTPStatusError as e:
+            except HttpStatusError as e:
                 self._log.warning(f"HTTP error: {e}", stacklevel=1)
 
                 # This only handles status codes which are 5xx, indicating the server had a problem
@@ -425,7 +424,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
             SingleFileResponse or ZipFileResponse: A response object containing the result.
 
         Raises:
-            httpx.Error: Any errors from the HTTP client will be raised.
+            HttpStatusError: Any HTTP errors from the client will be raised.
         """
         response = self._post_data()
         if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
@@ -455,7 +454,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
 
         Raises:
             MaxRetriesExceededError: If all retry attempts fail with server errors.
-            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+            HttpStatusError: If the request fails with a client error (4xx).
         """
         response = self._post_data_with_retry(
             max_retry_count=max_retry_count,
@@ -467,7 +466,7 @@ class SyncBaseRoute(BaseRoute[Client], AbstractContextManager):
         return SingleFileResponse(response.status_code, response.headers, response.content)
 
 
-class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
+class AsyncBaseRoute(BaseRoute[AsyncClientProtocol], AbstractAsyncContextManager):
     """
     Asynchronous implementation of the BaseRoute for the Gotenberg API.
 
@@ -505,7 +504,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         """
         self.close()
 
-    async def _post_data(self) -> Response:
+    async def _post_data(self) -> ResponseProtocol:
         """
         Send the configured request data to the Gotenberg server asynchronously.
 
@@ -513,10 +512,10 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         and headers to the Gotenberg API endpoint.
 
         Returns:
-            Response: The HTTP response from Gotenberg.
+            ResponseProtocol: The HTTP response from Gotenberg.
 
         Raises:
-            httpx.HTTPStatusError: If the HTTP request returns an error status code.
+            HttpStatusError: If the HTTP request returns an error status code.
         """
         resp = await self._client.post(
             url=self._route_url,
@@ -533,7 +532,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
         max_retry_count: int = 5,
         initial_retry_wait: float | int = 5.0,
         retry_scale: float | int = 2.0,
-    ) -> Response:
+    ) -> ResponseProtocol:
         """
         Send the request to Gotenberg asynchronously with automatic retries.
 
@@ -546,11 +545,11 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
             retry_scale (float or int, optional): Multiplier for wait time after each attempt. Defaults to 2.0.
 
         Returns:
-            Response: The successful HTTP response from Gotenberg.
+            ResponseProtocol: The successful HTTP response from Gotenberg.
 
         Raises:
             MaxRetriesExceededError: If all retry attempts fail with server errors.
-            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+            HttpStatusError: If the request fails with a client error (4xx).
 
         Note:
             Only 5xx server errors will trigger retries; 4xx client errors will be raised immediately.
@@ -563,7 +562,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
             try:
                 return await self._post_data()
-            except HTTPStatusError as e:
+            except HttpStatusError as e:
                 self._log.warning(f"HTTP error: {e}", stacklevel=1)
 
                 # This only handles status codes which are 5xx, indicating the server had a problem
@@ -596,7 +595,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
             SingleFileResponse or ZipFileResponse: A response object containing the result.
 
         Raises:
-            httpx.Error: Any errors from the HTTP client will be raised.
+            HttpStatusError: Any HTTP errors from the client will be raised.
         """
         response = await self._post_data()
         if "Content-Type" in response.headers and response.headers["Content-Type"] == "application/zip":
@@ -626,7 +625,7 @@ class AsyncBaseRoute(BaseRoute[AsyncClient], AbstractAsyncContextManager):
 
         Raises:
             MaxRetriesExceededError: If all retry attempts fail with server errors.
-            httpx.HTTPStatusError: If the request fails with a client error (4xx).
+            HttpStatusError: If the request fails with a client error (4xx).
         """
         response = await self._post_data_with_retry(
             max_retry_count=max_retry_count,

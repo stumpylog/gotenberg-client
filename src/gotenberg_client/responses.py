@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 import dataclasses
 import zipfile
+from collections.abc import Mapping
 from io import BytesIO
 from pathlib import Path
-
-from httpx import Headers
 
 from gotenberg_client._errors import CannotExtractHereError
 
@@ -27,7 +26,7 @@ class _BaseApiResponse:
     """
 
     status_code: int
-    headers: Headers
+    headers: Mapping[str, str]
     content: bytes | bytearray
 
     def to_file(self, file_path: Path) -> None:
