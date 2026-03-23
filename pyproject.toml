@@ -42,6 +42,7 @@ email = "rda0128ou@mozmail.com"
 [project.optional-dependencies]
 magic = [ "python-magic" ]
 niquests = [ "niquests>=3" ]
+requests = [ "requests>=2" ]
 [project.urls]
 Changelog = "https://github.com/stumpylog/gotenberg-client/blob/main/CHANGELOG.md"
 Documentation = "https://stumpylog.github.io/gotenberg-client/"
@@ -101,6 +102,7 @@ extra-dependencies = [
   "pytest-asyncio",
   "pypdf",
   "niquests>=3",
+  "requests>=2",
   "responses",
 ]
 extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
@@ -142,6 +144,7 @@ dependencies = [
   "mypy ~= 1.19",
   "httpx",
   "niquests>=3",
+  "requests>=2",
   "pytest",
   "pikepdf",
   "pytest-httpx ~= 0.35",

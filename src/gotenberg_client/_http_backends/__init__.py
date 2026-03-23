@@ -14,7 +14,7 @@ from gotenberg_client._http_backends._protocols import SyncClientProtocol
 if TYPE_CHECKING:
     import httpx
 
-BackendType = Literal["httpx", "niquests", "auto"]
+BackendType = Literal["httpx", "niquests", "requests", "auto"]
 
 __all__ = [
     "AsyncClientProtocol",
@@ -28,11 +28,14 @@ __all__ = [
 
 
 def _to_tuple_auth(auth: "httpx.BasicAuth | tuple[str, str] | None") -> "tuple[str, str] | None":
-    """Normalise auth to a (username, password) tuple accepted by niquests factories."""
+    """Normalise auth to a (username, password) tuple accepted by niquests or requests factories."""
     if auth is None or isinstance(auth, tuple):
         return auth
-    # httpx.BasicAuth does not expose credentials publicly; require tuple[str, str] for niquests
-    msg = "When using the niquests backend, provide auth as a (username, password) tuple instead of httpx.BasicAuth."
+    # httpx.BasicAuth does not expose credentials publicly; require tuple[str, str] for niquests or requests
+    msg = (
+        "When using the niquests or requests backend, "
+        "provide auth as a (username, password) tuple instead of httpx.BasicAuth."
+    )
     raise ValueError(msg)
 
 
@@ -46,6 +49,11 @@ def make_sync_client(
     http2: bool,
 ) -> SyncClientProtocol:
     """Factory that returns a SyncClientProtocol for the requested backend."""
+    if backend == "requests":
+        # requests — imported lazily so httpx-only installs don't pay the import cost
+        from gotenberg_client._http_backends._requests import make_requests_sync_client  # noqa: PLC0415
+
+        return make_requests_sync_client(base_url, timeout, user_agent, _to_tuple_auth(auth), http2=http2)
     resolved = _resolve_backend(backend)
     if resolved == "httpx":
         return make_httpx_sync_client(base_url, timeout, user_agent, auth, http2=http2)
@@ -65,6 +73,12 @@ def make_async_client(
     http2: bool,
 ) -> AsyncClientProtocol:
     """Factory that returns an AsyncClientProtocol for the requested backend."""
+    if backend == "requests":
+        msg = (
+            "The 'requests' backend only supports synchronous usage. "
+            "Use 'httpx' or 'niquests' for AsyncGotenbergClient."
+        )
+        raise ValueError(msg)
     resolved = _resolve_backend(backend)
     if resolved == "httpx":
         return make_httpx_async_client(base_url, timeout, user_agent, auth, http2=http2)

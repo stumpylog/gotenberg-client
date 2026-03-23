@@ -20,8 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `BackendType` type alias exported from `gotenberg_client` for type-annotating the `backend` argument
 - `auth` parameter now also accepts a `tuple[str, str]` `(username, password)` in addition
   to `httpx.BasicAuth`, for backend-independent basic authentication
-    - When using the niquests backend, `auth` must be a `tuple[str, str]`; passing
+    - When using the niquests or requests backend, `auth` must be a `tuple[str, str]`; passing
       `httpx.BasicAuth` raises `ValueError` because its credentials are not publicly accessible
+- `requests` sync-only backend: users who already have `requests` installed can now use
+  it via `backend="requests"` on `SyncGotenbergClient`
+  (requires `pip install gotenberg-client[requests]`)
+    - `AsyncGotenbergClient` raises `ValueError` if `backend="requests"` is passed, since
+      `requests` has no async support
 
 ### Changed
 

@@ -15,6 +15,8 @@ import httpx
 import niquests
 import niquests.exceptions
 import pytest
+import requests
+import requests.exceptions
 
 from gotenberg_client import AsyncGotenbergClient
 from gotenberg_client import HttpStatusError
@@ -26,6 +28,8 @@ from gotenberg_client._http_backends._httpx import HttpxSyncAdapter
 from gotenberg_client._http_backends._niquests import NiquestsAsyncAdapter
 from gotenberg_client._http_backends._niquests import NiquestsResponseAdapter
 from gotenberg_client._http_backends._niquests import NiquestsSyncAdapter
+from gotenberg_client._http_backends._requests import RequestsResponseAdapter
+from gotenberg_client._http_backends._requests import RequestsSyncAdapter
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -93,9 +97,20 @@ class TestAutoBackendSelection:
         """_resolve_backend('auto') returns 'httpx' when httpx is installed."""
         assert _resolve_backend("auto") == "httpx"
 
+    def test_explicit_requests_sync(self):
+        """backend='requests' uses the requests adapter."""
+        with SyncGotenbergClient(host="http://localhost:3000", backend="requests") as client:
+            assert isinstance(client._client, RequestsSyncAdapter)
+
+    async def test_requests_backend_raises_for_async(self):
+        """backend='requests' raises ValueError for AsyncGotenbergClient."""
+        with pytest.raises(ValueError, match="synchronous"):
+            async with AsyncGotenbergClient(host="http://localhost:3000", backend="requests"):
+                pass
+
     def test_to_tuple_auth_raises_for_basicauth(self):
         """Passing httpx.BasicAuth to _to_tuple_auth raises ValueError."""
-        with pytest.raises(ValueError, match="niquests backend"):
+        with pytest.raises(ValueError, match="niquests or requests backend"):
             _to_tuple_auth(httpx.BasicAuth("user", "pass"))
 
 
@@ -133,5 +148,36 @@ class TestNiquestsAdapterUnit:
         mock_resp: niquests.Response = mocker.MagicMock()
         mock_resp.raise_for_status.side_effect = niquests.exceptions.HTTPError("500")
         adapter = NiquestsResponseAdapter(mock_resp)
+        with pytest.raises(HttpStatusError):
+            adapter.raise_for_status()
+
+
+class TestRequestsAdapterUnit:
+    """Unit tests for requests adapter internals that don't require Docker."""
+
+    def test_sync_adapter_headers(self):
+        """RequestsSyncAdapter.headers returns the session's header mapping."""
+        session = requests.Session()
+        adapter = RequestsSyncAdapter(session, "http://localhost", 30.0)
+        assert isinstance(adapter.headers, MutableMapping)
+        session.close()
+
+    def test_response_is_server_error_true(self, mocker: MockerFixture):
+        """RequestsResponseAdapter.is_server_error is True for 5xx status."""
+        mock_resp: requests.Response = mocker.MagicMock()
+        mock_resp.status_code = 500
+        assert RequestsResponseAdapter(mock_resp).is_server_error
+
+    def test_response_is_server_error_false(self, mocker: MockerFixture):
+        """RequestsResponseAdapter.is_server_error is False for 2xx status."""
+        mock_resp: requests.Response = mocker.MagicMock()
+        mock_resp.status_code = 200
+        assert not RequestsResponseAdapter(mock_resp).is_server_error
+
+    def test_response_raise_for_status_converts_exception(self, mocker: MockerFixture):
+        """raise_for_status wraps requests.HTTPError as HttpStatusError."""
+        mock_resp: requests.Response = mocker.MagicMock()
+        mock_resp.raise_for_status.side_effect = requests.exceptions.HTTPError("500")
+        adapter = RequestsResponseAdapter(mock_resp)
         with pytest.raises(HttpStatusError):
             adapter.raise_for_status()
