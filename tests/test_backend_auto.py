@@ -11,7 +11,6 @@ from __future__ import annotations
 from collections.abc import MutableMapping
 from typing import TYPE_CHECKING
 
-import httpx
 import niquests
 import niquests.exceptions
 import pytest
@@ -22,7 +21,6 @@ from gotenberg_client import AsyncGotenbergClient
 from gotenberg_client import HttpStatusError
 from gotenberg_client import SyncGotenbergClient
 from gotenberg_client._http_backends import _resolve_backend
-from gotenberg_client._http_backends import _to_tuple_auth
 from gotenberg_client._http_backends._httpx import HttpxAsyncAdapter
 from gotenberg_client._http_backends._httpx import HttpxSyncAdapter
 from gotenberg_client._http_backends._niquests import NiquestsAsyncAdapter
@@ -107,11 +105,6 @@ class TestAutoBackendSelection:
         with pytest.raises(ValueError, match="synchronous"):
             async with AsyncGotenbergClient(host="http://localhost:3000", backend="requests"):
                 pass
-
-    def test_to_tuple_auth_raises_for_basicauth(self):
-        """Passing httpx.BasicAuth to _to_tuple_auth raises ValueError."""
-        with pytest.raises(ValueError, match="niquests or requests backend"):
-            _to_tuple_auth(httpx.BasicAuth("user", "pass"))
 
 
 class TestNiquestsAdapterUnit:

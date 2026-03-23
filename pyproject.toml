@@ -36,13 +36,13 @@ dynamic = [ "version" ]
 # Dependencies
 #
 dependencies = [
-  "httpx[http2]>=0.27",
   "typing-extensions; python_version<'3.11'",
 ]
 [[project.authors]]
 name = "Trenton H"
 email = "rda0128ou@mozmail.com"
 [project.optional-dependencies]
+httpx = [ "httpx[http2]>=0.27" ]
 magic = [ "python-magic" ]
 niquests = [ "niquests>=3" ]
 requests = [ "requests>=2" ]
@@ -98,6 +98,7 @@ dependencies = [
 ]
 extra-dependencies = [
   "pytest-sugar",
+  "httpx[http2]>=0.27",
   "pytest-httpx ~= 0.36",
   "pikepdf",
   "python-magic",

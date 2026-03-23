@@ -2,14 +2,12 @@
 
 ## Installation
 
-```console
-pip install gotenberg-client
-```
-
-To use the [niquests](https://niquests.readthedocs.io/) HTTP backend instead of the default httpx:
+An HTTP backend is required. Pick the one that suits your project:
 
 ```console
-pip install "gotenberg-client[niquests]"
+pip install "gotenberg-client[httpx]"      # recommended — HTTP/2 and async support
+pip install "gotenberg-client[niquests]"   # alternative — HTTP/2 and async support
+pip install "gotenberg-client[requests]"   # sync-only
 ```
 
 ## How
@@ -52,31 +50,19 @@ The `backend` parameter selects the HTTP library used to communicate with Gotenb
 | Value              | Behaviour                                                                                |
 | ------------------ | ---------------------------------------------------------------------------------------- |
 | `"auto"` (default) | Use httpx if installed, otherwise fall back to niquests                                  |
-| `"httpx"`          | Always use httpx (included by default)                                                   |
+| `"httpx"`          | Always use httpx (install with `pip install "gotenberg-client[httpx]"`)                  |
 | `"niquests"`       | Always use niquests (install with `pip install "gotenberg-client[niquests]"`)            |
 | `"requests"`       | Always use requests (sync-only; install with `pip install "gotenberg-client[requests]"`) |
 
 ## Authentication
 
-The `auth` parameter accepts either a `(username, password)` tuple or an `httpx.BasicAuth`
-instance for HTTP Basic Authentication:
+The `auth` parameter accepts a `(username, password)` tuple for HTTP Basic Authentication,
+and works with all backends:
 
 ```python
-# Tuple form — works with all backends
 with GotenbergClient("http://localhost:3000", auth=("user", "secret")) as client:
     ...
-
-# httpx.BasicAuth — works only with the httpx backend
-import httpx
-with GotenbergClient("http://localhost:3000", auth=httpx.BasicAuth("user", "secret")) as client:
-    ...
 ```
-
-!!! note
-`httpx.BasicAuth` does not expose its credentials publicly, so it cannot be converted
-for use with the niquests backend. If you use `backend="niquests"` (or `backend="auto"`
-resolves to niquests), you must pass auth as a `(username, password)` tuple.
-Passing `httpx.BasicAuth` with the niquests backend raises `ValueError` at client creation.
 
 The client should live as long as you will be communicating with Gotenberg as this
 allows the connection to remain open, saving some time to re-negotiate a connection.

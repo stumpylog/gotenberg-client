@@ -12,7 +12,7 @@ A modern, fully-typed Python client for the [Gotenberg](https://gotenberg.dev/) 
 ## Quick Start
 
 ```console
-pip install gotenberg-client
+pip install "gotenberg-client[httpx]"
 ```
 
 ```python
@@ -37,7 +37,7 @@ capabilities, so you can skip the multipart form-data boilerplate and focus on y
 
 - **Fully typed** with concrete return types and full `py.typed` support
 - **Sync and async** APIs with identical interfaces
-- **Pluggable HTTP backends** -- [httpx](https://github.com/encode/httpx) (default, with HTTP/2), [niquests](https://github.com/jawah/niquests), or [requests](https://github.com/psf/requests)
+- **Pluggable HTTP backends** -- [httpx](https://github.com/encode/httpx) (with HTTP/2), [niquests](https://github.com/jawah/niquests), or [requests](https://github.com/psf/requests) — install whichever you prefer
 - **Pathlib-native** -- pass `Path` objects directly, no manual file handling
 - **Thoroughly tested** against a real Gotenberg server across multiple Python versions
 - **Broad route coverage** including Chromium, LibreOffice, PDF merge/convert/split, health checks, and more
@@ -45,17 +45,18 @@ capabilities, so you can skip the multipart form-data boilerplate and focus on y
 
 ## Installation
 
-The default installation uses httpx:
+An HTTP backend is required. Pick the one that suits your project:
 
 ```console
-pip install gotenberg-client
+pip install "gotenberg-client[httpx]"      # recommended — HTTP/2 and async support
+pip install "gotenberg-client[niquests]"   # alternative — HTTP/2 and async support
+pip install "gotenberg-client[requests]"   # sync-only
 ```
 
-To use an alternative HTTP backend:
+If you need MIME-type detection for automatic content-type headers, add the `magic` extra:
 
 ```console
-pip install "gotenberg-client[niquests]"
-pip install "gotenberg-client[requests]"  # sync-only
+pip install "gotenberg-client[httpx,magic]"
 ```
 
 ## Examples
@@ -155,19 +156,25 @@ with GotenbergClient("http://localhost:3000") as client:
 
 ### Choosing an HTTP backend
 
+Install the backend you want, then select it explicitly (or rely on auto-detection):
+
 ```python
 from gotenberg_client import GotenbergClient
 
-# httpx (default, includes HTTP/2)
-with GotenbergClient("http://localhost:3000") as client:
+# httpx — pip install "gotenberg-client[httpx]"
+with GotenbergClient("http://localhost:3000", backend="httpx") as client:
     ...
 
-# niquests
+# niquests — pip install "gotenberg-client[niquests]"
 with GotenbergClient("http://localhost:3000", backend="niquests") as client:
     ...
 
-# requests (sync-only)
+# requests (sync-only) — pip install "gotenberg-client[requests]"
 with GotenbergClient("http://localhost:3000", backend="requests") as client:
+    ...
+
+# auto — tries httpx first, then niquests (default)
+with GotenbergClient("http://localhost:3000") as client:
     ...
 ```
 

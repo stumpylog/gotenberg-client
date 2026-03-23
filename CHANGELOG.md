@@ -7,24 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- `httpx` is no longer installed by default. Install the backend you want explicitly:
+    - `pip install "gotenberg-client[httpx]"` - recommended; HTTP/2 and async support
+    - `pip install "gotenberg-client[niquests]"` - HTTP/2 and async support
+    - `pip install "gotenberg-client[requests]"` - sync-only
+- `auth` parameter type changed from `httpx.BasicAuth | tuple[str, str] | None` to
+  `tuple[str, str] | None` - `httpx.BasicAuth` is no longer accepted
+
 ### Added
 
-- Pluggable HTTP backend: users can now choose between `httpx` (default) and
-  [`niquests`](https://niquests.readthedocs.io/) via the new `backend` parameter on
+- Pluggable HTTP backend: users can choose between
+  [`httpx`](https://www.python-httpx.org/), [`niquests`](https://niquests.readthedocs.io/),
+  or [`requests`](https://requests.readthedocs.io/) via the new `backend` parameter on
   `SyncGotenbergClient` / `AsyncGotenbergClient`
-    - `backend="auto"` (default) — uses httpx if available, falls back to niquests
-    - `backend="httpx"` — always use httpx
-    - `backend="niquests"` — always use niquests (requires `pip install gotenberg-client[niquests]`)
-- `HttpStatusError` exception exported from `gotenberg_client` — a backend-agnostic
+    - `backend="auto"` (default) - uses httpx if installed, falls back to niquests
+    - `backend="httpx"` - always use httpx (requires `pip install "gotenberg-client[httpx]"`)
+    - `backend="niquests"` - always use niquests (requires `pip install "gotenberg-client[niquests]"`)
+    - `backend="requests"` - sync-only (requires `pip install "gotenberg-client[requests]"`)
+- `HttpStatusError` exception exported from `gotenberg_client` - a backend-agnostic
   replacement for `httpx.HTTPStatusError` that is raised by `run()` and `run_with_retry()`
 - `BackendType` type alias exported from `gotenberg_client` for type-annotating the `backend` argument
-- `auth` parameter now also accepts a `tuple[str, str]` `(username, password)` in addition
-  to `httpx.BasicAuth`, for backend-independent basic authentication
-    - When using the niquests or requests backend, `auth` must be a `tuple[str, str]`; passing
-      `httpx.BasicAuth` raises `ValueError` because its credentials are not publicly accessible
+- `AuthType` type alias (`tuple[str, str] | None`) exported from `gotenberg_client` for
+  type-annotating the `auth` argument
 - `requests` sync-only backend: users who already have `requests` installed can now use
   it via `backend="requests"` on `SyncGotenbergClient`
-  (requires `pip install gotenberg-client[requests]`)
     - `AsyncGotenbergClient` raises `ValueError` if `backend="requests"` is passed, since
       `requests` has no async support
 
@@ -35,9 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **Migration**: replace `except httpx.HTTPStatusError` with `except HttpStatusError`
       after adding `from gotenberg_client import HttpStatusError`
 - `MaxRetriesExceededError.response` is now typed as `ResponseProtocol` instead of
-  `httpx.Response` — the object still exposes `.status_code`, `.headers`, `.content`
+  `httpx.Response` - the object still exposes `.status_code`, `.headers`, `.content`
 - Response `headers` field is now typed as `Mapping[str, str]` instead of `httpx.Headers`
-  — `httpx.Headers` satisfies this interface so existing call sites are unaffected
+  - `httpx.Headers` satisfies this interface so existing call sites are unaffected
 
 ## [0.14.0] - 2023-03-11
 

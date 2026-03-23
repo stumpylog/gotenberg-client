@@ -8,6 +8,7 @@ from typing import Any
 import httpx
 
 from gotenberg_client._errors import HttpStatusError
+from gotenberg_client._http_backends._protocols import AuthType
 from gotenberg_client._http_backends._protocols import RequestFiles
 
 
@@ -115,12 +116,12 @@ def make_httpx_sync_client(
     base_url: str,
     timeout: float,
     user_agent: str,
-    auth: "httpx.BasicAuth | tuple[str, str] | None",
+    auth: AuthType,
     *,
     http2: bool,
 ) -> HttpxSyncAdapter:
     httpx_auth: httpx.BasicAuth | None = (
-        httpx.BasicAuth(username=auth[0], password=auth[1]) if isinstance(auth, tuple) else auth
+        httpx.BasicAuth(username=auth[0], password=auth[1]) if auth is not None else None
     )
     client = httpx.Client(
         base_url=base_url,
@@ -136,12 +137,12 @@ def make_httpx_async_client(
     base_url: str,
     timeout: float,
     user_agent: str,
-    auth: "httpx.BasicAuth | tuple[str, str] | None",
+    auth: AuthType,
     *,
     http2: bool,
 ) -> HttpxAsyncAdapter:
     httpx_auth: httpx.BasicAuth | None = (
-        httpx.BasicAuth(username=auth[0], password=auth[1]) if isinstance(auth, tuple) else auth
+        httpx.BasicAuth(username=auth[0], password=auth[1]) if auth is not None else None
     )
     client = httpx.AsyncClient(
         base_url=base_url,

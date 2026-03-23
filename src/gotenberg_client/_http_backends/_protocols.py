@@ -7,6 +7,8 @@ from typing import Any
 from typing import BinaryIO
 from typing import Protocol
 
+AuthType = tuple[str, str] | None
+
 # Type alias for multipart file uploads compatible with httpx and niquests.
 # Values are either (filename, content, mime_type) or (filename, content).
 _FileContent = bytes | str | BinaryIO

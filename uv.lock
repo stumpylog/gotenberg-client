@@ -147,11 +147,13 @@ wheels = [
 name = "gotenberg-client"
 source = { editable = "." }
 dependencies = [
-    { name = "httpx", extra = ["http2"] },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 
 [package.optional-dependencies]
+httpx = [
+    { name = "httpx", extra = ["http2"] },
+]
 magic = [
     { name = "python-magic" },
 ]
@@ -164,13 +166,13 @@ requests = [
 
 [package.metadata]
 requires-dist = [
-    { name = "httpx", extras = ["http2"], specifier = ">=0.27" },
+    { name = "httpx", extras = ["http2"], marker = "extra == 'httpx'", specifier = ">=0.27" },
     { name = "niquests", marker = "extra == 'niquests'", specifier = ">=3" },
     { name = "python-magic", marker = "extra == 'magic'" },
     { name = "requests", marker = "extra == 'requests'", specifier = ">=2" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
-provides-extras = ["magic", "niquests", "requests"]
+provides-extras = ["httpx", "magic", "niquests", "requests"]
 
 [[package]]
 name = "h11"

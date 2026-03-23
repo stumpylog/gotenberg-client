@@ -9,6 +9,7 @@ from gotenberg_client._errors import InvalidPdfRevisionError
 from gotenberg_client._errors import MaxRetriesExceededError
 from gotenberg_client._errors import NegativeWaitDurationError
 from gotenberg_client._health import HealthStatus
+from gotenberg_client._http_backends import AuthType
 from gotenberg_client._http_backends import BackendType
 from gotenberg_client.client import AsyncGotenbergClient
 from gotenberg_client.client import GotenbergClient
@@ -18,6 +19,7 @@ from gotenberg_client.responses import ZipFileResponse
 
 __all__ = [
     "AsyncGotenbergClient",
+    "AuthType",
     "BackendType",
     "BaseClientError",
     "CannotExtractHereError",

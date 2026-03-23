@@ -10,6 +10,7 @@ import niquests.auth
 import niquests.exceptions
 
 from gotenberg_client._errors import HttpStatusError
+from gotenberg_client._http_backends._protocols import AuthType
 from gotenberg_client._http_backends._protocols import RequestFiles
 
 _SERVER_ERROR_STATUS_CODE = 500
@@ -116,7 +117,7 @@ class NiquestsAsyncAdapter:
 
 
 def _build_niquests_auth(
-    auth: tuple[str, str] | None,
+    auth: AuthType,
 ) -> niquests.auth.HTTPBasicAuth | None:
     """Convert a (username, password) tuple to niquests HTTPBasicAuth."""
     if auth is None:
@@ -128,7 +129,7 @@ def make_niquests_sync_client(
     base_url: str,
     timeout: float,
     user_agent: str,
-    auth: tuple[str, str] | None,
+    auth: AuthType,
     *,
     http2: bool,  # noqa: ARG001 — niquests uses HTTP/2 by default
 ) -> NiquestsSyncAdapter:
@@ -146,7 +147,7 @@ def make_niquests_async_client(
     base_url: str,
     timeout: float,
     user_agent: str,
-    auth: tuple[str, str] | None,
+    auth: AuthType,
     *,
     http2: bool,  # noqa: ARG001 — niquests uses HTTP/2 by default
 ) -> NiquestsAsyncAdapter:

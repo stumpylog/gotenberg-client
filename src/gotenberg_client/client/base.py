@@ -8,7 +8,6 @@ from collections.abc import Coroutine
 from contextlib import AbstractAsyncContextManager
 from contextlib import AbstractContextManager
 from types import TracebackType
-from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generic
 from typing import Literal
@@ -24,6 +23,7 @@ from gotenberg_client._common import ClientT
 from gotenberg_client._health import AsyncHealthCheckApi
 from gotenberg_client._health import SyncHealthCheckApi
 from gotenberg_client._http_backends import AsyncClientProtocol
+from gotenberg_client._http_backends import AuthType
 from gotenberg_client._http_backends import BackendType
 from gotenberg_client._http_backends import SyncClientProtocol
 from gotenberg_client._http_backends import make_async_client
@@ -41,9 +41,6 @@ from gotenberg_client._pdfa_ua import SyncPdfAApi
 from gotenberg_client._pdfmetadata import AsyncPdfMetadataApi
 from gotenberg_client._pdfmetadata import SyncPdfMetadataApi
 
-if TYPE_CHECKING:
-    from httpx import BasicAuth
-
 SyncOrAsyncApiT = TypeVar("SyncOrAsyncApiT", bound=Union["SyncBaseApi", "AsyncBaseApi"])
 
 
@@ -57,7 +54,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         self,
         host: str,
         user_agent: str = f"gotenberg-client/{__version__}",
-        auth: "BasicAuth | tuple[str, str] | None" = None,
+        auth: AuthType = None,
         *,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
@@ -79,7 +76,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: "BasicAuth | tuple[str, str] | None" = None,
+        auth: AuthType = None,
         *,
         http2: bool,
         backend: BackendType,
@@ -217,7 +214,7 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[SyncClient
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: "BasicAuth | tuple[str, str] | None" = None,
+        auth: AuthType = None,
         *,
         http2: bool,
         backend: BackendType,
@@ -349,7 +346,7 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         base_url: str,
         timeout: float,
         user_agent: str,
-        auth: "BasicAuth | tuple[str, str] | None" = None,
+        auth: AuthType = None,
         *,
         http2: bool,
         backend: BackendType,
