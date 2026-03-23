@@ -9,7 +9,7 @@ requires = [ "hatchling>=1.27,<2" ]
 name = "gotenberg-client"
 description = "A Python client for interfacing with the Gotenberg API"
 readme = "README.md"
-keywords = [ "api", "client", "html", "pdf" ]
+keywords = [ "api", "api-client", "document-conversion", "gotenberg", "html", "html-to-pdf", "pdf", "pdf-generation" ]
 license = "MPL-2.0"
 requires-python = ">=3.10"
 classifiers = [
@@ -27,6 +27,9 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
 ]
 dynamic = [ "version" ]
 #
