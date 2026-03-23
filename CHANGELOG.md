@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MaxRetriesExceededError.response` is now typed as `ResponseProtocol` instead of
   `httpx.Response` - the object still exposes `.status_code`, `.headers`, `.content`
 - Response `headers` field is now typed as `Mapping[str, str]` instead of `httpx.Headers`
-  - `httpx.Headers` satisfies this interface so existing call sites are unaffected
+    - `httpx.Headers` satisfies this interface so existing call sites are unaffected
 
 ## [0.14.0] - 2023-03-11
 
