@@ -5,13 +5,18 @@ updates:
   - package-ecosystem: "uv"
     target-branch: "develop"
     directory: "/"
-    # Check for updates once a week
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     labels:
       - "dependencies"
     cooldown:
       default-days: 7
+    groups:
+      python-dependencies:
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
   # Enable updates for Github Actions
   - package-ecosystem: "github-actions"
     target-branch: "develop"
