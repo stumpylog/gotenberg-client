@@ -21,6 +21,8 @@ markdown_extensions:
   - admonition
   - pymdownx.highlight:
       anchor_linenums: true
+  - pymdownx.snippets:
+      base_path: .
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid

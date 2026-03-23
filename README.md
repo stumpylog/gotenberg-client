@@ -203,11 +203,14 @@ If that isn't possible, call `.close()` explicitly:
 
 ```python
 from gotenberg_client import GotenbergClient
+from pathlib import Path
 
+client = GotenbergClient("http://localhost:3000")
 try:
-    client = GotenbergClient("http://localhost:3000")
+    route = client.merge.merge()
     try:
-        route = client.merge(["myfile.pdf", "otherfile.pdf"]).run()
+        response = route.merge([Path("myfile.pdf"), Path("otherfile.pdf")]).run()
+        response.to_file(Path("merged.pdf"))
     finally:
         route.close()
 finally:

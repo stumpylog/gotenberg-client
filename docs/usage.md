@@ -49,11 +49,12 @@ class GotenbergClient:
 
 The `backend` parameter selects the HTTP library used to communicate with Gotenberg:
 
-| Value              | Behaviour                                                                     |
-| ------------------ | ----------------------------------------------------------------------------- |
-| `"auto"` (default) | Use httpx if installed, otherwise fall back to niquests                       |
-| `"httpx"`          | Always use httpx (included by default)                                        |
-| `"niquests"`       | Always use niquests (install with `pip install "gotenberg-client[niquests]"`) |
+| Value              | Behaviour                                                                                |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| `"auto"` (default) | Use httpx if installed, otherwise fall back to niquests                                  |
+| `"httpx"`          | Always use httpx (included by default)                                                   |
+| `"niquests"`       | Always use niquests (install with `pip install "gotenberg-client[niquests]"`)            |
+| `"requests"`       | Always use requests (sync-only; install with `pip install "gotenberg-client[requests]"`) |
 
 ## Authentication
 
@@ -130,6 +131,36 @@ on the route and its configuration.
 For more details, see the [routes](routes.md) page for a detailed breakdown of the
 implemented routes, and the linkage to the Gotenberg route documentation.
 
+## Webhooks
+
+Gotenberg supports [webhooks](https://gotenberg.dev/docs/webhook) — instead of waiting for the response, Gotenberg
+POSTs the result to a URL you provide. Configure webhooks on the client before making requests:
+
+```python
+from gotenberg_client import GotenbergClient
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    client.add_webhook_url("https://my-service.example.com/webhook/result")
+    client.add_error_webhook_url("https://my-service.example.com/webhook/error")
+    client.set_webhook_http_method("POST")   # "POST", "PATCH", or "PUT"
+    client.set_webhook_extra_headers({"Authorization": "Bearer my-token"})
+
+    with client.chromium.html_to_pdf() as route:
+        route.index(Path("index.html")).run()
+        # Gotenberg processes the request asynchronously and POSTs to the webhook URL
+```
+
+Webhook configuration methods on the client:
+
+| Method                                  | Description                                                          |
+| --------------------------------------- | -------------------------------------------------------------------- |
+| `add_webhook_url(url)`                  | URL Gotenberg will POST the result to                                |
+| `add_error_webhook_url(url)`            | URL Gotenberg will POST errors to                                    |
+| `set_webhook_http_method(method)`       | HTTP method for the result webhook (`"POST"`, `"PATCH"`, or `"PUT"`) |
+| `set_error_webhook_http_method(method)` | HTTP method for the error webhook                                    |
+| `set_webhook_extra_headers(headers)`    | Additional headers to include in webhook requests (e.g. auth)        |
+
 ## Error handling
 
 HTTP errors (non-2xx responses) raise `HttpStatusError`, which is exported from
@@ -150,4 +181,22 @@ If you were previously catching `httpx.HTTPStatusError`, update to `HttpStatusEr
 when upgrading to this version.
 
 Transient server errors (5xx) can be retried automatically using `.run_with_retry()`,
-which raises `MaxRetriesExceededError` after all attempts are exhausted.
+which raises `MaxRetriesExceededError` after all attempts are exhausted:
+
+```python
+from gotenberg_client import GotenbergClient, MaxRetriesExceededError
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.chromium.html_to_pdf() as route:
+        try:
+            resp = route.index(Path("index.html")).run_with_retry(
+                max_retry_count=5,       # number of attempts (default: 5)
+                initial_retry_wait=5.0,  # seconds before first retry (default: 5.0)
+                retry_scale=2.0,         # multiplier applied after each attempt (default: 2.0)
+            )
+        except MaxRetriesExceededError as e:
+            print(f"Gave up after retries, last status: {e.response.status_code}")
+```
+
+The default retry pattern waits 5 s, 10 s, 20 s, 40 s, then 80 s between attempts.
+Only 5xx server errors trigger retries; 4xx client errors raise `HttpStatusError` immediately.
