@@ -68,6 +68,10 @@ jobs:
       - name: Pull Docker images
         run: |
           docker compose --file tests/docker/docker-compose.ci-test.yml pull --quiet
+      - name: Show pulled image info
+        run: |
+          docker compose --file tests/docker/docker-compose.ci-test.yml config --images | \
+            xargs docker inspect --format='{{join .RepoTags ", "}} ({{index .RepoDigests 0}})'
       - name: Set up Python ${{ matrix.python-version }}
         id: setup-python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -129,6 +133,10 @@ jobs:
       - name: Pull Docker images
         run: |
           docker compose --file tests/docker/docker-compose.ci-test-edge.yml pull --quiet
+      - name: Show pulled image info
+        run: |
+          docker compose --file tests/docker/docker-compose.ci-test-edge.yml config --images | \
+            xargs docker inspect --format='{{join .RepoTags ", "}} ({{index .RepoDigests 0}})'
       - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
         id: setup-python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
