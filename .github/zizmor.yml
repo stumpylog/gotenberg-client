@@ -9,16 +9,12 @@ rules:
   unpinned-uses:
     config:
       policies:
-        # We trust GitHub not to have a security incident
-        actions/*: ref-pin
-        github/codeql-action/*: ref-pin
-        # And Codecov
-        codecov/*: ref-pin
-        # And astral
-        astral-sh/setup-uv: ref-pin
-        # Pypa is probably safe
-        pypa/gh-action-pypi-publish: ref-pin
-        # Both these are needed
-        ncipollo/release-action: ref-pin
-        release-flow/keep-a-changelog-action: ref-pin
-        j178/prek-action: ref-pin
+        # All actions are SHA-pinned; enforce hash-pin going forward
+        actions/*: hash-pin
+        github/codeql-action/*: hash-pin
+        codecov/*: hash-pin
+        astral-sh/setup-uv: hash-pin
+        pypa/gh-action-pypi-publish: hash-pin
+        ncipollo/release-action: hash-pin
+        release-flow/keep-a-changelog-action: hash-pin
+        j178/prek-action: hash-pin

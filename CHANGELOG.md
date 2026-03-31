@@ -47,6 +47,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Response `headers` field is now typed as `Mapping[str, str]` instead of `httpx.Headers`
     - `httpx.Headers` satisfies this interface so existing call sites are unaffected
 
+### Security
+
+- All GitHub Actions pinned to full commit SHAs (with tag version comments) to prevent
+  supply-chain attacks via mutable tags
+
 ## [0.14.0] - 2023-03-11
 
 ### Changed
