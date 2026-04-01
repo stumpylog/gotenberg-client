@@ -13,11 +13,11 @@ from pytest_httpx import HTTPXMock
 from gotenberg_client import GotenbergClient
 from gotenberg_client import SingleFileResponse
 from gotenberg_client import ZipFileResponse
-from gotenberg_client._libreoffice.mixins import InitialView
-from gotenberg_client._libreoffice.mixins import MagnificationOption
-from gotenberg_client._libreoffice.mixins import PageLayout
 from gotenberg_client._libreoffice.routes import AsyncOfficeDocumentToPdfRoute
 from gotenberg_client._utils import guess_mime_type_stdlib
+from gotenberg_client.options import InitialView
+from gotenberg_client.options import MagnificationOption
+from gotenberg_client.options import PageLayout
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PdfAFormat
 from gotenberg_client.options import WatermarkStampSource
