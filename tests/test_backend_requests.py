@@ -23,6 +23,8 @@ def sync_requests_client(gotenberg_host: str) -> Generator[SyncGotenbergClient, 
         yield c
 
 
+@pytest.mark.live
+@pytest.mark.requests
 class TestRequestsBackendSync:
     def test_health_check(self, sync_requests_client: SyncGotenbergClient):
         with sync_requests_client.health as api:

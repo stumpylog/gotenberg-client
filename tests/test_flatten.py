@@ -1,9 +1,13 @@
 from pathlib import Path
 
+import pytest
+
 from gotenberg_client._others.routes import AsyncFlattenRoute
 from tests.utils import verify_basic_response_values_pdf
 
 
+@pytest.mark.live
+@pytest.mark.async_route
 class TestFlattenApi:
     async def test_flatten_pdf(self, async_flatten_route: AsyncFlattenRoute, pdf_sample_one_file: Path):
         verify_basic_response_values_pdf(

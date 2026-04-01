@@ -31,6 +31,8 @@ async def async_niquests_client(gotenberg_host: str) -> AsyncGenerator[AsyncGote
         yield c
 
 
+@pytest.mark.live
+@pytest.mark.niquests
 class TestNiquestsBackendSync:
     @pytest.mark.flaky(reruns=3)
     def test_health_check(self, sync_niquests_client: SyncGotenbergClient):
@@ -59,6 +61,9 @@ class TestNiquestsBackendSync:
         assert resp.headers["Content-Type"] == "application/pdf"
 
 
+@pytest.mark.live
+@pytest.mark.niquests
+@pytest.mark.async_route
 class TestNiquestsBackendAsync:
     async def test_health_check(self, async_niquests_client: AsyncGotenbergClient):
         async with async_niquests_client.health as api:

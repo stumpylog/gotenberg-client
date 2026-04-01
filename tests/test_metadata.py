@@ -18,6 +18,7 @@ from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
 from gotenberg_client.options import TrappedStatus
 
 
+@pytest.mark.live
 class TestPdfMetadataOnConvert:
     def test_metadata_basic(
         self,
@@ -192,6 +193,7 @@ class TestPdfMetadataOnConvert:
             )
 
 
+@pytest.mark.live
 class TestPdfMetadataReadExisting:
     @staticmethod
     def sample_one_metadata_verify(data: dict[str, PdfMetadata], filename: str):
@@ -258,6 +260,7 @@ class TestPdfMetadataReadExisting:
             pass
 
 
+@pytest.mark.live
 class TestPdfMetadataWriteExisting:
     def test_write_metadata_to_pdf(
         self,
@@ -282,6 +285,7 @@ class TestPdfMetadataWriteExisting:
             assert pdf.docinfo["/Author"] == author
 
 
+@pytest.mark.live
 class TestPdfMetadataRoundTrip:
     def test_write_then_read(
         self,

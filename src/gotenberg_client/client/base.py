@@ -17,6 +17,8 @@ from typing import Union
 from gotenberg_client.__about__ import __version__
 from gotenberg_client._base import AsyncBaseApi
 from gotenberg_client._base import SyncBaseApi
+from gotenberg_client._bookmarks import AsyncBookmarksApi
+from gotenberg_client._bookmarks import SyncBookmarksApi
 from gotenberg_client._chromium import AsyncChromiumApi
 from gotenberg_client._chromium import SyncChromiumApi
 from gotenberg_client._common import ClientT
@@ -32,14 +34,26 @@ from gotenberg_client._libreoffice import AsyncLibreOfficeApi
 from gotenberg_client._libreoffice import SyncLibreOfficeApi
 from gotenberg_client._merge import AsyncMergePdfsApi
 from gotenberg_client._merge import SyncMergePdfsApi
+from gotenberg_client._others import AsyncEmbedApi
+from gotenberg_client._others import AsyncEncryptApi
 from gotenberg_client._others import AsyncFlattenApi
+from gotenberg_client._others import AsyncRotateApi
 from gotenberg_client._others import AsyncSplitApi
+from gotenberg_client._others import AsyncStampApi
+from gotenberg_client._others import AsyncWatermarkApi
+from gotenberg_client._others import SyncEmbedApi
+from gotenberg_client._others import SyncEncryptApi
 from gotenberg_client._others import SyncFlattenApi
+from gotenberg_client._others import SyncRotateApi
 from gotenberg_client._others import SyncSplitApi
+from gotenberg_client._others import SyncStampApi
+from gotenberg_client._others import SyncWatermarkApi
 from gotenberg_client._pdfa_ua import AsyncPdfAApi
 from gotenberg_client._pdfa_ua import SyncPdfAApi
 from gotenberg_client._pdfmetadata import AsyncPdfMetadataApi
 from gotenberg_client._pdfmetadata import SyncPdfMetadataApi
+from gotenberg_client._version import AsyncVersionApi
+from gotenberg_client._version import SyncVersionApi
 
 SyncOrAsyncApiT = TypeVar("SyncOrAsyncApiT", bound=Union["SyncBaseApi", "AsyncBaseApi"])
 
@@ -134,6 +148,36 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
     def version(self) -> SyncOrAsyncApiT:  # pragma: no cover
         pass
 
+    @property
+    @abstractmethod
+    def watermark(self) -> SyncOrAsyncApiT:  # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def stamp(self) -> SyncOrAsyncApiT:  # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def rotate(self) -> SyncOrAsyncApiT:  # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def encrypt(self) -> SyncOrAsyncApiT:  # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def embed(self) -> SyncOrAsyncApiT:  # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def bookmarks(self) -> SyncOrAsyncApiT:  # pragma: no cover
+        pass
+
     def add_headers(self, header: dict[str, str]) -> None:
         """
         Add custom headers to the request, such as authentication, etc
@@ -205,6 +249,13 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[SyncClient
       - [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route)
       - [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route)
       - [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route)
+      - [Watermark PDFs](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs)
+      - [Stamp PDFs](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs)
+      - [Rotate PDFs](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs)
+      - [Encrypt PDFs](https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs)
+      - [Embed Attachments](https://gotenberg.dev/docs/manipulate-pdfs/attachments)
+      - [Read Bookmarks](https://gotenberg.dev/docs/manipulate-pdfs/read-bookmarks)
+      - [Write Bookmarks](https://gotenberg.dev/docs/manipulate-pdfs/write-bookmarks)
       - [Health](https://gotenberg.dev/docs/routes#health-check-route)
       - [Version](https://gotenberg.dev/docs/routes#version-route)
     """
@@ -310,17 +361,62 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[SyncClient
         """
         return SyncHealthCheckApi(self._client, self._log)
 
-    # TODO: Implement this
     @property
-    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var,misc]
+    def version(self) -> SyncVersionApi:
         """
         Returns a new instance for reading the
         [Version](https://gotenberg.dev/docs/routes#version-route) route
-
-        Raises:
-            NotImplementedError: This API is not yet implemented
         """
-        raise NotImplementedError
+        return SyncVersionApi(self._client, self._log)
+
+    @property
+    def watermark(self) -> SyncWatermarkApi:
+        """
+        Returns a new instance for interacting with the
+        [Watermark PDFs](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs) route
+        """
+        return SyncWatermarkApi(self._client, self._log)
+
+    @property
+    def stamp(self) -> SyncStampApi:
+        """
+        Returns a new instance for interacting with the
+        [Stamp PDFs](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs) route
+        """
+        return SyncStampApi(self._client, self._log)
+
+    @property
+    def rotate(self) -> SyncRotateApi:
+        """
+        Returns a new instance for interacting with the
+        [Rotate PDFs](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs) route
+        """
+        return SyncRotateApi(self._client, self._log)
+
+    @property
+    def encrypt(self) -> SyncEncryptApi:
+        """
+        Returns a new instance for interacting with the
+        [Encrypt PDFs](https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs) route
+        """
+        return SyncEncryptApi(self._client, self._log)
+
+    @property
+    def embed(self) -> SyncEmbedApi:
+        """
+        Returns a new instance for interacting with the
+        [Embed attachments](https://gotenberg.dev/docs/manipulate-pdfs/attachments) route
+        """
+        return SyncEmbedApi(self._client, self._log)
+
+    @property
+    def bookmarks(self) -> SyncBookmarksApi:
+        """
+        Returns a new instance for interacting with the
+        [Bookmarks](https://gotenberg.dev/docs/manipulate-pdfs/read-bookmarks) routes
+        for reading and writing PDF bookmarks
+        """
+        return SyncBookmarksApi(self._client, self._log)
 
 
 class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[AsyncClientProtocol, AsyncBaseApi]):
@@ -337,6 +433,13 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
       - [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route)
       - [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route)
       - [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route)
+      - [Watermark PDFs](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs)
+      - [Stamp PDFs](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs)
+      - [Rotate PDFs](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs)
+      - [Encrypt PDFs](https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs)
+      - [Embed Attachments](https://gotenberg.dev/docs/manipulate-pdfs/attachments)
+      - [Read Bookmarks](https://gotenberg.dev/docs/manipulate-pdfs/read-bookmarks)
+      - [Write Bookmarks](https://gotenberg.dev/docs/manipulate-pdfs/write-bookmarks)
       - [Health](https://gotenberg.dev/docs/routes#health-check-route)
       - [Version](https://gotenberg.dev/docs/routes#version-route)
     """
@@ -442,17 +545,62 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         """
         return AsyncHealthCheckApi(self._client, self._log)
 
-    # TODO: Implement this
     @property
-    def version(self) -> SyncOrAsyncApiT:  # type: ignore[override,type-var,misc]
+    def version(self) -> AsyncVersionApi:
         """
         Returns a new instance for reading the
         [Version](https://gotenberg.dev/docs/routes#version-route) route
-
-        Raises:
-            NotImplementedError: This API is not yet implemented
         """
-        raise NotImplementedError
+        return AsyncVersionApi(self._client, self._log)
+
+    @property
+    def watermark(self) -> AsyncWatermarkApi:
+        """
+        Returns a new instance for interacting with the
+        [Watermark PDFs](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs) route
+        """
+        return AsyncWatermarkApi(self._client, self._log)
+
+    @property
+    def stamp(self) -> AsyncStampApi:
+        """
+        Returns a new instance for interacting with the
+        [Stamp PDFs](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs) route
+        """
+        return AsyncStampApi(self._client, self._log)
+
+    @property
+    def rotate(self) -> AsyncRotateApi:
+        """
+        Returns a new instance for interacting with the
+        [Rotate PDFs](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs) route
+        """
+        return AsyncRotateApi(self._client, self._log)
+
+    @property
+    def encrypt(self) -> AsyncEncryptApi:
+        """
+        Returns a new instance for interacting with the
+        [Encrypt PDFs](https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs) route
+        """
+        return AsyncEncryptApi(self._client, self._log)
+
+    @property
+    def embed(self) -> AsyncEmbedApi:
+        """
+        Returns a new instance for interacting with the
+        [Embed attachments](https://gotenberg.dev/docs/manipulate-pdfs/attachments) route
+        """
+        return AsyncEmbedApi(self._client, self._log)
+
+    @property
+    def bookmarks(self) -> AsyncBookmarksApi:
+        """
+        Returns a new instance for interacting with the
+        [Bookmarks](https://gotenberg.dev/docs/manipulate-pdfs/read-bookmarks) routes
+        for reading and writing PDF bookmarks
+        """
+        return AsyncBookmarksApi(self._client, self._log)
 
 
 GotenbergClient = SyncGotenbergClient

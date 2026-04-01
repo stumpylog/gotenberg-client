@@ -24,6 +24,8 @@ from gotenberg_client.options import WatermarkStampSource
 from tests.utils import verify_stream_contains
 
 
+@pytest.mark.live
+@pytest.mark.libreoffice
 class TestLibreOfficeConvert:
     def test_libre_office_convert_docx_format(self, sync_client: GotenbergClient, docx_sample_file: Path):
         with sync_client.libre_office.to_pdf() as route:
@@ -181,6 +183,9 @@ class TestLibreOfficeConvert:
             assert meta.pdfa_status == pike_format
 
 
+@pytest.mark.live
+@pytest.mark.libreoffice
+@pytest.mark.async_route
 class TestLibreOfficeConvertAsync:
     async def test_libre_office_convert_docx_format(
         self,
@@ -194,6 +199,8 @@ class TestLibreOfficeConvertAsync:
         assert resp.headers["Content-Type"] == "application/pdf"
 
 
+@pytest.mark.live
+@pytest.mark.libreoffice
 class TestLibreOfficeProperties:
     async def test_libre_office_password(
         self,
@@ -280,6 +287,7 @@ class TestLibreOfficeProperties:
         assert resp.headers["Content-Type"] == "application/pdf"
 
 
+@pytest.mark.libreoffice
 class TestLibreOfficeMocked:
     def test_libreoffice_watermark_source(
         self,

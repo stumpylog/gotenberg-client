@@ -639,6 +639,227 @@ with GotenbergClient("http://localhost:3000") as client:
         response.to_file(Path("flattened.pdf"))
 ```
 
+## Watermark PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs)
+
+Route Access: `client.watermark.watermark()`
+
+Apply a watermark behind the content of each page of existing PDFs.
+
+Required Properties:
+
+- At least one file via `.add_file(Path("file.pdf"))` or `.add_files([...])`
+- `.watermark_source()` with a `WatermarkStampSource` value
+
+```python
+from gotenberg_client import GotenbergClient
+from gotenberg_client.options import WatermarkStampSource
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.watermark.watermark() as route:
+        response = (
+            route.add_file(Path("my.pdf"))
+            .watermark_source(WatermarkStampSource.Text)
+            .watermark_expression("DRAFT")
+            .run()
+        )
+        response.to_file(Path("watermarked.pdf"))
+```
+
+See [Watermark](#watermark) in Global Options for all available watermark configuration options. This route also supports [Stamp](#stamp), [Rotate](#rotate), [Encrypt](#encrypt), [Embeds](#embeds), [PDF/A & PDF/UA](#pdfa--pdfua-1), [PDF Metadata Support](#pdf-metadata-support), and [Download From](#download-from).
+
+## Stamp PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs)
+
+Route Access: `client.stamp.stamp()`
+
+Apply a stamp on top of the content of each page of existing PDFs.
+
+Required Properties:
+
+- At least one file via `.add_file(Path("file.pdf"))` or `.add_files([...])`
+- `.stamp_source()` with a `WatermarkStampSource` value
+
+```python
+from gotenberg_client import GotenbergClient
+from gotenberg_client.options import WatermarkStampSource
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.stamp.stamp() as route:
+        response = (
+            route.add_file(Path("my.pdf"))
+            .stamp_source(WatermarkStampSource.Text)
+            .stamp_expression("CONFIDENTIAL")
+            .run()
+        )
+        response.to_file(Path("stamped.pdf"))
+```
+
+See [Stamp](#stamp) in Global Options for all available stamp configuration options. This route also supports [Watermark](#watermark), [Rotate](#rotate), [Encrypt](#encrypt), [Embeds](#embeds), [PDF/A & PDF/UA](#pdfa--pdfua-1), [PDF Metadata Support](#pdf-metadata-support), and [Download From](#download-from).
+
+## Rotate PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs)
+
+Route Access: `client.rotate.rotate()`
+
+Rotate pages of existing PDFs.
+
+Required Properties:
+
+- At least one file via `.add_file(Path("file.pdf"))` or `.add_files([...])`
+- `.rotate()` with a `RotateAngle` value
+
+```python
+from gotenberg_client import GotenbergClient
+from gotenberg_client.options import RotateAngle
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.rotate.rotate() as route:
+        response = (
+            route.add_file(Path("my.pdf"))
+            .rotate(RotateAngle.Clockwise90)
+            .run()
+        )
+        response.to_file(Path("rotated.pdf"))
+```
+
+An optional `pages` string argument limits rotation to specific pages (e.g. `"1-3"`). This route also supports [Encrypt](#encrypt), [Embeds](#embeds), [PDF/A & PDF/UA](#pdfa--pdfua-1), [PDF Metadata Support](#pdf-metadata-support), and [Download From](#download-from).
+
+## Encrypt PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs)
+
+Route Access: `client.encrypt.encrypt()`
+
+Password-protect existing PDFs.
+
+Required Properties:
+
+- At least one file via `.add_file(Path("file.pdf"))` or `.add_files([...])`
+- `.user_password()` — the password required to open the PDF (required by Gotenberg)
+
+```python
+from gotenberg_client import GotenbergClient
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.encrypt.encrypt() as route:
+        response = (
+            route.add_file(Path("my.pdf"))
+            .user_password("open-secret")
+            .owner_password("edit-secret")  # optional
+            .run()
+        )
+        response.to_file(Path("encrypted.pdf"))
+```
+
+!!! note
+
+    `userPassword` is required by the API. Providing only `ownerPassword` without `userPassword` will return a 400 error.
+
+## Embed Attachments
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/attachments)
+
+Route Access: `client.embed.embed()`
+
+Embed external files as attachments inside existing PDFs (e.g. for ZUGFeRD/Factur-X XML invoices).
+
+Required Properties:
+
+- At least one PDF via `.add_pdf(Path("file.pdf"))` or `.add_pdfs([...])`
+- At least one file to embed via `.embed(Path("attachment.xml"))` or `.embed_files([...])`
+
+```python
+from gotenberg_client import GotenbergClient
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.embed.embed() as route:
+        response = (
+            route.add_pdf(Path("invoice.pdf"))
+            .embed(Path("factur-x.xml"))
+            .run()
+        )
+        response.to_file(Path("invoice-with-attachment.pdf"))
+```
+
+This route also supports [Download From](#download-from).
+
+## Read PDF Bookmarks
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/read-bookmarks)
+
+Route Access: `client.bookmarks.read()`
+
+Extract the bookmark outline from existing PDFs.
+
+Required Properties:
+
+- At least one file via `.read(Path("file.pdf"))` or `.read_files([...])`
+
+!!! note
+
+    Unlike other routes, `.run()` returns `dict[str, list[BookmarkEntry]]` — one entry per input file mapping to that file's bookmark list — rather than a file response.
+
+```python
+from gotenberg_client import GotenbergClient, BookmarkEntry
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.bookmarks.read() as route:
+        bookmarks = route.read(Path("my.pdf")).run()
+        # bookmarks == {"my.pdf": [{"title": "Chapter 1", "page": 1, "children": []}]}
+```
+
+## Write PDF Bookmarks
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/write-bookmarks)
+
+Route Access: `client.bookmarks.write()`
+
+Write a bookmark outline into existing PDFs.
+
+Required Properties:
+
+- At least one file via `.add_file(Path("file.pdf"))` or `.add_files([...])`
+- A bookmark list via `.bookmarks(bookmark_list)`
+
+```python
+from gotenberg_client import GotenbergClient, BookmarkEntry
+from pathlib import Path
+
+bookmarks: list[BookmarkEntry] = [
+    {"title": "Chapter 1", "page": 1, "children": []},
+    {
+        "title": "Chapter 2",
+        "page": 5,
+        "children": [
+            {"title": "Section 2.1", "page": 6, "children": []},
+        ],
+    },
+]
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.bookmarks.write() as route:
+        response = route.add_file(Path("my.pdf")).bookmarks(bookmarks).run()
+        response.to_file(Path("my-with-bookmarks.pdf"))
+```
+
+`BookmarkEntry` is a typed dict with fields:
+
+| Field      | Type                  | Notes                     |
+| ---------- | --------------------- | ------------------------- |
+| `title`    | `str`                 | Display name of the entry |
+| `page`     | `int`                 | 1-based destination page  |
+| `children` | `list[BookmarkEntry]` | Nested child bookmarks    |
+
 ## Health Check
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#health-check-route)
@@ -659,9 +880,19 @@ Returns a `HealthStatus` object with:
 
 ## Version
 
-!!! warning
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#version-route)
 
-    This route is not implemented
+Route Access: `client.version.get()`
+
+Returns the Gotenberg server version as a string (e.g. `"8.29.1"`).
+
+```python
+from gotenberg_client import GotenbergClient
+
+with GotenbergClient("http://localhost:3000") as client:
+    version = client.version.get()
+    print(version)  # e.g. "8.29.1"
+```
 
 ## Debug
 
@@ -698,7 +929,7 @@ with client.chromium.html_to_pdf() as route:
 [Gotenberg Documentation](https://gotenberg.dev/docs/webhook-download)
 
 Instruct Gotenberg to fetch input files from URLs instead of requiring direct uploads.
-Available on Chromium, LibreOffice, Merge, and Split routes.
+Available on Chromium, LibreOffice, Merge, Split, Watermark, Stamp, Rotate, Encrypt, and Embed routes.
 
 ```python
 from gotenberg_client import GotenbergClient
@@ -727,7 +958,7 @@ with GotenbergClient("http://localhost:3000") as client:
 [Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs)
 
 Apply a watermark behind the content of each page. Available on Chromium, LibreOffice,
-Merge, and Split routes.
+Merge, Split, Watermark, and Stamp routes. See also the standalone [Watermark PDFs](#watermark-pdfs) route.
 
 | Route Method              | Python Type             | Notes                                                                |
 | ------------------------- | ----------------------- | -------------------------------------------------------------------- |
@@ -742,7 +973,7 @@ Merge, and Split routes.
 [Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs)
 
 Apply a stamp on top of the content of each page. Available on Chromium, LibreOffice,
-Merge, and Split routes. Uses the same option types as Watermark.
+Merge, Split, Watermark, and Stamp routes. Uses the same option types as Watermark. See also the standalone [Stamp PDFs](#stamp-pdfs) route.
 
 | Route Method          | Python Type             | Notes                                             |
 | --------------------- | ----------------------- | ------------------------------------------------- |
@@ -756,7 +987,7 @@ Merge, and Split routes. Uses the same option types as Watermark.
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs)
 
-Rotate PDF pages. Available on Chromium, LibreOffice, Merge, and Split routes.
+Rotate PDF pages. Available on Chromium, LibreOffice, Merge, Split, Watermark, Stamp, and Rotate routes. See also the standalone [Rotate PDFs](#rotate-pdfs) route.
 
 | Route Method | Python Type   | Notes                                         |
 | ------------ | ------------- | --------------------------------------------- |
@@ -768,7 +999,7 @@ An optional `pages` string argument limits rotation to specific pages (e.g. `"1-
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs)
 
-Password-protect the output PDF. Available on Chromium, LibreOffice, Merge, and Split routes.
+Password-protect the output PDF. Available on Chromium, LibreOffice, Merge, Split, Watermark, Stamp, and Rotate routes. See also the standalone [Encrypt PDFs](#encrypt-pdfs) route.
 
 | Route Method        | Python Type | Notes                        |
 | ------------------- | ----------- | ---------------------------- |
@@ -780,7 +1011,7 @@ Password-protect the output PDF. Available on Chromium, LibreOffice, Merge, and 
 [Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/attachments)
 
 Attach external files as embedded attachments inside the PDF container. Available on
-Chromium, LibreOffice, Merge, and Split routes.
+Chromium, LibreOffice, Merge, Split, Watermark, and Stamp routes. See also the standalone [Embed Attachments](#embed-attachments) route.
 
 | Route Method     | Python Type  | Notes                                   |
 | ---------------- | ------------ | --------------------------------------- |

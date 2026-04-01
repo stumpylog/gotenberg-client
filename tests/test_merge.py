@@ -16,6 +16,7 @@ from tests.utils import extract_text
 from tests.utils import verify_stream_contains
 
 
+@pytest.mark.live
 class TestMergePdfs:
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
@@ -73,6 +74,8 @@ class TestMergePdfs:
             assert "second PDF to be merged." in lines[1]
 
 
+@pytest.mark.live
+@pytest.mark.async_route
 class TestMergePdfsAsync:
     async def test_merge_multiple_file(
         self,

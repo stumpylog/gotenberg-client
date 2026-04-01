@@ -9,102 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 
-- `httpx` is no longer installed by default. Install the backend you want explicitly:
+- `httpx` is no longer installed by default - install the backend you want explicitly:
     - `pip install "gotenberg-client[httpx]"` - recommended; HTTP/2 and async support
     - `pip install "gotenberg-client[niquests]"` - HTTP/2 and async support
     - `pip install "gotenberg-client[requests]"` - sync-only
-- `auth` parameter type changed from `httpx.BasicAuth | tuple[str, str] | None` to
-  `tuple[str, str] | None` - `httpx.BasicAuth` is no longer accepted
+- `httpx.BasicAuth` is no longer accepted for the `auth` parameter; use a `(username, password)` tuple instead
 
 ### Added
 
-- Pluggable HTTP backend: users can choose between
-  [`httpx`](https://www.python-httpx.org/), [`niquests`](https://niquests.readthedocs.io/),
-  or [`requests`](https://requests.readthedocs.io/) via the new `backend` parameter on
-  `SyncGotenbergClient` / `AsyncGotenbergClient`
+- Pluggable HTTP backend: choose between `httpx`, `niquests`, or `requests` via the `backend` parameter
     - `backend="auto"` (default) - uses httpx if installed, falls back to niquests
-    - `backend="httpx"` - always use httpx (requires `pip install "gotenberg-client[httpx]"`)
-    - `backend="niquests"` - always use niquests (requires `pip install "gotenberg-client[niquests]"`)
-    - `backend="requests"` - sync-only (requires `pip install "gotenberg-client[requests]"`)
-- `HttpStatusError` exception exported from `gotenberg_client` - a backend-agnostic
-  replacement for `httpx.HTTPStatusError` that is raised by `run()` and `run_with_retry()`
-- `BackendType` type alias exported from `gotenberg_client` for type-annotating the `backend` argument
-- `AuthType` type alias (`tuple[str, str] | None`) exported from `gotenberg_client` for
-  type-annotating the `auth` argument
-- `requests` sync-only backend: users who already have `requests` installed can now use
-  it via `backend="requests"` on `SyncGotenbergClient`
-    - `AsyncGotenbergClient` raises `ValueError` if `backend="requests"` is passed, since
-      `requests` has no async support
-- Watermark support: apply a watermark behind page content on Chromium,
-  LibreOffice, Merge, and Split routes via `watermark_source()`, `watermark_expression()`,
-  `watermark_pages()`, `watermark_options()`, and `watermark_file()`
-- Stamp support: apply a stamp on top of page content on Chromium,
-  LibreOffice, Merge, and Split routes via `stamp_source()`, `stamp_expression()`,
-  `stamp_pages()`, `stamp_options()`, and `stamp_file()`
-- Rotate support: rotate PDF pages by 90°, 180°, or 270° on Chromium,
-  LibreOffice, Merge, and Split routes via `rotate(angle, pages=None)`
-- Encrypt support: password-protect output PDFs on Chromium,
-  LibreOffice, Merge, and Split routes via `user_password()` and `owner_password()`
-- Embed support: attach external files inside the PDF container on
-  Chromium, LibreOffice, Merge, and Split routes via `embed()` and `embed_files()`
-- Download-from support: instruct Gotenberg to fetch input files
-  from URLs rather than requiring direct uploads on Chromium, LibreOffice, Merge, and
-  Split routes via `download_from(urls)`
-- Flatten options now also applied to all Chromium conversion routes
-- New option types in `gotenberg_client.options`:
-    - `WatermarkStampSource` enum (`Text`, `Image`, `Pdf`)
-    - `RotateAngle` enum (`Clockwise90`, `Clockwise180`, `Clockwise270`)
-    - `WatermarkStampOptions` dataclass (font, points, color, rotation, opacity, scale)
-    - `DownloadFromUrl` dataclass (url, extra_http_headers, embedded, field)
-- New Chromium route options (available on all PDF and screenshot routes):
-    - `wait_for_selector(selector)` — wait for a CSS selector before rendering
-    - `emulated_media_features(features)` — override CSS media features (e.g. `prefers-color-scheme`)
-    - `fail_on_resource_status_codes(codes)` — fail if any loaded resource returns a listed HTTP status code
-    - `ignore_resource_status_domains(domains)` — exclude specific domains from resource status code checks
-    - `skip_network_almost_idle(*, skip)` — skip the network "almost idle" event for faster rendering
-- New Chromium PDF-only options:
-    - `generate_tagged_pdf(*, generate)` — generate a tagged (accessible) PDF structure
-- New Chromium PDF route convenience methods on `HeaderFooterMixin`:
-    - `string_header(html)` — set the header from an in-memory HTML string
-    - `string_footer(html)` — set the footer from an in-memory HTML string
-- New LibreOffice route options:
-    - `export_placeholders(*, export_placeholders)` — export placeholder fields to PDF
-    - Native watermark support via `LibreOfficeNativeWatermarkMixin`: `native_watermark_text()`,
-      `native_watermark_color()`, `native_watermark_font_height()`, `native_watermark_rotate_angle()`,
-      `native_watermark_font_name()`, `native_tiled_watermark_text()`
-    - PDF viewer preferences via `LibreOfficeViewerPreferencesMixin`: `initial_view()`, `initial_page()`,
-      `magnification()`, `zoom()`, `page_layout()`, `first_page_on_left()`,
-      `resize_window_to_initial_page()`, `center_window()`, `open_in_full_screen_mode()`,
-      `display_pdf_document_title()`, `hide_viewer_menubar()`, `hide_viewer_toolbar()`,
-      `hide_viewer_window_controls()`, `use_transition_effects()`, `open_bookmark_levels()`
-    - New enums `InitialView`, `MagnificationOption`, and `PageLayout` in `gotenberg_client.options`
-      for use with viewer preference methods
-- New Merge PDF route options:
-    - `auto_index_bookmarks(*, enable)` — auto-extract bookmarks from input PDFs and re-index page numbers
-    - `merge_bookmarks(bookmark_list)` — set custom bookmarks on the merged PDF
+    - `backend="httpx"`, `backend="niquests"`, `backend="requests"` - pin a specific backend
+- `HttpStatusError` - a backend-agnostic exception raised on non-2xx responses, replacing `httpx.HTTPStatusError`
+- New PDF manipulation options available on Chromium, LibreOffice, Merge, and Split routes:
+    - Watermark - apply a watermark behind page content
+    - Stamp - apply a stamp on top of page content
+    - Rotate - rotate pages by 90°, 180°, or 270°
+    - Encrypt - password-protect the output PDF
+    - Embed - attach external files inside the PDF container
+    - Download-from - instruct Gotenberg to fetch inputs from URLs instead of uploading them
+- Flatten option extended to Chromium conversion routes
+- New Chromium options: wait for a CSS selector, override CSS media features, fail on resource HTTP status codes, skip network idle events, generate tagged (accessible) PDFs
+- New Chromium convenience methods: set header/footer from an in-memory HTML string
+- New LibreOffice options: export placeholder fields, native watermark/tiled watermark, PDF viewer preferences (initial view, zoom, page layout, window controls, etc.)
+- New Merge PDF options: auto-index bookmarks from inputs, set custom bookmarks on the merged output
+- New standalone PDF manipulation routes (operate on existing PDFs):
+    - `client.watermark.watermark()` - watermark existing PDFs
+    - `client.stamp.stamp()` - stamp existing PDFs
+    - `client.rotate.rotate()` - rotate pages of existing PDFs
+    - `client.encrypt.encrypt()` - password-protect existing PDFs
+    - `client.embed.embed()` - embed file attachments into existing PDFs (e.g. ZUGFeRD/Factur-X XML)
+    - `client.bookmarks.read()` - extract the bookmark outline from existing PDFs
+    - `client.bookmarks.write()` - write a bookmark outline into existing PDFs
+    - `client.version.get()` - retrieve the Gotenberg server version
 
 ### Changed
 
-- Internal `RequestFiles` type changed from `dict` to `list[tuple[str, FileEntry]]` to
-  preserve file ordering when multiple files are submitted in a single request
-- `run()` and `run_with_retry()` now raise `HttpStatusError` (from `gotenberg_client`)
-  instead of `httpx.HTTPStatusError` for non-2xx responses
-    - **Migration**: replace `except httpx.HTTPStatusError` with `except HttpStatusError`
-      after adding `from gotenberg_client import HttpStatusError`
-- `MaxRetriesExceededError.response` is now typed as `ResponseProtocol` instead of
-  `httpx.Response` - the object still exposes `.status_code`, `.headers`, `.content`
-- Response `headers` field is now typed as `Mapping[str, str]` instead of `httpx.Headers`
-    - `httpx.Headers` satisfies this interface so existing call sites are unaffected
+- HTTP errors now raise `HttpStatusError` instead of `httpx.HTTPStatusError`
+    - **Migration**: replace `except httpx.HTTPStatusError` with `except HttpStatusError` (imported from `gotenberg_client`)
+- File ordering is now preserved when multiple files are submitted in a single request
 - CI testing now runs against Gotenberg 8.29.1
 
 ### Security
 
-- All GitHub Actions pinned to full commit SHAs (with tag version comments) to prevent
-  supply-chain attacks via mutable tags
+- GitHub Actions pinned to full commit SHAs to prevent supply-chain attacks via mutable tags
 
 ### Fixed
 
-Gotenberg 8.29 modified the read metadata route (see [this discussion](https://github.com/gotenberg/gotenberg/discussions/1506)), which is now taken into account in testing
+- Compatibility with Gotenberg 8.29's modified read metadata route (see [this discussion](https://github.com/gotenberg/gotenberg/discussions/1506))
 
 ## [0.14.0] - 2023-03-11
 
