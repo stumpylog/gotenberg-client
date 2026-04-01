@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: 2025-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+import json
 from pathlib import Path
+from typing import Any
 from typing import Final
 
 from gotenberg_client._base import AsyncBaseRoute
@@ -17,6 +19,7 @@ from gotenberg_client._common import RotateMixin
 from gotenberg_client._common import StampMixin
 from gotenberg_client._common import WatermarkMixin
 from gotenberg_client._typing_compat import Self
+from gotenberg_client._utils import bool_to_form
 
 
 class _BaseMergePdfFilesRoute(
@@ -68,6 +71,24 @@ class _BaseMergePdfFilesRoute(
             # Include index to enforce ordering
             self._add_file_map(filepath, name=f"{self._next:05d}_{filepath.name}")  # type: ignore[attr-defined,misc]
             self._next += 1  # type: ignore[attr-defined,misc]
+        return self
+
+    def auto_index_bookmarks(self, *, enable: bool) -> Self:
+        """
+        Auto-extract bookmarks from input PDFs and offset their page numbers
+        to match the merged document's page numbers.
+        https://gotenberg.dev/docs/manipulate-pdfs/merge-pdfs
+        """
+        self._form_data.update(bool_to_form("autoIndexBookmarks", enable))  # type: ignore[attr-defined,misc]
+        return self
+
+    def merge_bookmarks(self, bookmark_list: list[dict[str, Any]]) -> Self:
+        """
+        Set custom bookmarks for the merged PDF.
+        Each bookmark: {"title": str, "page": int, "children": [...]}
+        https://gotenberg.dev/docs/manipulate-pdfs/merge-pdfs
+        """
+        self._form_data.update({"bookmarks": json.dumps(bookmark_list)})  # type: ignore[attr-defined,misc]
         return self
 
 

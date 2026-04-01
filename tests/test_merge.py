@@ -121,3 +121,26 @@ class TestMergePdfsMocked:
         with sync_client.merge.merge() as route:
             route.merge([sample_directory / "sample1.pdf"]).user_password("pw").run()
         verify_stream_contains(httpx_mock.get_request(), "userPassword", "pw")
+
+    def test_merge_auto_index_bookmarks(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.merge.merge() as route:
+            route.merge([sample_directory / "sample1.pdf"]).auto_index_bookmarks(enable=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "autoIndexBookmarks", "true")
+
+    def test_merge_bookmarks(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        bookmarks = [{"title": "Section 1", "page": 1}]
+        with sync_client.merge.merge() as route:
+            route.merge([sample_directory / "sample1.pdf"]).merge_bookmarks(bookmarks).run()
+        verify_stream_contains(httpx_mock.get_request(), "bookmarks", "Section 1")
