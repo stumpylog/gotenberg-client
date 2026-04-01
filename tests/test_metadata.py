@@ -291,11 +291,11 @@ class TestPdfMetadataRoundTrip:
         """
         Round-trip: write known metadata, then read it back via Gotenberg.
 
-        This test exercises the write→read contract and reveals how ExifTool
-        normalises tag names on read.  Specifically it checks whether the PDF
-        info-dict key "ModDate" (what the mixin sends) comes back as "ModDate"
-        or as ExifTool's canonical "ModifyDate".  It also confirms that dates
-        are overridden by Gotenberg/ExifTool rather than preserved as written.
+        This test exercises the write->read contract and confirms that ExifTool
+        preserves the XMP pdf namespace key "ModDate" as-is on read - it does
+        NOT normalise it to "ModifyDate".  "ModifyDate" only appears for PDFs
+        whose modification date is stored in the base XMP namespace (e.g.
+        Chromium/Skia-generated PDFs).
         """
         author = "Round Trip Author"
         title = "Round Trip Title"
@@ -309,8 +309,6 @@ class TestPdfMetadataRoundTrip:
                     author=author,
                     title=title,
                     creator=creator,
-                    # The mixin sends this as "ModDate" in JSON.  After the
-                    # round-trip we check which key ExifTool returns it under.
                     modification_date=datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc),
                 )
                 .run_with_retry()
@@ -333,9 +331,7 @@ class TestPdfMetadataRoundTrip:
         assert result.get("Title") == title
         assert result.get("Creator") == creator
 
-        # The mixin writes modification date under the key "ModDate" (the raw
-        # PDF info-dict name).  ExifTool maps that to its canonical tag name
-        # "ModifyDate" on read.  Gotenberg overrides the actual value with the
-        # current time, so we only assert on key presence, not the value.
-        assert "ModifyDate" in result
-        assert "ModDate" not in result
+        # ExifTool preserves the XMP pdf namespace key "ModDate" as-is on read.
+        # The value may be overridden by Gotenberg, so we assert on key presence only.
+        assert "ModDate" in result
+        assert "ModifyDate" not in result
