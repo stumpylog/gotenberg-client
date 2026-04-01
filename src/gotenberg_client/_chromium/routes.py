@@ -13,6 +13,7 @@ from gotenberg_client._chromium.mixins import CustomHTTPHeaderMixin
 from gotenberg_client._chromium.mixins import DocumentOutlineMixin
 from gotenberg_client._chromium.mixins import EmulatedMediaFeaturesMixin
 from gotenberg_client._chromium.mixins import EmulatedMediaMixin
+from gotenberg_client._chromium.mixins import GenerateTaggedPdfMixin
 from gotenberg_client._chromium.mixins import HeaderFooterMixin
 from gotenberg_client._chromium.mixins import IgnoreResourceDomainsMixin
 from gotenberg_client._chromium.mixins import InvalidStatusCodesMixin
@@ -71,6 +72,7 @@ class _BaseChromiumConvertMixin(
     ConsoleExceptionMixin,
     PerformanceModeMixin,
     NetworkAlmostIdleMixin,
+    GenerateTaggedPdfMixin,
     SplitModeMixin,
     PdfFormatMixin,
     PdfUniversalAccessMixin,

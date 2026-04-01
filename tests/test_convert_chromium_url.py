@@ -336,3 +336,42 @@ class TestConvertChromiumUrlMocked:
         with sync_client.chromium.url_to_pdf() as route:
             route.url(webserver_docker_internal_url).skip_network_almost_idle(skip=True).run()
         verify_stream_contains(httpx_mock.get_request(), "skipNetworkAlmostIdleEvent", "true")
+
+    def test_generate_tagged_pdf(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).generate_tagged_pdf(generate=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "generateTaggedPdf", "true")
+
+    def test_string_header(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).string_header("<html><body>Header</body></html>").run()
+        request = httpx_mock.get_request()
+        boundary = request.headers["Content-Type"].split("boundary=")[1]
+        parts = request.content.split(f"--{boundary}".encode())
+        assert any(b'filename="header.html"' in part for part in parts)
+
+    def test_string_footer(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).string_footer("<html><body>Footer</body></html>").run()
+        request = httpx_mock.get_request()
+        boundary = request.headers["Content-Type"].split("boundary=")[1]
+        parts = request.content.split(f"--{boundary}".encode())
+        assert any(b'filename="footer.html"' in part for part in parts)

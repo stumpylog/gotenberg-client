@@ -316,6 +316,20 @@ class HeaderFooterMixin:
         self._add_file_map(footer, name="footer.html")  # type: ignore[attr-defined]
         return self
 
+    def string_header(self, html: str) -> Self:
+        """
+        Sets the header from an in-memory HTML string instead of a file path.
+        """
+        self._add_in_memory_file(html, name="header.html", mime_type="text/html")  # type: ignore[attr-defined]
+        return self
+
+    def string_footer(self, html: str) -> Self:
+        """
+        Sets the footer from an in-memory HTML string instead of a file path.
+        """
+        self._add_in_memory_file(html, name="footer.html", mime_type="text/html")  # type: ignore[attr-defined]
+        return self
+
 
 class RenderControlMixin:
     """
@@ -621,4 +635,15 @@ class NetworkAlmostIdleMixin:
 
     def skip_network_almost_idle(self, *, skip: bool) -> Self:
         self._form_data.update(bool_to_form("skipNetworkAlmostIdleEvent", skip))  # type: ignore[attr-defined,misc]
+        return self
+
+
+class GenerateTaggedPdfMixin:
+    """
+    https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#accessibility
+    Generate a tagged (structured) PDF for improved accessibility.
+    """
+
+    def generate_tagged_pdf(self, *, generate: bool) -> Self:
+        self._form_data.update(bool_to_form("generateTaggedPdf", generate))  # type: ignore[attr-defined,misc]
         return self
