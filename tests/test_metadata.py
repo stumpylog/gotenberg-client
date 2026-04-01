@@ -1,4 +1,3 @@
-from datetime import UTC
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -312,7 +311,7 @@ class TestPdfMetadataRoundTrip:
                     creator=creator,
                     # The mixin sends this as "ModDate" in JSON.  After the
                     # round-trip we check which key ExifTool returns it under.
-                    modification_date=datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC),
+                    modification_date=datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc),
                 )
                 .run_with_retry()
             )

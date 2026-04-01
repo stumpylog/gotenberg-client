@@ -36,7 +36,8 @@ class PdfMetadata(TypedDict, total=False):
     Creator: str
     Keywords: str | list[str]  # array when written as JSON array; string otherwise
     Marked: bool
-    ModifyDate: str
+    ModDate: str  # XMP pdf namespace (pdf:ModDate) — written via Gotenberg's metadata route
+    ModifyDate: str  # base XMP namespace (xmp:ModifyDate) — present in Chromium/Skia-generated PDFs
     Producer: str
     Subject: str
     Title: str
