@@ -9,6 +9,7 @@ from pytest_httpx import HTTPXMock
 from gotenberg_client import GotenbergClient
 from gotenberg_client.options import DownloadFromUrl
 from gotenberg_client.options import RotateAngle
+from gotenberg_client.options import WatermarkStampOptions
 from gotenberg_client.options import WatermarkStampSource
 from tests.utils import verify_stream_contains
 
@@ -47,6 +48,32 @@ class TestWatermarkMixin:
             route.url(webserver_docker_internal_url).watermark_pages("1-3").run()
         verify_stream_contains(httpx_mock.get_request(), "watermarkPages", "1-3")
 
+    def test_watermark_options(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).watermark_options(WatermarkStampOptions(font="Arial")).run()
+        verify_stream_contains(httpx_mock.get_request(), "watermarkOptions", "Arial")
+
+    def test_watermark_file(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+        sample_directory: Path,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).watermark_file(sample_directory / "sample1.pdf").run()
+        request = httpx_mock.get_request()
+        boundary = request.headers["Content-Type"].split("boundary=")[1]
+        parts = request.content.split(f"--{boundary}".encode())
+        assert any(b'name="watermark"' in part for part in parts)
+
 
 class TestStampMixin:
     def test_stamp_text_source(
@@ -70,6 +97,43 @@ class TestStampMixin:
         with sync_client.chromium.url_to_pdf() as route:
             route.url(webserver_docker_internal_url).stamp_expression("CONFIDENTIAL").run()
         verify_stream_contains(httpx_mock.get_request(), "stampExpression", "CONFIDENTIAL")
+
+    def test_stamp_pages(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).stamp_pages("2-4").run()
+        verify_stream_contains(httpx_mock.get_request(), "stampPages", "2-4")
+
+    def test_stamp_options(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).stamp_options(WatermarkStampOptions(color="#FF0000")).run()
+        verify_stream_contains(httpx_mock.get_request(), "stampOptions", "#FF0000")
+
+    def test_stamp_file(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+        sample_directory: Path,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).stamp_file(sample_directory / "sample1.pdf").run()
+        request = httpx_mock.get_request()
+        boundary = request.headers["Content-Type"].split("boundary=")[1]
+        parts = request.content.split(f"--{boundary}".encode())
+        assert any(b'name="stamp"' in part for part in parts)
 
 
 class TestRotateMixin:
@@ -176,3 +240,36 @@ class TestDownloadFromMixin:
                 ],
             ).run()
         verify_stream_contains(httpx_mock.get_request(), "downloadFrom", "http://example.com/file.pdf")
+
+    def test_download_from_extra_http_headers(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).download_from(
+                [
+                    DownloadFromUrl(
+                        url="http://example.com/file.pdf",
+                        extra_http_headers={"Authorization": "Bearer token"},
+                    ),
+                ],
+            ).run()
+        verify_stream_contains(httpx_mock.get_request(), "downloadFrom", "extraHttpHeaders")
+
+    def test_download_from_field(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).download_from(
+                [
+                    DownloadFromUrl(url="http://example.com/file.pdf", field="watermark"),
+                ],
+            ).run()
+        verify_stream_contains(httpx_mock.get_request(), "downloadFrom", "watermark")
