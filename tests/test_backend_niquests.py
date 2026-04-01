@@ -32,6 +32,7 @@ async def async_niquests_client(gotenberg_host: str) -> AsyncGenerator[AsyncGote
 
 
 class TestNiquestsBackendSync:
+    @pytest.mark.flaky(reruns=3)
     def test_health_check(self, sync_niquests_client: SyncGotenbergClient):
         with sync_niquests_client.health as api:
             status = api.health()

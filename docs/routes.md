@@ -258,6 +258,12 @@ Supported metadata fields:
 
     Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
 
+#### Flatten, Watermark, Stamp, Rotate, Encrypt, Embeds, Download From
+
+Chromium conversion routes also support flattening, watermarking, stamping, rotation,
+encryption, file embedding, and URL-based input. See the [Global Options](#global-options)
+section for details.
+
 ## LibreOffice
 
 ### Office Documents to PDF
@@ -357,6 +363,12 @@ See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 | ---------------- | ------------------- | ----------- | ------------ |
 | `flatten`        | `.flatten()`        | `bool`      | keyword only |
 
+#### Watermark, Stamp, Rotate, Encrypt, Embeds, Download From
+
+The LibreOffice route also supports watermarking, stamping, rotation, encryption, file
+embedding, and URL-based input. See the [Global Options](#global-options) section for
+details.
+
 ## Convert into PDF/A & PDF/UA
 
 [Gotenberg Documentation](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route)
@@ -451,12 +463,18 @@ Required Properties:
 
 Optional Properties:
 
-| Gotenberg Option | Route Configuration                                                             | Python Type  | Notes                                             |
-| ---------------- | ------------------------------------------------------------------------------- | ------------ | ------------------------------------------------- |
-| `pdfa`           | `.pdf_format()`                                                                 | `PdfAFormat` |                                                   |
-| `pdfua`          | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A          |                                                   |
-| `flatten`        | `.flatten()`                                                                    | `bool`       | keyword only                                      |
-| `metadata`       | `.metadata()`                                                                   | N/A          | See [PDF Metadata Support](#pdf-metadata-support) |
+| Gotenberg Option | Route Configuration                                                             | Python Type             | Notes                                             |
+| ---------------- | ------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------- |
+| `pdfa`           | `.pdf_format()`                                                                 | `PdfAFormat`            |                                                   |
+| `pdfua`          | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A                     |                                                   |
+| `flatten`        | `.flatten()`                                                                    | `bool`                  | keyword only                                      |
+| `metadata`       | `.metadata()`                                                                   | N/A                     | See [PDF Metadata Support](#pdf-metadata-support) |
+| watermark        | See [Watermark](#watermark)                                                     | `WatermarkStampSource`  |                                                   |
+| stamp            | See [Stamp](#stamp)                                                             | `WatermarkStampSource`  |                                                   |
+| rotate           | `.rotate()`                                                                     | `RotateAngle`           |                                                   |
+| encrypt          | `.user_password()` / `.owner_password()`                                        | `str`                   |                                                   |
+| embeds           | `.embed()` / `.embed_files()`                                                   | `Path` / `list[Path]`   |                                                   |
+| downloadFrom     | `.download_from()`                                                              | `list[DownloadFromUrl]` |                                                   |
 
 ```python
 from gotenberg_client import GotenbergClient
@@ -494,6 +512,12 @@ Optional Properties:
 | `pdfua`          | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A                             |                                                   |
 | `flatten`        | `.flatten()`                                                                    | `bool`                          | keyword only                                      |
 | `metadata`       | `.metadata()`                                                                   | N/A                             | See [PDF Metadata Support](#pdf-metadata-support) |
+| watermark        | See [Watermark](#watermark)                                                     | `WatermarkStampSource`          |                                                   |
+| stamp            | See [Stamp](#stamp)                                                             | `WatermarkStampSource`          |                                                   |
+| rotate           | `.rotate()`                                                                     | `RotateAngle`                   |                                                   |
+| encrypt          | `.user_password()` / `.owner_password()`                                        | `str`                           |                                                   |
+| embeds           | `.embed()` / `.embed_files()`                                                   | `Path` / `list[Path]`           |                                                   |
+| downloadFrom     | `.download_from()`                                                              | `list[DownloadFromUrl]`         |                                                   |
 
 ```python
 from gotenberg_client import GotenbergClient
@@ -587,6 +611,94 @@ with client.chromium.html_to_pdf() as route:
 
 ### Download From
 
-!!! warning
+[Gotenberg Documentation](https://gotenberg.dev/docs/webhook-download)
 
-    This feature is not implemented
+Instruct Gotenberg to fetch input files from URLs instead of requiring direct uploads.
+Available on Chromium, LibreOffice, Merge, and Split routes.
+
+```python
+from gotenberg_client import GotenbergClient
+from gotenberg_client.options import DownloadFromUrl
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.chromium.url_to_pdf() as route:
+        response = route.download_from([
+            DownloadFromUrl(url="https://example.com/my.html"),
+        ]).run()
+        response.to_file(Path("output.pdf"))
+```
+
+`DownloadFromUrl` fields:
+
+| Field                | Type                     | Notes                                            |
+| -------------------- | ------------------------ | ------------------------------------------------ |
+| `url`                | `str`                    | Required                                         |
+| `extra_http_headers` | `dict[str, str] \| None` | Additional request headers                       |
+| `embedded`           | `bool`                   | Embed the file in the request (default: `False`) |
+| `field`              | `str \| None`            | Override the form field name                     |
+
+### Watermark
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs)
+
+Apply a watermark behind the content of each page. Available on Chromium, LibreOffice,
+Merge, and Split routes.
+
+| Route Method              | Python Type             | Notes                                                                |
+| ------------------------- | ----------------------- | -------------------------------------------------------------------- |
+| `.watermark_source()`     | `WatermarkStampSource`  | `Text`, `Image`, or `Pdf`                                            |
+| `.watermark_expression()` | `str`                   | Text string or expression (when source is `Text`)                    |
+| `.watermark_pages()`      | `str`                   | Page range (e.g. `"1-3"`)                                            |
+| `.watermark_options()`    | `WatermarkStampOptions` | Font, size, color, rotation, opacity, scale                          |
+| `.watermark_file()`       | `Path`                  | Image or PDF file to use as watermark (when source is `Image`/`Pdf`) |
+
+### Stamp
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs)
+
+Apply a stamp on top of the content of each page. Available on Chromium, LibreOffice,
+Merge, and Split routes. Uses the same option types as Watermark.
+
+| Route Method          | Python Type             | Notes                                             |
+| --------------------- | ----------------------- | ------------------------------------------------- |
+| `.stamp_source()`     | `WatermarkStampSource`  | `Text`, `Image`, or `Pdf`                         |
+| `.stamp_expression()` | `str`                   | Text string or expression (when source is `Text`) |
+| `.stamp_pages()`      | `str`                   | Page range (e.g. `"1-3"`)                         |
+| `.stamp_options()`    | `WatermarkStampOptions` | Font, size, color, rotation, opacity, scale       |
+| `.stamp_file()`       | `Path`                  | Image or PDF file to use as stamp                 |
+
+### Rotate
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs)
+
+Rotate PDF pages. Available on Chromium, LibreOffice, Merge, and Split routes.
+
+| Route Method | Python Type   | Notes                                         |
+| ------------ | ------------- | --------------------------------------------- |
+| `.rotate()`  | `RotateAngle` | `Clockwise90`, `Clockwise180`, `Clockwise270` |
+
+An optional `pages` string argument limits rotation to specific pages (e.g. `"1-3"`).
+
+### Encrypt
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs)
+
+Password-protect the output PDF. Available on Chromium, LibreOffice, Merge, and Split routes.
+
+| Route Method        | Python Type | Notes                        |
+| ------------------- | ----------- | ---------------------------- |
+| `.user_password()`  | `str`       | User (open) password         |
+| `.owner_password()` | `str`       | Owner (permissions) password |
+
+### Embeds
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/manipulate-pdfs/attachments)
+
+Attach external files as embedded attachments inside the PDF container. Available on
+Chromium, LibreOffice, Merge, and Split routes.
+
+| Route Method     | Python Type  | Notes                                   |
+| ---------------- | ------------ | --------------------------------------- |
+| `.embed()`       | `Path`       | Attach a single file                    |
+| `.embed_files()` | `list[Path]` | Convenience method to attach many files |

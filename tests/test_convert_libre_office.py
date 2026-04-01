@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import pikepdf
 import pytest
+from pytest_httpx import HTTPXMock
 
 from gotenberg_client import GotenbergClient
 from gotenberg_client import SingleFileResponse
@@ -16,6 +17,8 @@ from gotenberg_client._libreoffice.routes import AsyncOfficeDocumentToPdfRoute
 from gotenberg_client._utils import guess_mime_type_stdlib
 from gotenberg_client.options import PageOrientation
 from gotenberg_client.options import PdfAFormat
+from gotenberg_client.options import WatermarkStampSource
+from tests.utils import verify_stream_contains
 
 
 class TestLibreOfficeConvert:
@@ -272,3 +275,27 @@ class TestLibreOfficeProperties:
         assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
+
+
+class TestLibreOfficeMocked:
+    def test_libreoffice_watermark_source(
+        self,
+        sync_client: GotenbergClient,
+        httpx_mock: HTTPXMock,
+        docx_sample_file: Path,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).watermark_source(WatermarkStampSource.Text).run()
+        verify_stream_contains(httpx_mock.get_request(), "watermarkSource", "text")
+
+    def test_libreoffice_user_password(
+        self,
+        sync_client: GotenbergClient,
+        httpx_mock: HTTPXMock,
+        docx_sample_file: Path,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).user_password("secret").run()
+        verify_stream_contains(httpx_mock.get_request(), "userPassword", "secret")
