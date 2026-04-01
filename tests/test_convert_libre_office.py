@@ -336,6 +336,50 @@ class TestLibreOfficeMocked:
             route.convert(docx_sample_file).native_tiled_watermark_text("DRAFT").run()
         verify_stream_contains(httpx_mock.get_request(), "nativeTiledWatermarkText", "DRAFT")
 
+    def test_native_watermark_color(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).native_watermark_color(0x808080).run()
+        verify_stream_contains(httpx_mock.get_request(), "nativeWatermarkColor", str(0x808080))
+
+    def test_native_watermark_font_height(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).native_watermark_font_height(36).run()
+        verify_stream_contains(httpx_mock.get_request(), "nativeWatermarkFontHeight", "36")
+
+    def test_native_watermark_rotate_angle(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).native_watermark_rotate_angle(450).run()
+        verify_stream_contains(httpx_mock.get_request(), "nativeWatermarkRotateAngle", "450")
+
+    def test_native_watermark_font_name(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).native_watermark_font_name("Arial").run()
+        verify_stream_contains(httpx_mock.get_request(), "nativeWatermarkFontName", "Arial")
+
     def test_initial_page(
         self,
         sync_client: GotenbergClient,
