@@ -586,7 +586,5 @@ class EmulatedMediaFeaturesMixin:
     """
 
     def emulated_media_features(self, features: list[dict[str, str]]) -> Self:
-        import json  # noqa: PLC0415
-
         self._form_data.update({"emulatedMediaFeatures": json.dumps(features)})  # type: ignore[attr-defined,misc]
         return self
