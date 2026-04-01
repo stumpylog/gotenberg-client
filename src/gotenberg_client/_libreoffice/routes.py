@@ -20,12 +20,14 @@ from gotenberg_client._common import StampMixin
 from gotenberg_client._common import WatermarkMixin
 from gotenberg_client._libreoffice.mixins import LibreOfficeCompressOptionsMixin
 from gotenberg_client._libreoffice.mixins import LibreOfficeMergeOptionMixin
+from gotenberg_client._libreoffice.mixins import LibreOfficeNativeWatermarkMixin
 from gotenberg_client._libreoffice.mixins import LibreOfficePagePropertiesMixin
 from gotenberg_client._typing_compat import Self
 
 
 class _BaseOfficeDocumentToPdfRoute(
     LibreOfficePagePropertiesMixin,
+    LibreOfficeNativeWatermarkMixin,
     LibreOfficeCompressOptionsMixin,
     LibreOfficeMergeOptionMixin,
     SplitModeMixin,

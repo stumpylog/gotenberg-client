@@ -257,6 +257,49 @@ class LibreOfficePagePropertiesMixin:
         self._form_data.update(bool_to_form("singlePageSheets", single_page_sheets))  # type: ignore[attr-defined,misc]
         return self
 
+    def export_placeholders(self, *, export_placeholders: bool = False) -> Self:
+        """
+        Controls whether placeholder fields should be exported to PDF.
+        """
+        self._form_data.update(bool_to_form("exportPlaceholders", export_placeholders))  # type: ignore[attr-defined,misc]
+        return self
+
+
+class LibreOfficeNativeWatermarkMixin:
+    """
+    LibreOffice-native watermark fields that use LibreOffice's own watermarking engine
+    (as opposed to the pdfcpu/pdftk-based watermark from WatermarkMixin).
+    See https://gotenberg.dev/docs/convert-with-libreoffice/convert-to-pdf
+    """
+
+    def native_watermark_text(self, text: str) -> Self:
+        """Center watermark text rendered by LibreOffice."""
+        self._form_data.update({"nativeWatermarkText": text})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_color(self, color: int) -> Self:
+        """RGB color as integer (e.g., 0x808080 for grey)."""
+        self._form_data.update({"nativeWatermarkColor": str(color)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_font_height(self, height: int) -> Self:
+        self._form_data.update({"nativeWatermarkFontHeight": str(height)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_rotate_angle(self, angle: int) -> Self:
+        """Rotation in tenths of a degree (e.g., 450 = 45.0°)."""
+        self._form_data.update({"nativeWatermarkRotateAngle": str(angle)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_font_name(self, font_name: str) -> Self:
+        self._form_data.update({"nativeWatermarkFontName": font_name})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_tiled_watermark_text(self, text: str) -> Self:
+        """Tiled watermark text repeated across the page."""
+        self._form_data.update({"nativeTiledWatermarkText": text})  # type: ignore[attr-defined,misc]
+        return self
+
 
 class LibreOfficeCompressOptionsMixin:
     """

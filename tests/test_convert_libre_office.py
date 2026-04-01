@@ -299,3 +299,36 @@ class TestLibreOfficeMocked:
         with sync_client.libre_office.to_pdf() as route:
             route.convert(docx_sample_file).user_password("secret").run()
         verify_stream_contains(httpx_mock.get_request(), "userPassword", "secret")
+
+    def test_export_placeholders(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).export_placeholders(export_placeholders=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "exportPlaceholders", "true")
+
+    def test_native_watermark_text(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).native_watermark_text("CONFIDENTIAL").run()
+        verify_stream_contains(httpx_mock.get_request(), "nativeWatermarkText", "CONFIDENTIAL")
+
+    def test_native_tiled_watermark_text(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).native_tiled_watermark_text("DRAFT").run()
+        verify_stream_contains(httpx_mock.get_request(), "nativeTiledWatermarkText", "DRAFT")
