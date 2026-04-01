@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+from http import HTTPStatus
 from pathlib import Path
 
 import pikepdf
 import pytest
-from httpx import codes
 from pytest_httpx import HTTPXMock
 
 from gotenberg_client import GotenbergClient
@@ -37,7 +37,7 @@ class TestMergePdfs:
                 )
                 .run_with_retry()
             )
-        assert resp.status_code == codes.OK
+        assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
@@ -59,7 +59,7 @@ class TestMergePdfs:
                 [sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"],
             ).run_with_retry()
 
-            assert resp.status_code == codes.OK
+            assert resp.status_code == HTTPStatus.OK
             assert "Content-Type" in resp.headers
             assert resp.headers["Content-Type"] == "application/pdf"
 
@@ -85,7 +85,7 @@ class TestMergePdfsAsync:
             [sample_directory / "z_first_merge.pdf", sample_directory / "a_merge_second.pdf"],
         ).run_with_retry()
 
-        assert resp.status_code == codes.OK
+        assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 

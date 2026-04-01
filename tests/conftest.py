@@ -6,6 +6,7 @@ import os
 import shutil
 from collections.abc import AsyncGenerator
 from collections.abc import Generator
+from http import HTTPStatus
 from pathlib import Path
 
 import httpx
@@ -54,7 +55,7 @@ def is_responsive(url):
         logger.exception("Error connecting to service")
         return False
     else:
-        return response.status_code == httpx.codes.OK
+        return response.status_code == HTTPStatus.OK
 
 
 @pytest.fixture(scope="session")
