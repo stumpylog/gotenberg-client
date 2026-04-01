@@ -230,7 +230,7 @@ class _BaseEmbedRoute(EmbedsMixin, DownloadFromMixin):
     def add_pdf(self, file_path: Path) -> Self:
         """Add a PDF to receive the embedded attachments.
         Gotenberg requires the field name to be 'files' for the PDF inputs."""
-        self._embed_files.append(("files", file_path))  # type: ignore[attr-defined]
+        self._embed_files.append(("files", file_path))  # type: ignore[attr-defined,misc]
         return self
 
     def add_pdfs(self, file_paths: list[Path]) -> Self:
