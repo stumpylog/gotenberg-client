@@ -96,3 +96,152 @@ class SyncFlattenRoute(_BaseFlattenRoute, SyncBaseRoute):
 
 class AsyncFlattenRoute(_BaseFlattenRoute, AsyncBaseRoute):
     pass
+
+
+class _BaseWatermarkRoute(
+    WatermarkMixin,
+    StampMixin,
+    RotateMixin,
+    EncryptMixin,
+    EmbedsMixin,
+    DownloadFromMixin,
+    PdfFormatMixin,
+    PdfUniversalAccessMixin,
+    MetadataMixin,
+):
+    """https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs"""
+
+    ENDPOINT_URL: Final[str] = "/forms/pdfengines/watermark"
+
+    def add_file(self, file_path: Path) -> Self:
+        self._add_file_map(file_path)  # type: ignore[attr-defined]
+        return self
+
+    def add_files(self, file_paths: list[Path]) -> Self:
+        for fp in file_paths:
+            self.add_file(fp)
+        return self
+
+
+class SyncWatermarkRoute(_BaseWatermarkRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncWatermarkRoute(_BaseWatermarkRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseStampRoute(
+    WatermarkMixin,
+    StampMixin,
+    RotateMixin,
+    EncryptMixin,
+    EmbedsMixin,
+    DownloadFromMixin,
+    PdfFormatMixin,
+    PdfUniversalAccessMixin,
+    MetadataMixin,
+):
+    """https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs"""
+
+    ENDPOINT_URL: Final[str] = "/forms/pdfengines/stamp"
+
+    def add_file(self, file_path: Path) -> Self:
+        self._add_file_map(file_path)  # type: ignore[attr-defined]
+        return self
+
+    def add_files(self, file_paths: list[Path]) -> Self:
+        for fp in file_paths:
+            self.add_file(fp)
+        return self
+
+
+class SyncStampRoute(_BaseStampRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncStampRoute(_BaseStampRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseRotateRoute(
+    RotateMixin,
+    EncryptMixin,
+    EmbedsMixin,
+    DownloadFromMixin,
+    PdfFormatMixin,
+    PdfUniversalAccessMixin,
+    MetadataMixin,
+):
+    """https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs"""
+
+    ENDPOINT_URL: Final[str] = "/forms/pdfengines/rotate"
+
+    def add_file(self, file_path: Path) -> Self:
+        self._add_file_map(file_path)  # type: ignore[attr-defined]
+        return self
+
+    def add_files(self, file_paths: list[Path]) -> Self:
+        for fp in file_paths:
+            self.add_file(fp)
+        return self
+
+
+class SyncRotateRoute(_BaseRotateRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncRotateRoute(_BaseRotateRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseEncryptRoute(EncryptMixin, DownloadFromMixin):
+    """https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs"""
+
+    ENDPOINT_URL: Final[str] = "/forms/pdfengines/encrypt"
+
+    def add_file(self, file_path: Path) -> Self:
+        self._add_file_map(file_path)  # type: ignore[attr-defined]
+        return self
+
+    def add_files(self, file_paths: list[Path]) -> Self:
+        for fp in file_paths:
+            self.add_file(fp)
+        return self
+
+
+class SyncEncryptRoute(_BaseEncryptRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncEncryptRoute(_BaseEncryptRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseEmbedRoute(EmbedsMixin, DownloadFromMixin):
+    """
+    https://gotenberg.dev/docs/manipulate-pdfs/attachments
+    Embeds external files as attachments in existing PDFs.
+    POST /forms/pdfengines/embed
+    """
+
+    ENDPOINT_URL: Final[str] = "/forms/pdfengines/embed"
+
+    def add_pdf(self, file_path: Path) -> Self:
+        """Add a PDF to receive the embedded attachments.
+        Gotenberg requires the field name to be 'files' for the PDF inputs."""
+        self._embed_files.append(("files", file_path))  # type: ignore[attr-defined]
+        return self
+
+    def add_pdfs(self, file_paths: list[Path]) -> Self:
+        for fp in file_paths:
+            self.add_pdf(fp)
+        return self
+
+
+class SyncEmbedRoute(_BaseEmbedRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncEmbedRoute(_BaseEmbedRoute, AsyncBaseRoute):
+    pass

@@ -73,8 +73,8 @@ inside a `finally` block.
 
 ## Routes
 
-The library supports almost all the [routes](https://gotenberg.dev/docs/routes) defined
-by the Gotenberg API. Only the Prometheus metrics endpoint is not implemented.
+The library supports all the [routes](https://gotenberg.dev/docs/routes) defined
+by the Gotenberg API, with the exception of the Prometheus metrics endpoint.
 
 To utilize a route, you first select the module which provides it, then the actual
 operation to carry out. For example, using Chromium to convert HTML into a PDF would

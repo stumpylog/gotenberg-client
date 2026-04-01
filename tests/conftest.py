@@ -16,6 +16,10 @@ from gotenberg_client import AsyncGotenbergClient
 from gotenberg_client import SingleFileResponse
 from gotenberg_client import SyncGotenbergClient
 from gotenberg_client import ZipFileResponse
+from gotenberg_client._bookmarks.routes import AsyncReadBookmarksRoute
+from gotenberg_client._bookmarks.routes import AsyncWriteBookmarksRoute
+from gotenberg_client._bookmarks.routes import SyncReadBookmarksRoute
+from gotenberg_client._bookmarks.routes import SyncWriteBookmarksRoute
 from gotenberg_client._chromium.routes import AsyncHtmlToPdfRoute
 from gotenberg_client._chromium.routes import AsyncMarkdownToPdfRoute
 from gotenberg_client._chromium.routes import AsyncScreenshotFromHtmlRoute
@@ -34,10 +38,20 @@ from gotenberg_client._libreoffice.routes import AsyncOfficeDocumentToPdfRoute
 from gotenberg_client._libreoffice.routes import SyncOfficeDocumentToPdfRoute
 from gotenberg_client._merge.routes import AsyncMergePdfsRoute
 from gotenberg_client._merge.routes import SyncMergePdfsRoute
+from gotenberg_client._others.routes import AsyncEmbedRoute
+from gotenberg_client._others.routes import AsyncEncryptRoute
 from gotenberg_client._others.routes import AsyncFlattenRoute
+from gotenberg_client._others.routes import AsyncRotateRoute
 from gotenberg_client._others.routes import AsyncSplitRoute
+from gotenberg_client._others.routes import AsyncStampRoute
+from gotenberg_client._others.routes import AsyncWatermarkRoute
+from gotenberg_client._others.routes import SyncEmbedRoute
+from gotenberg_client._others.routes import SyncEncryptRoute
 from gotenberg_client._others.routes import SyncFlattenRoute
+from gotenberg_client._others.routes import SyncRotateRoute
 from gotenberg_client._others.routes import SyncSplitRoute
+from gotenberg_client._others.routes import SyncStampRoute
+from gotenberg_client._others.routes import SyncWatermarkRoute
 from gotenberg_client._pdfa_ua.routes import AsyncConvertToArchiveFormatRoute
 from gotenberg_client._pdfa_ua.routes import SyncConvertToArchiveFormatRoute
 from gotenberg_client._pdfmetadata.routes import AsyncReadPdfMetadataRoute
@@ -604,4 +618,92 @@ def sync_split_route(sync_client: SyncGotenbergClient) -> Generator[SyncSplitRou
 @pytest.fixture
 async def async_split_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncSplitRoute, None]:
     async with async_client.split.split() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_watermark_route(sync_client: SyncGotenbergClient) -> Generator[SyncWatermarkRoute, None, None]:
+    with sync_client.watermark.watermark() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_watermark_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncWatermarkRoute, None]:
+    async with async_client.watermark.watermark() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_stamp_route(sync_client: SyncGotenbergClient) -> Generator[SyncStampRoute, None, None]:
+    with sync_client.stamp.stamp() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_stamp_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncStampRoute, None]:
+    async with async_client.stamp.stamp() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_rotate_route(sync_client: SyncGotenbergClient) -> Generator[SyncRotateRoute, None, None]:
+    with sync_client.rotate.rotate() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_rotate_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncRotateRoute, None]:
+    async with async_client.rotate.rotate() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_encrypt_route(sync_client: SyncGotenbergClient) -> Generator[SyncEncryptRoute, None, None]:
+    with sync_client.encrypt.encrypt() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_encrypt_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncEncryptRoute, None]:
+    async with async_client.encrypt.encrypt() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_embed_route(sync_client: SyncGotenbergClient) -> Generator[SyncEmbedRoute, None, None]:
+    with sync_client.embed.embed() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_embed_route(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncEmbedRoute, None]:
+    async with async_client.embed.embed() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_read_bookmarks_route(sync_client: SyncGotenbergClient) -> Generator[SyncReadBookmarksRoute, None, None]:
+    with sync_client.bookmarks.read() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_read_bookmarks_route(
+    async_client: AsyncGotenbergClient,
+) -> AsyncGenerator[AsyncReadBookmarksRoute, None]:
+    async with async_client.bookmarks.read() as route:
+        yield route
+
+
+@pytest.fixture
+def sync_write_bookmarks_route(sync_client: SyncGotenbergClient) -> Generator[SyncWriteBookmarksRoute, None, None]:
+    with sync_client.bookmarks.write() as route:
+        yield route
+
+
+@pytest.fixture
+async def async_write_bookmarks_route(
+    async_client: AsyncGotenbergClient,
+) -> AsyncGenerator[AsyncWriteBookmarksRoute, None]:
+    async with async_client.bookmarks.write() as route:
         yield route

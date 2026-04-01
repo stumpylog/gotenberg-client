@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2023-present Trenton H <rda0128ou@mozmail.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+from gotenberg_client._bookmarks import BookmarkEntry
 from gotenberg_client._errors import BaseClientError
 from gotenberg_client._errors import CannotExtractHereError
 from gotenberg_client._errors import HttpStatusError
@@ -23,6 +24,7 @@ __all__ = [
     "AuthType",
     "BackendType",
     "BaseClientError",
+    "BookmarkEntry",
     "CannotExtractHereError",
     "GotenbergClient",
     "HealthStatus",
