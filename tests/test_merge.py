@@ -6,11 +6,14 @@ from pathlib import Path
 import pikepdf
 import pytest
 from httpx import codes
+from pytest_httpx import HTTPXMock
 
 from gotenberg_client import GotenbergClient
 from gotenberg_client._merge.routes import AsyncMergePdfsRoute
 from gotenberg_client.options import PdfAFormat
+from gotenberg_client.options import WatermarkStampSource
 from tests.utils import extract_text
+from tests.utils import verify_stream_contains
 
 
 class TestMergePdfs:
@@ -94,3 +97,27 @@ class TestMergePdfsAsync:
         assert len(lines) == 2
         assert "first PDF to be merged." in lines[0]
         assert "second PDF to be merged." in lines[1]
+
+
+class TestMergePdfsMocked:
+    def test_merge_watermark_source(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.merge.merge() as route:
+            route.merge([sample_directory / "sample1.pdf"]).watermark_source(WatermarkStampSource.Text).run()
+        verify_stream_contains(httpx_mock.get_request(), "watermarkSource", "text")
+
+    def test_merge_encrypt(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.merge.merge() as route:
+            route.merge([sample_directory / "sample1.pdf"]).user_password("pw").run()
+        verify_stream_contains(httpx_mock.get_request(), "userPassword", "pw")

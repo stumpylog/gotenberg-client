@@ -14,7 +14,8 @@ AuthType = tuple[str, str] | None
 _FileContent = bytes | str | BinaryIO
 _FileEntryWithMime = tuple[str, _FileContent, str]
 _FileEntryWithoutMime = tuple[str, _FileContent]
-RequestFiles = dict[str, "_FileEntryWithMime | _FileEntryWithoutMime"]
+_FileEntry = _FileEntryWithMime | _FileEntryWithoutMime
+RequestFiles = list[tuple[str, _FileEntry]]
 
 
 class ResponseProtocol(Protocol):  # no cov

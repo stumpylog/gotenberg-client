@@ -268,3 +268,14 @@ class TestConvertChromiumUrlMocked:
             "extraHttpHeaders",
             json.dumps(headers),
         )
+
+    def test_convert_url_flatten(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).flatten(flatten=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "flatten", "true")

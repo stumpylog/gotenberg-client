@@ -4,6 +4,7 @@
 
 import json
 from datetime import datetime
+from pathlib import Path
 from typing import Final
 from typing import Literal
 
@@ -11,8 +12,12 @@ from gotenberg_client._errors import InvalidKeywordError
 from gotenberg_client._errors import InvalidPdfRevisionError
 from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import bool_to_form
+from gotenberg_client.options import DownloadFromUrl
 from gotenberg_client.options import PdfAFormat
+from gotenberg_client.options import RotateAngle
 from gotenberg_client.options import TrappedStatus
+from gotenberg_client.options import WatermarkStampOptions
+from gotenberg_client.options import WatermarkStampSource
 
 
 class PdfFormatMixin:
@@ -274,4 +279,114 @@ class FlattenOptionMixin:
             Self: The instance with the updated form data.
         """
         self._form_data.update(bool_to_form("flatten", flatten))  # type: ignore[attr-defined,misc]
+        return self
+
+
+class WatermarkMixin:
+    """
+    https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs
+    Applies a watermark behind the content of each page.
+    """
+
+    def watermark_source(self, source: WatermarkStampSource) -> Self:
+        self._form_data.update({"watermarkSource": source.value})  # type: ignore[attr-defined,misc]
+        return self
+
+    def watermark_expression(self, expression: str) -> Self:
+        self._form_data.update({"watermarkExpression": expression})  # type: ignore[attr-defined,misc]
+        return self
+
+    def watermark_pages(self, pages: str) -> Self:
+        self._form_data.update({"watermarkPages": pages})  # type: ignore[attr-defined,misc]
+        return self
+
+    def watermark_options(self, options: WatermarkStampOptions) -> Self:
+        self._form_data.update({"watermarkOptions": options.to_json()})  # type: ignore[attr-defined,misc]
+        return self
+
+    def watermark_file(self, file_path: Path) -> Self:
+        self._add_file_map(file_path, name="watermark")  # type: ignore[attr-defined]
+        return self
+
+
+class StampMixin:
+    """
+    https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs
+    Adds a stamp on top of the content of each page.
+    """
+
+    def stamp_source(self, source: WatermarkStampSource) -> Self:
+        self._form_data.update({"stampSource": source.value})  # type: ignore[attr-defined,misc]
+        return self
+
+    def stamp_expression(self, expression: str) -> Self:
+        self._form_data.update({"stampExpression": expression})  # type: ignore[attr-defined,misc]
+        return self
+
+    def stamp_pages(self, pages: str) -> Self:
+        self._form_data.update({"stampPages": pages})  # type: ignore[attr-defined,misc]
+        return self
+
+    def stamp_options(self, options: WatermarkStampOptions) -> Self:
+        self._form_data.update({"stampOptions": options.to_json()})  # type: ignore[attr-defined,misc]
+        return self
+
+    def stamp_file(self, file_path: Path) -> Self:
+        self._add_file_map(file_path, name="stamp")  # type: ignore[attr-defined]
+        return self
+
+
+class RotateMixin:
+    """
+    https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs
+    Rotates pages by a given angle.
+    """
+
+    def rotate(self, angle: RotateAngle, pages: str | None = None) -> Self:
+        self._form_data.update({"rotateAngle": angle.value})  # type: ignore[attr-defined,misc]
+        if pages is not None:
+            self._form_data.update({"rotatePages": pages})  # type: ignore[attr-defined,misc]
+        return self
+
+
+class EncryptMixin:
+    """
+    https://gotenberg.dev/docs/manipulate-pdfs/encrypt-pdfs
+    Encrypts the output PDF with user and/or owner passwords.
+    """
+
+    def user_password(self, password: str) -> Self:
+        self._form_data.update({"userPassword": password})  # type: ignore[attr-defined,misc]
+        return self
+
+    def owner_password(self, password: str) -> Self:
+        self._form_data.update({"ownerPassword": password})  # type: ignore[attr-defined,misc]
+        return self
+
+
+class EmbedsMixin:
+    """
+    https://gotenberg.dev/docs/manipulate-pdfs/attachments
+    Embeds external files as attachments inside the PDF container.
+    """
+
+    def embed(self, file_path: Path) -> Self:
+        self._embed_files.append(("embeds", file_path))  # type: ignore[attr-defined,misc]
+        return self
+
+    def embed_files(self, file_paths: list[Path]) -> Self:
+        for fp in file_paths:
+            self.embed(fp)
+        return self
+
+
+class DownloadFromMixin:
+    """
+    Instructs Gotenberg to fetch files from URLs rather than requiring uploads.
+    https://gotenberg.dev/docs/webhook-download
+    """
+
+    def download_from(self, urls: list[DownloadFromUrl]) -> Self:
+        data = json.dumps([u.asdict() for u in urls])  # type: ignore[misc]
+        self._form_data.update({"downloadFrom": data})  # type: ignore[attr-defined,misc]
         return self

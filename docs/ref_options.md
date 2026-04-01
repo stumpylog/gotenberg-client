@@ -17,3 +17,21 @@
 
 ::: gotenberg_client.options.Measurement
     handler: python
+
+::: gotenberg_client.options.PdfAFormat
+    handler: python
+
+::: gotenberg_client.options.TrappedStatus
+    handler: python
+
+::: gotenberg_client.options.WatermarkStampSource
+    handler: python
+
+::: gotenberg_client.options.WatermarkStampOptions
+    handler: python
+
+::: gotenberg_client.options.RotateAngle
+    handler: python
+
+::: gotenberg_client.options.DownloadFromUrl
+    handler: python

@@ -35,9 +35,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   it via `backend="requests"` on `SyncGotenbergClient`
     - `AsyncGotenbergClient` raises `ValueError` if `backend="requests"` is passed, since
       `requests` has no async support
+- Watermark support: apply a watermark behind page content on Chromium,
+  LibreOffice, Merge, and Split routes via `watermark_source()`, `watermark_expression()`,
+  `watermark_pages()`, `watermark_options()`, and `watermark_file()`
+- Stamp support: apply a stamp on top of page content on Chromium,
+  LibreOffice, Merge, and Split routes via `stamp_source()`, `stamp_expression()`,
+  `stamp_pages()`, `stamp_options()`, and `stamp_file()`
+- Rotate support: rotate PDF pages by 90°, 180°, or 270° on Chromium,
+  LibreOffice, Merge, and Split routes via `rotate(angle, pages=None)`
+- Encrypt support: password-protect output PDFs on Chromium,
+  LibreOffice, Merge, and Split routes via `user_password()` and `owner_password()`
+- Embed support: attach external files inside the PDF container on
+  Chromium, LibreOffice, Merge, and Split routes via `embed()` and `embed_files()`
+- Download-from support: instruct Gotenberg to fetch input files
+  from URLs rather than requiring direct uploads on Chromium, LibreOffice, Merge, and
+  Split routes via `download_from(urls)`
+- Flatten options now also applied to all Chromium conversion routes
+- New option types in `gotenberg_client.options`:
+    - `WatermarkStampSource` enum (`Text`, `Image`, `Pdf`)
+    - `RotateAngle` enum (`Clockwise90`, `Clockwise180`, `Clockwise270`)
+    - `WatermarkStampOptions` dataclass (font, points, color, rotation, opacity, scale)
+    - `DownloadFromUrl` dataclass (url, extra_http_headers, embedded, field)
 
 ### Changed
 
+- Internal `RequestFiles` type changed from `dict` to `list[tuple[str, FileEntry]]` to
+  preserve file ordering when multiple files are submitted in a single request
 - `run()` and `run_with_retry()` now raise `HttpStatusError` (from `gotenberg_client`)
   instead of `httpx.HTTPStatusError` for non-2xx responses
     - **Migration**: replace `except httpx.HTTPStatusError` with `except HttpStatusError`

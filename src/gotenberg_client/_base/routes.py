@@ -71,6 +71,8 @@ class BaseRoute(ABC, Generic[ClientT]):
         self._headers: dict[str, str] = {}
         # Used to enforce ordering during merge operations
         self._next = 1
+        # Embed files as repeated form fields (field_name, file_path)
+        self._embed_files: list[tuple[str, Path]] = []
 
     @abstractmethod
     def _post_data(self) -> ResponseProtocol | Coroutine[Any, Any, ResponseProtocol]:
@@ -180,6 +182,7 @@ class BaseRoute(ABC, Generic[ClientT]):
         self._stack.close()
         self._form_data.clear()
         self._file_map.clear()
+        self._embed_files.clear()
         self._headers.pop("Gotenberg-Output-Filename", None)
         self._headers.pop("Gotenberg-Trace", None)
 
@@ -200,28 +203,39 @@ class BaseRoute(ABC, Generic[ClientT]):
         in-memory resources.
 
         Returns:
-            RequestFiles: A dictionary suitable for use as the 'files' parameter
-                in HTTP request methods.
+            RequestFiles: A list of (field_name, file_entry) tuples suitable for use
+                as the 'files' parameter in HTTP request methods. The list format allows
+                multiple entries with the same field name (e.g. for embeds).
         """
-        resources: RequestFiles = {}
-        for filename in self._file_map:
-            file_path = self._file_map[filename]
-
-            # Helpful but not necessary to provide the mime type when possible
+        resources: RequestFiles = []
+        for filename, file_path in self._file_map.items():
             mime_type = guess_mime_type(file_path)
             if mime_type is not None:
-                resources.update(
-                    {filename: (filename, self._stack.enter_context(file_path.open("rb")), mime_type)},
+                resources.append(
+                    (filename, (filename, self._stack.enter_context(file_path.open("rb")), mime_type)),
                 )
             else:  # pragma: no cover
-                resources.update({filename: (filename, self._stack.enter_context(file_path.open("rb")))})
+                resources.append(
+                    (filename, (filename, self._stack.enter_context(file_path.open("rb")))),
+                )
 
-        for resource_name in self._in_memory_resources:
-            data, mime_type = self._in_memory_resources[resource_name]
+        for resource_name, (data, mime_type) in self._in_memory_resources.items():
             if mime_type is not None:
-                resources.update({resource_name: (resource_name, data, mime_type)})
+                resources.append((resource_name, (resource_name, data, mime_type)))
             else:
-                resources.update({resource_name: (resource_name, data)})
+                resources.append((resource_name, (resource_name, data)))
+
+        for field_name, file_path in self._embed_files:
+            embed_filename = file_path.name
+            mime_type = guess_mime_type(file_path)
+            if mime_type is not None:
+                resources.append(
+                    (field_name, (embed_filename, self._stack.enter_context(file_path.open("rb")), mime_type)),
+                )
+            else:  # pragma: no cover
+                resources.append(
+                    (field_name, (embed_filename, self._stack.enter_context(file_path.open("rb")))),
+                )
 
         return resources
 

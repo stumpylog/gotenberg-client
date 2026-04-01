@@ -26,13 +26,19 @@ from gotenberg_client._chromium.mixins import RenderControlMixin
 from gotenberg_client._chromium.mixins import ScaleMixin
 from gotenberg_client._chromium.mixins import ScreenShotSettingsMixin
 from gotenberg_client._chromium.mixins import SinglePageMixin
+from gotenberg_client._common import DownloadFromMixin
+from gotenberg_client._common import EmbedsMixin
+from gotenberg_client._common import EncryptMixin
+from gotenberg_client._common import FlattenOptionMixin
 from gotenberg_client._common import MetadataMixin
 from gotenberg_client._common import PdfFormatMixin
 from gotenberg_client._common import PdfUniversalAccessMixin
+from gotenberg_client._common import RotateMixin
 from gotenberg_client._common import SplitModeMixin
+from gotenberg_client._common import StampMixin
+from gotenberg_client._common import WatermarkMixin
 from gotenberg_client._typing_compat import Self
-from gotenberg_client._utils import FORCE_MULTIPART
-from gotenberg_client._utils import ForceMultipartDict
+from gotenberg_client._utils import ForceMultipartList
 
 
 class _BaseChromiumConvertMixin(
@@ -59,6 +65,13 @@ class _BaseChromiumConvertMixin(
     PdfFormatMixin,
     PdfUniversalAccessMixin,
     MetadataMixin,
+    WatermarkMixin,
+    StampMixin,
+    RotateMixin,
+    EncryptMixin,
+    EmbedsMixin,
+    FlattenOptionMixin,
+    DownloadFromMixin,
 ):
     """
     Common form fields for Chromium-based PDF conversion routes.
@@ -210,14 +223,15 @@ class _BaseUrlFormMixin:
         self._form_data["url"] = url  # type: ignore[attr-defined,misc]
         return self
 
-    def _get_all_resources(self) -> ForceMultipartDict:
+    def _get_all_resources(self) -> ForceMultipartList:
         """
-        Returns an empty ForceMultipartDict.
+        Returns a ForceMultipartList containing any embed files from the parent.
 
-        This route does not require any file uploads, so an empty dictionary
-        is returned as Gotenberg still requires multipart/form-data
+        This route does not require any file uploads, so an empty list
+        is returned as Gotenberg still requires multipart/form-data.
+        When embed files have been added, they are included from the parent.
         """
-        return FORCE_MULTIPART
+        return ForceMultipartList(super()._get_all_resources())  # type: ignore[misc]
 
 
 class _BaseUrlToPdfChromiumConvertRoute(_BaseUrlFormMixin, _BaseChromiumConvertMixin):

@@ -7,7 +7,7 @@ from typing import Final
 
 
 # See https://github.com/psf/requests/issues/1081#issuecomment-428504128
-class ForceMultipartDict(dict):
+class ForceMultipartList(list):
     def __bool__(self) -> bool:
         return True
 
@@ -82,4 +82,4 @@ def guess_mime_type_magic(url: str | Path) -> str | None:
 # Use the best option
 guess_mime_type = guess_mime_type_magic if find_spec("magic") is not None else guess_mime_type_stdlib
 
-FORCE_MULTIPART: Final = ForceMultipartDict()
+FORCE_MULTIPART: Final = ForceMultipartList()
