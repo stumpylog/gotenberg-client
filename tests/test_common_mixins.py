@@ -59,6 +59,28 @@ class TestWatermarkMixin:
             route.url(webserver_docker_internal_url).watermark_options(WatermarkStampOptions(font="Arial")).run()
         verify_stream_contains(httpx_mock.get_request(), "watermarkOptions", "Arial")
 
+    def test_watermark_options_points(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).watermark_options(WatermarkStampOptions(points=14)).run()
+        verify_stream_contains(httpx_mock.get_request(), "watermarkOptions", "14")
+
+    def test_watermark_options_rotation(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).watermark_options(WatermarkStampOptions(rotation=45)).run()
+        verify_stream_contains(httpx_mock.get_request(), "watermarkOptions", "45")
+
     def test_watermark_file(
         self,
         sync_client: GotenbergClient,
@@ -119,6 +141,28 @@ class TestStampMixin:
         with sync_client.chromium.url_to_pdf() as route:
             route.url(webserver_docker_internal_url).stamp_options(WatermarkStampOptions(color="#FF0000")).run()
         verify_stream_contains(httpx_mock.get_request(), "stampOptions", "#FF0000")
+
+    def test_stamp_options_opacity(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).stamp_options(WatermarkStampOptions(opacity=0.5)).run()
+        verify_stream_contains(httpx_mock.get_request(), "stampOptions", "0.5")
+
+    def test_stamp_options_scale(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).stamp_options(WatermarkStampOptions(scale=0.8)).run()
+        verify_stream_contains(httpx_mock.get_request(), "stampOptions", "0.8")
 
     def test_stamp_file(
         self,
