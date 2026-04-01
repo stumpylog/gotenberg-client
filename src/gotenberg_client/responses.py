@@ -6,8 +6,67 @@ import zipfile
 from collections.abc import Mapping
 from io import BytesIO
 from pathlib import Path
+from typing import TypedDict
 
 from gotenberg_client._errors import CannotExtractHereError
+
+
+class PdfMetadata(TypedDict, total=False):
+    """
+    Typed representation of PDF metadata returned by Gotenberg's read-metadata route.
+
+    All fields are optional (``total=False``) because:
+
+    - Not every PDF contains every metadata field.
+    - The set of returned fields varies by Gotenberg version.  System fields
+      such as ``FileName``, ``FileSize``, and ``Directory`` are present through
+      at least Gotenberg 8.29.1 but are scheduled for removal in a future
+      release (see upstream commit 20522fd).  Note that ``FileName`` reflects
+      Gotenberg's internal UUID-based temp name, not the original posted
+      filename — its value has never been reliable for that purpose.
+    - ExifTool-derived fields (``PageCount``, ``PDFVersion``, etc.) are present
+      in current Gotenberg releases but the maintainer has indicated they may be
+      removed in a future version.
+
+    Use ``.get()`` rather than direct key access to handle version differences
+    gracefully.
+    """
+
+    # Standard PDF document information fields
+    Author: str
+    Copyright: str
+    CreateDate: str
+    Creator: str
+    Keywords: str | list[str]  # array when written as JSON array; string otherwise
+    Marked: bool
+    ModDate: str  # XMP pdf namespace (pdf:ModDate) — written via Gotenberg's metadata route
+    ModifyDate: str  # base XMP namespace (xmp:ModifyDate) — present in Chromium/Skia-generated PDFs
+    Producer: str
+    Subject: str
+    Title: str
+    Trapped: str
+    # ExifTool-derived/computed fields — present in current Gotenberg versions,
+    # but flagged by the maintainer as candidates for future removal.
+    FileType: str
+    FileTypeExtension: str
+    Linearized: str
+    MIMEType: str
+    PageCount: int
+    PDFVersion: float
+    # ExifTool intrinsic fields — always present in ExifTool JSON output.
+    SourceFile: str
+    XMPToolkit: str
+    # System/filesystem fields present through at least Gotenberg 8.29.1,
+    # scheduled for removal in a future release (upstream commit 20522fd).
+    # FileName reflects Gotenberg's internal UUID temp name, not the posted filename.
+    Directory: str
+    ExifToolVersion: float
+    FileAccessDate: str
+    FileInodeChangeDate: str
+    FileModifyDate: str
+    FilePermissions: str
+    FileName: str
+    FileSize: str
 
 
 @dataclasses.dataclass(slots=True)

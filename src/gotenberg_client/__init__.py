@@ -14,6 +14,7 @@ from gotenberg_client._http_backends import BackendType
 from gotenberg_client.client import AsyncGotenbergClient
 from gotenberg_client.client import GotenbergClient
 from gotenberg_client.client import SyncGotenbergClient
+from gotenberg_client.responses import PdfMetadata
 from gotenberg_client.responses import SingleFileResponse
 from gotenberg_client.responses import ZipFileResponse
 
@@ -30,6 +31,7 @@ __all__ = [
     "InvalidPdfRevisionError",
     "MaxRetriesExceededError",
     "NegativeWaitDurationError",
+    "PdfMetadata",
     "SingleFileResponse",
     "SyncGotenbergClient",
     "ZipFileResponse",

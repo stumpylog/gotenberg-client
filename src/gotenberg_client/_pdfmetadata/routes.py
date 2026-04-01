@@ -8,6 +8,7 @@ from gotenberg_client._base import AsyncBaseRoute
 from gotenberg_client._base import SyncBaseRoute
 from gotenberg_client._common import MetadataMixin
 from gotenberg_client._typing_compat import Self
+from gotenberg_client.responses import PdfMetadata
 
 
 class _BaseReadPdfMetadataRoute:
@@ -40,7 +41,7 @@ class _BaseReadPdfMetadataRoute:
 
 
 class SyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, SyncBaseRoute):
-    def run(self) -> dict[str, dict[str, str]]:  # type: ignore[override]
+    def run(self) -> dict[str, PdfMetadata]:  # type: ignore[override]
         response = self._post_data()
         return response.json()  # type: ignore[misc]
 
@@ -50,7 +51,7 @@ class SyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, SyncBaseRoute):
         max_retry_count: int = 5,
         initial_retry_wait: float | int = 5.0,
         retry_scale: float | int = 2.0,
-    ) -> dict[str, dict[str, str]]:
+    ) -> dict[str, PdfMetadata]:
         response = self._post_data_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,
@@ -60,7 +61,7 @@ class SyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, SyncBaseRoute):
 
 
 class AsyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, AsyncBaseRoute):
-    async def run(self) -> dict[str, dict[str, str]]:  # type: ignore[override]
+    async def run(self) -> dict[str, PdfMetadata]:  # type: ignore[override]
         response = await self._post_data()
         return response.json()  # type: ignore[misc]
 
@@ -70,7 +71,7 @@ class AsyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, AsyncBaseRoute):
         max_retry_count: int = 5,
         initial_retry_wait: float | int = 5.0,
         retry_scale: float | int = 2.0,
-    ) -> dict[str, dict[str, str]]:
+    ) -> dict[str, PdfMetadata]:
         response = await self._post_data_with_retry(
             max_retry_count=max_retry_count,
             initial_retry_wait=initial_retry_wait,
