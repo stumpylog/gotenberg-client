@@ -18,9 +18,12 @@ class PdfMetadata(TypedDict, total=False):
     All fields are optional (``total=False``) because:
 
     - Not every PDF contains every metadata field.
-    - The set of returned fields varies by Gotenberg version — for example,
-      ``FileName`` and ``FileSize`` were stripped in Gotenberg 8.29 and will
-      not appear in responses from that version onward.
+    - The set of returned fields varies by Gotenberg version.  System fields
+      such as ``FileName``, ``FileSize``, and ``Directory`` are present through
+      at least Gotenberg 8.29.1 but are scheduled for removal in a future
+      release (see upstream commit 20522fd).  Note that ``FileName`` reflects
+      Gotenberg's internal UUID-based temp name, not the original posted
+      filename — its value has never been reliable for that purpose.
     - ExifTool-derived fields (``PageCount``, ``PDFVersion``, etc.) are present
       in current Gotenberg releases but the maintainer has indicated they may be
       removed in a future version.
@@ -50,7 +53,18 @@ class PdfMetadata(TypedDict, total=False):
     MIMEType: str
     PageCount: int
     PDFVersion: float
-    # Legacy system fields stripped as of Gotenberg 8.29; present in older versions.
+    # ExifTool intrinsic fields — always present in ExifTool JSON output.
+    SourceFile: str
+    XMPToolkit: str
+    # System/filesystem fields present through at least Gotenberg 8.29.1,
+    # scheduled for removal in a future release (upstream commit 20522fd).
+    # FileName reflects Gotenberg's internal UUID temp name, not the posted filename.
+    Directory: str
+    ExifToolVersion: float
+    FileAccessDate: str
+    FileInodeChangeDate: str
+    FileModifyDate: str
+    FilePermissions: str
     FileName: str
     FileSize: str
 

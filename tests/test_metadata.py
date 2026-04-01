@@ -218,7 +218,8 @@ class TestPdfMetadataReadExisting:
         assert meta["PDFVersion"] == 1.4
         assert "PageCount" in meta
         assert meta["PageCount"] == 3
-        # FileName and FileSize were stripped in Gotenberg 8.29 and are no longer present
+        # FileName is not asserted: it reflects Gotenberg's internal UUID temp name,
+        # not the posted filename — that value change is what originally surfaced this issue.
 
     async def test_read_metadata_from_pdf(
         self,
@@ -300,6 +301,7 @@ class TestPdfMetadataRoundTrip:
         author = "Round Trip Author"
         title = "Round Trip Title"
         creator = "Round Trip Creator"
+        modification_date = datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
 
         # Step 1: write metadata fields to a copy of the sample PDF.
         with sync_client.metadata.write() as route:
@@ -309,7 +311,7 @@ class TestPdfMetadataRoundTrip:
                     author=author,
                     title=title,
                     creator=creator,
-                    modification_date=datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc),
+                    modification_date=modification_date,
                 )
                 .run_with_retry()
             )
@@ -331,7 +333,11 @@ class TestPdfMetadataRoundTrip:
         assert result.get("Title") == title
         assert result.get("Creator") == creator
 
-        # ExifTool preserves the XMP pdf namespace key "ModDate" as-is on read.
-        # The value may be overridden by Gotenberg, so we assert on key presence only.
+        # Dates are NOT overridden by Gotenberg; the value is stored and returned exactly.
+        # ExifTool converts ISO 8601 (hyphens, T separator) to its own format
+        # (colons as date separators, space instead of T).
+        expected_mod_date = modification_date.isoformat().replace("-", ":", 2).replace("T", " ", 1)
         assert "ModDate" in result
-        assert "ModifyDate" not in result
+        assert result["ModDate"] == expected_mod_date
+        # The source PDF's original base-XMP ModifyDate survives alongside the new ModDate.
+        assert "ModifyDate" in result

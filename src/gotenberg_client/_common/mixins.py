@@ -178,12 +178,12 @@ class MetadataMixin:
         Args:
             author: Document author name
             pdf_copyright: Copyright information
-            creation_date: Document creation date (Note: Gotenberg will override this)
+            creation_date: Document creation date
             creator: Name of the creating application
             keywords: List of keywords/tags for the document
             marked: Whether the PDF is marked for structure
-            modification_date: Last modification date (Note: Gotenberg will override this)
-            pdf_version: PDF version number (Note: Gotenberg will override this)
+            modification_date: Last modification date
+            pdf_version: PDF version number
             producer: Name of the PDF producer
             subject: Document subject/description
             title: Document title
