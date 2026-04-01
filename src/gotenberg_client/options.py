@@ -6,6 +6,7 @@ import enum
 from typing import Final
 from typing import Literal
 
+from gotenberg_client._typing_compat import StrEnum
 from gotenberg_client._utils import bool_to_form
 from gotenberg_client._utils import optional_to_form
 
@@ -42,7 +43,7 @@ class CookieJar:
 
 
 @enum.unique
-class MeasurementUnitType(str, enum.Enum):
+class MeasurementUnitType(StrEnum):
     """
     Represents the different units of measurement for sizes.
 
@@ -233,7 +234,7 @@ class PageMarginsType:
 
 
 @enum.unique
-class TrappedStatus(str, enum.Enum):
+class TrappedStatus(StrEnum):
     """Enum for valid trapped status values."""
 
     TRUE = "True"

@@ -13,6 +13,7 @@ from typing import TypedDict
 
 from gotenberg_client._base import AsyncBaseApi
 from gotenberg_client._base import SyncBaseApi
+from gotenberg_client._typing_compat import StrEnum
 
 _TIME_RE = re.compile(
     r"(?P<year>\d{4})-"
@@ -51,13 +52,13 @@ class _HealthCheckApiResponseType(TypedDict):
 
 
 @enum.unique
-class StatusOptions(str, enum.Enum):
+class StatusOptions(StrEnum):
     Up = "up"
     Down = "down"
 
 
 @enum.unique
-class ModuleOptions(str, enum.Enum):
+class ModuleOptions(StrEnum):
     """
     Enumeration of available modules that can be health-checked.
 
