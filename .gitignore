@@ -32,3 +32,6 @@ tests/outputs/**
 # Documentation site
 site/
 .cache/
+
+# Git worktrees
+.worktrees/
