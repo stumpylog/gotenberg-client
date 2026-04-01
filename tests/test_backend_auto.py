@@ -33,6 +33,8 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
+@pytest.mark.httpx
+@pytest.mark.niquests
 class TestAutoBackendSelection:
     def test_auto_selects_httpx_sync(self):
         """backend='auto' picks httpx when it is installed (test env always has it)."""
@@ -107,6 +109,7 @@ class TestAutoBackendSelection:
                 pass
 
 
+@pytest.mark.niquests
 class TestNiquestsAdapterUnit:
     """Unit tests for niquests adapter internals that don't require Docker."""
 
@@ -145,6 +148,7 @@ class TestNiquestsAdapterUnit:
             adapter.raise_for_status()
 
 
+@pytest.mark.requests
 class TestRequestsAdapterUnit:
     """Unit tests for requests adapter internals that don't require Docker."""
 

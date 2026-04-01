@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 
+import pytest
 from pytest_httpx import HTTPXMock
 
 from gotenberg_client import GotenbergClient
@@ -26,7 +27,24 @@ class TestEmbedRouteMocked:
         assert any(b'name="files"' in part for part in parts), "No files field found"
         assert any(b'name="embeds"' in part for part in parts), "No embeds field found"
 
+    def test_embed_add_pdfs_mocked(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.embed.embed() as route:
+            route.add_pdfs([sample_directory / "sample1.pdf"]).embed(sample_directory / "basic.html").run()
+        request = httpx_mock.get_request()
+        boundary = request.headers["Content-Type"].split("boundary=")[1]
+        parts = request.content.split(f"--{boundary}".encode())
+        assert any(b'name="files"' in part for part in parts), "No files field found"
+        assert any(b'name="embeds"' in part for part in parts), "No embeds field found"
 
+
+@pytest.mark.live
+@pytest.mark.async_route
 class TestEmbedRouteLive:
     async def test_embed_attachment(
         self,

@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from pytest_httpx import HTTPXMock
 
 
+@pytest.mark.live
 class TestMiscFunctionality:
     def test_trace_id_header(
         self,

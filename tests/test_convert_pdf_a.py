@@ -12,6 +12,7 @@ from gotenberg_client._pdfa_ua.routes import AsyncConvertToArchiveFormatRoute
 from gotenberg_client.options import PdfAFormat
 
 
+@pytest.mark.live
 class TestPdfAConvert:
     @pytest.mark.parametrize(
         ("gt_format", "pike_format"),
@@ -87,6 +88,8 @@ class TestPdfAConvert:
         assert resp.headers["Content-Type"] == "application/pdf"
 
 
+@pytest.mark.live
+@pytest.mark.async_route
 class TestPdfAConvertAsync:
     async def test_pdf_universal_access_disable(
         self,

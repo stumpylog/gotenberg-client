@@ -3,8 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 
+import pytest
 from pytest_httpx import HTTPXMock
 
+from gotenberg_client import AsyncGotenbergClient
 from gotenberg_client import BookmarkEntry
 from gotenberg_client import GotenbergClient
 from gotenberg_client._bookmarks.routes import AsyncReadBookmarksRoute
@@ -25,6 +27,39 @@ class TestReadBookmarksRouteMocked:
             result = route.read(sample_directory / "sample1.pdf").run()
         assert isinstance(result, dict)
 
+    def test_read_bookmarks_read_files_mocked(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST", json={"sample1.pdf": []})
+        with sync_client.bookmarks.read() as route:
+            result = route.read_files([sample_directory / "sample1.pdf"]).run()
+        assert isinstance(result, dict)
+
+    def test_read_bookmarks_run_with_retry_mocked(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST", json={"sample1.pdf": []})
+        with sync_client.bookmarks.read() as route:
+            result = route.read(sample_directory / "sample1.pdf").run_with_retry()
+        assert isinstance(result, dict)
+
+    async def test_read_bookmarks_async_run_mocked(
+        self,
+        async_client: AsyncGotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST", json={"sample1.pdf": []})
+        async with async_client.bookmarks.read() as route:
+            result = await route.read(sample_directory / "sample1.pdf").run()
+        assert isinstance(result, dict)
+
 
 class TestWriteBookmarksRouteMocked:
     def test_write_bookmarks_mocked(
@@ -39,7 +74,21 @@ class TestWriteBookmarksRouteMocked:
             route.add_file(sample_directory / "sample1.pdf").bookmarks(bookmarks).run()
         verify_stream_contains(httpx_mock.get_request(), "bookmarks", "Chapter 1")
 
+    def test_write_bookmarks_add_files_mocked(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        bookmarks: list[BookmarkEntry] = [{"title": "Chapter 1", "page": 1, "children": []}]
+        with sync_client.bookmarks.write() as route:
+            route.add_files([sample_directory / "sample1.pdf"]).bookmarks(bookmarks).run()
+        verify_stream_contains(httpx_mock.get_request(), "bookmarks", "Chapter 1")
 
+
+@pytest.mark.live
+@pytest.mark.async_route
 class TestReadBookmarksRouteLive:
     async def test_read_bookmarks(
         self,
@@ -53,6 +102,8 @@ class TestReadBookmarksRouteLive:
         assert isinstance(result["sample1.pdf"], list)
 
 
+@pytest.mark.live
+@pytest.mark.async_route
 class TestWriteBookmarksRouteLive:
     async def test_write_bookmarks(
         self,

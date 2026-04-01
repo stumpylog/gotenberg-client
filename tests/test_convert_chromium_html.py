@@ -21,6 +21,8 @@ from tests.utils import verify_basic_response_values_pdf
 from tests.utils import verify_stream_contains
 
 
+@pytest.mark.live
+@pytest.mark.chromium
 class TestConvertChromiumHtml:
     def test_basic_convert_sync(self, sync_html_to_pdf_route: SyncHtmlToPdfRoute, basic_html_file: Path):
         verify_basic_response_values_pdf(
@@ -198,6 +200,7 @@ class TestConvertChromiumHtml:
         verify_basic_response_values_pdf(response)
 
 
+@pytest.mark.chromium
 class TestConvertChromiumHtmlMocked:
     def test_convert_page_size(self, sync_client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")

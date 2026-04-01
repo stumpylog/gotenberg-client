@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from pytest_httpx import HTTPXMock
 
 from gotenberg_client import GotenbergClient
@@ -7,6 +8,8 @@ from gotenberg_client._others.routes import AsyncSplitRoute
 from tests.utils import verify_stream_contains
 
 
+@pytest.mark.live
+@pytest.mark.async_route
 class TestSplitApi:
     async def test_split_pdf(self, async_split_route: AsyncSplitRoute, pdf_sample_one_file: Path):
         await (

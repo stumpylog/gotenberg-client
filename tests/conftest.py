@@ -58,6 +58,8 @@ from gotenberg_client._pdfmetadata.routes import AsyncReadPdfMetadataRoute
 from gotenberg_client._pdfmetadata.routes import AsyncWritePdfMetadataRoute
 from gotenberg_client._pdfmetadata.routes import SyncReadPdfMetadataRoute
 from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
+from gotenberg_client._version import AsyncVersionApi
+from gotenberg_client._version import SyncVersionApi
 
 logger = logging.getLogger("gotenberg-client.tests")
 
@@ -707,3 +709,15 @@ async def async_write_bookmarks_route(
 ) -> AsyncGenerator[AsyncWriteBookmarksRoute, None]:
     async with async_client.bookmarks.write() as route:
         yield route
+
+
+@pytest.fixture
+def sync_version_api(sync_client: SyncGotenbergClient) -> Generator[SyncVersionApi, None, None]:
+    with sync_client.version as api:
+        yield api
+
+
+@pytest.fixture
+async def async_version_api(async_client: AsyncGotenbergClient) -> AsyncGenerator[AsyncVersionApi, None]:
+    async with async_client.version as api:
+        yield api

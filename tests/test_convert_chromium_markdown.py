@@ -3,11 +3,15 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 
+import pytest
+
 from gotenberg_client._chromium.routes import AsyncMarkdownToPdfRoute
 from gotenberg_client._chromium.routes import SyncMarkdownToPdfRoute
 from tests.utils import verify_basic_response_values_pdf
 
 
+@pytest.mark.live
+@pytest.mark.chromium
 class TestConvertChromiumMarkdown:
     def test_basic_convert_markdown_to_pdf_sync(
         self,

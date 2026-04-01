@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 
+import pytest
 from pytest_httpx import HTTPXMock
 
 from gotenberg_client import GotenbergClient
@@ -27,7 +28,22 @@ class TestWatermarkRouteMocked:
         verify_stream_contains(httpx_mock.get_request(), "watermarkSource", "text")
         verify_stream_contains(httpx_mock.get_request(), "watermarkExpression", "DRAFT")
 
+    def test_watermark_add_files_mocked(
+        self,
+        sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.watermark.watermark() as route:
+            route.add_files([sample_directory / "sample1.pdf"]).watermark_source(
+                WatermarkStampSource.Text,
+            ).watermark_expression("DRAFT").run()
+        verify_stream_contains(httpx_mock.get_request(), "watermarkExpression", "DRAFT")
 
+
+@pytest.mark.live
+@pytest.mark.async_route
 class TestWatermarkRouteLive:
     async def test_watermark_pdf(
         self,

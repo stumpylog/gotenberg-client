@@ -13,6 +13,9 @@ from gotenberg_client._chromium.routes import AsyncScreenshotFromMarkdownRoute
 from gotenberg_client._chromium.routes import AsyncScreenshotFromUrlRoute
 
 
+@pytest.mark.live
+@pytest.mark.chromium
+@pytest.mark.screenshot
 @pytest.mark.usefixtures("web_server_host")
 class TestConvertChromiumScreenshotFromUrl:
     def test_basic_screenshot(self, sync_client: GotenbergClient, webserver_docker_internal_url: str):
@@ -146,6 +149,9 @@ class TestConvertChromiumScreenshotFromUrl:
         assert resp.headers["Content-Type"] == "image/png"
 
 
+@pytest.mark.live
+@pytest.mark.chromium
+@pytest.mark.screenshot
 class TestConvertChromiumScreenshotFromMarkdown:
     def test_markdown_screenshot(
         self,
@@ -181,6 +187,9 @@ class TestConvertChromiumScreenshotFromMarkdown:
         assert resp.headers["Content-Type"] == "image/png"
 
 
+@pytest.mark.live
+@pytest.mark.chromium
+@pytest.mark.screenshot
 class TestConvertChromiumScreenshotFromHtml:
     def test_html_screenshot(self, sync_client: GotenbergClient, basic_html_file: Path):
         with sync_client.chromium.screenshot_html() as route:

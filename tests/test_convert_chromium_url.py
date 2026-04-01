@@ -17,6 +17,8 @@ from tests.utils import verify_basic_response_values_pdf
 from tests.utils import verify_stream_contains
 
 
+@pytest.mark.live
+@pytest.mark.chromium
 @pytest.mark.usefixtures("webserver_docker_internal_url")
 class TestConvertChromiumUrl:
     def test_basic_convert_sync(self, sync_url_to_pdf_route: SyncUrlToPdfRoute, webserver_docker_internal_url: str):
@@ -43,6 +45,7 @@ class TestConvertChromiumUrl:
         )
 
 
+@pytest.mark.chromium
 @pytest.mark.usefixtures("webserver_docker_internal_url")
 class TestConvertChromiumUrlMocked:
     @pytest.mark.parametrize(

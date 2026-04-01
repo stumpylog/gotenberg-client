@@ -252,6 +252,17 @@ minversion = "9.0"
 testpaths = [ "tests" ]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+addopts = [ "--strict-markers" ]
+markers = [
+  "live: marks tests that require a running Gotenberg server (deselect with '-m \"not live\"')",
+  "chromium: marks tests using the Chromium/headless browser engine",
+  "libreoffice: marks tests using the LibreOffice engine",
+  "screenshot: marks screenshot output tests (subset of chromium)",
+  "httpx: marks tests specific to the httpx HTTP backend",
+  "niquests: marks tests specific to the niquests HTTP backend",
+  "requests: marks tests specific to the requests HTTP backend",
+  "async_route: marks tests that exercise async code paths exclusively",
+]
 
 [tool.pytest_env]
 
