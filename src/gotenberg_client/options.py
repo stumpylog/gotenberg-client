@@ -343,6 +343,66 @@ class WatermarkStampOptions:
         return json.dumps(data)
 
 
+@enum.unique
+class InitialView(enum.IntEnum):
+    """
+    Controls which panel is open in the PDF viewer on initial display.
+
+    Used with the LibreOffice route's `initial_view()` method.
+
+    Attributes:
+        NONE: No panel open (default).
+        OUTLINE: Show document outline/bookmarks panel.
+        THUMBNAILS: Show page thumbnails panel.
+    """
+
+    NONE = 0
+    OUTLINE = 1
+    THUMBNAILS = 2
+
+
+@enum.unique
+class MagnificationOption(enum.IntEnum):
+    """
+    Controls the initial magnification/zoom level used by the PDF viewer.
+
+    Used with the LibreOffice route's `magnification()` method.
+
+    Attributes:
+        DEFAULT: Use the viewer default.
+        FIT_PAGE: Fit the entire page in the window.
+        FIT_WIDTH: Fit the page width in the window.
+        FIT_HEIGHT: Fit the page height in the window.
+        FIT_BOX: Fit the bounding box of the page in the window.
+    """
+
+    DEFAULT = 0
+    FIT_PAGE = 1
+    FIT_WIDTH = 2
+    FIT_HEIGHT = 3
+    FIT_BOX = 4
+
+
+@enum.unique
+class PageLayout(enum.IntEnum):
+    """
+    Controls the page layout mode used by the PDF viewer on initial display.
+
+    Used with the LibreOffice route's `page_layout()` method.
+
+    Attributes:
+        DEFAULT: Use the viewer default.
+        SINGLE_PAGE: Display one page at a time.
+        CONTINUOUS: Display pages in a continuous vertical column.
+        TWO_COLUMNS: Display two pages side by side.
+    """
+
+    DEFAULT = 0
+    SINGLE_PAGE = 1
+    CONTINUOUS = 2
+    TWO_COLUMNS = 3
+
+
 @dataclasses.dataclass(slots=True)
 class DownloadFromUrl:
     """

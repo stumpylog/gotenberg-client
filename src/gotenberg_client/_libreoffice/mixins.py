@@ -8,6 +8,9 @@ from typing import Literal
 
 from gotenberg_client._typing_compat import Self
 from gotenberg_client._utils import bool_to_form
+from gotenberg_client.options import InitialView
+from gotenberg_client.options import MagnificationOption
+from gotenberg_client.options import PageLayout
 from gotenberg_client.options import PageOrientation
 
 logger = logging.getLogger(__name__)
@@ -257,6 +260,49 @@ class LibreOfficePagePropertiesMixin:
         self._form_data.update(bool_to_form("singlePageSheets", single_page_sheets))  # type: ignore[attr-defined,misc]
         return self
 
+    def export_placeholders(self, *, export_placeholders: bool = False) -> Self:
+        """
+        Controls whether placeholder fields should be exported to PDF.
+        """
+        self._form_data.update(bool_to_form("exportPlaceholders", export_placeholders))  # type: ignore[attr-defined,misc]
+        return self
+
+
+class LibreOfficeNativeWatermarkMixin:
+    """
+    LibreOffice-native watermark fields that use LibreOffice's own watermarking engine
+    (as opposed to the pdfcpu/pdftk-based watermark from WatermarkMixin).
+    See https://gotenberg.dev/docs/convert-with-libreoffice/convert-to-pdf
+    """
+
+    def native_watermark_text(self, text: str) -> Self:
+        """Center watermark text rendered by LibreOffice."""
+        self._form_data.update({"nativeWatermarkText": text})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_color(self, color: int) -> Self:
+        """RGB color as integer (e.g., 0x808080 for grey)."""
+        self._form_data.update({"nativeWatermarkColor": str(color)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_font_height(self, height: int) -> Self:
+        self._form_data.update({"nativeWatermarkFontHeight": str(height)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_rotate_angle(self, angle: int) -> Self:
+        """Rotation in tenths of a degree (e.g., 450 = 45.0°)."""
+        self._form_data.update({"nativeWatermarkRotateAngle": str(angle)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_watermark_font_name(self, font_name: str) -> Self:
+        self._form_data.update({"nativeWatermarkFontName": font_name})  # type: ignore[attr-defined,misc]
+        return self
+
+    def native_tiled_watermark_text(self, text: str) -> Self:
+        """Tiled watermark text repeated across the page."""
+        self._form_data.update({"nativeTiledWatermarkText": text})  # type: ignore[attr-defined,misc]
+        return self
+
 
 class LibreOfficeCompressOptionsMixin:
     """
@@ -331,6 +377,77 @@ class LibreOfficeCompressOptionsMixin:
             Self: This object for method chaining.
         """
         self._form_data.update({"maxImageResolution": str(max_resolution)})  # type: ignore[attr-defined,misc]
+        return self
+
+
+class LibreOfficeViewerPreferencesMixin:
+    """
+    PDF viewer preferences set by LibreOffice during conversion.
+    See https://gotenberg.dev/docs/convert-with-libreoffice/convert-to-pdf
+    """
+
+    def initial_view(self, view: InitialView) -> Self:
+        """Set which panel is open in the PDF viewer (none, outline, or thumbnails)."""
+        self._form_data.update({"initialView": str(int(view))})  # type: ignore[attr-defined,misc]
+        return self
+
+    def initial_page(self, page: int) -> Self:
+        self._form_data.update({"initialPage": str(page)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def magnification(self, magnification: MagnificationOption) -> Self:
+        """Set the initial magnification/zoom level in the PDF viewer."""
+        self._form_data.update({"magnification": str(int(magnification))})  # type: ignore[attr-defined,misc]
+        return self
+
+    def zoom(self, zoom_percent: int) -> Self:
+        self._form_data.update({"zoom": str(zoom_percent)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def page_layout(self, layout: PageLayout) -> Self:
+        """Set the page layout mode used by the PDF viewer."""
+        self._form_data.update({"pageLayout": str(int(layout))})  # type: ignore[attr-defined,misc]
+        return self
+
+    def first_page_on_left(self, *, first_page_on_left: bool) -> Self:
+        self._form_data.update(bool_to_form("firstPageOnLeft", first_page_on_left))  # type: ignore[attr-defined,misc]
+        return self
+
+    def resize_window_to_initial_page(self, *, resize: bool) -> Self:
+        self._form_data.update(bool_to_form("resizeWindowToInitialPage", resize))  # type: ignore[attr-defined,misc]
+        return self
+
+    def center_window(self, *, center: bool) -> Self:
+        self._form_data.update(bool_to_form("centerWindow", center))  # type: ignore[attr-defined,misc]
+        return self
+
+    def open_in_full_screen_mode(self, *, full_screen: bool) -> Self:
+        self._form_data.update(bool_to_form("openInFullScreenMode", full_screen))  # type: ignore[attr-defined,misc]
+        return self
+
+    def display_pdf_document_title(self, *, display_title: bool) -> Self:
+        self._form_data.update(bool_to_form("displayPDFDocumentTitle", display_title))  # type: ignore[attr-defined,misc]
+        return self
+
+    def hide_viewer_menubar(self, *, hide: bool) -> Self:
+        self._form_data.update(bool_to_form("hideViewerMenubar", hide))  # type: ignore[attr-defined,misc]
+        return self
+
+    def hide_viewer_toolbar(self, *, hide: bool) -> Self:
+        self._form_data.update(bool_to_form("hideViewerToolbar", hide))  # type: ignore[attr-defined,misc]
+        return self
+
+    def hide_viewer_window_controls(self, *, hide: bool) -> Self:
+        self._form_data.update(bool_to_form("hideViewerWindowControls", hide))  # type: ignore[attr-defined,misc]
+        return self
+
+    def use_transition_effects(self, *, use: bool) -> Self:
+        self._form_data.update(bool_to_form("useTransitionEffects", use))  # type: ignore[attr-defined,misc]
+        return self
+
+    def open_bookmark_levels(self, levels: int) -> Self:
+        """Number of bookmark levels to open in the viewer (-1 = all)."""
+        self._form_data.update({"openBookmarkLevels": str(levels)})  # type: ignore[attr-defined,misc]
         return self
 
 

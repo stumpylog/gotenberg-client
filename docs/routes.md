@@ -96,10 +96,13 @@ Three screenshot routes are available, each corresponding to a different input s
 This route also supports other Chromium options:
 
 - [Wait Before Rendering](#render-control)
+- [JavaScript Timing](#javascript-timing)
 - [Emulated Media Type](#emulated-media-type)
+- [Emulated Media Features](#emulated-media-features)
 - [Cookies](#cookies)
 - [Custom HTTP headers](#custom-http-headers)
 - [Invalid HTTP Status Codes](#http-status-codes)
+- [Resource Status Codes](#resource-status-codes)
 - [Console Exceptions](#console-exceptions)
 - [Performance Mode](#performance-mode)
 
@@ -126,10 +129,12 @@ This route also supports other Chromium options:
 
 [Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#header-footer-chromium)
 
-| Gotenberg Option | Route Configuration | Python Type | Notes |
-| ---------------- | ------------------- | ----------- | ----- |
-| `header.html`    | `.header()`         | `Path`      |       |
-| `footer.html`    | `.footer()`         | `Path`      |       |
+| Gotenberg Option | Route Configuration    | Python Type | Notes                                         |
+| ---------------- | ---------------------- | ----------- | --------------------------------------------- |
+| `header.html`    | `.header()`            | `Path`      |                                               |
+| `footer.html`    | `.footer()`            | `Path`      |                                               |
+| `header.html`    | `.string_header(html)` | `str`       | sets the header from an in-memory HTML string |
+| `footer.html`    | `.string_footer(html)` | `str`       | sets the footer from an in-memory HTML string |
 
 #### Render Control
 
@@ -193,9 +198,43 @@ This route also supports other Chromium options:
 
 [Gotenberg Documentation Link](https://gotenberg.dev/docs/routes#performance-mode-chromium)
 
-| Gotenberg Option       | Route Configuration                                               | Python Type | Notes |
-| ---------------------- | ----------------------------------------------------------------- | ----------- | ----- |
-| `skipNetworkIdleEvent` | <ul><li>`.skip_network_idle()`<li>`.use_network_idle()`</li></ul> | N/A         |       |
+| Gotenberg Option             | Route Configuration                                               | Python Type | Notes        |
+| ---------------------------- | ----------------------------------------------------------------- | ----------- | ------------ |
+| `skipNetworkIdleEvent`       | <ul><li>`.skip_network_idle()`<li>`.use_network_idle()`</li></ul> | N/A         |              |
+| `skipNetworkAlmostIdleEvent` | `.skip_network_almost_idle(*, skip)`                              | `bool`      | keyword only |
+
+#### JavaScript Timing
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#javascript-timing)
+
+| Gotenberg Option  | Route Configuration    | Python Type | Notes |
+| ----------------- | ---------------------- | ----------- | ----- |
+| `waitForSelector` | `.wait_for_selector()` | `str`       |       |
+
+#### Emulated Media Features
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#emulated-media-type)
+
+| Gotenberg Option        | Route Configuration          | Python Type            | Notes                                                      |
+| ----------------------- | ---------------------------- | ---------------------- | ---------------------------------------------------------- |
+| `emulatedMediaFeatures` | `.emulated_media_features()` | `list[dict[str, str]]` | e.g. `[{"name": "prefers-color-scheme", "value": "dark"}]` |
+
+#### Resource Status Codes
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#invalid-http-status-codes)
+
+| Gotenberg Option                  | Route Configuration                 | Python Type            | Notes |
+| --------------------------------- | ----------------------------------- | ---------------------- | ----- |
+| `failOnResourceHttpStatusCodes`   | `.fail_on_resource_status_codes()`  | `Iterable[HTTPStatus]` |       |
+| `ignoreResourceHttpStatusDomains` | `.ignore_resource_status_domains()` | `list[str]`            |       |
+
+#### Accessibility (PDF routes only)
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#accessibility)
+
+| Gotenberg Option    | Route Configuration                 | Python Type | Notes                         |
+| ------------------- | ----------------------------------- | ----------- | ----------------------------- |
+| `generateTaggedPdf` | `.generate_tagged_pdf(*, generate)` | `bool`      | keyword only; PDF routes only |
 
 #### Split
 
@@ -306,6 +345,7 @@ section for details.
 | `exportHiddenSlides`              | `.export_hidden_slides()`                | `bool`            | keyword only; presentations only |
 | `skipEmptyPages`                  | `.skip_empty_pages()`                    | `bool`            | keyword only                     |
 | `addOriginalDocumentAsStream`     | `.add_original_document_as_stream()`     | `bool`            | keyword only                     |
+| `exportPlaceholders`              | `.export_placeholders()`                 | `bool`            | keyword only                     |
 
 #### Compress
 
@@ -362,6 +402,48 @@ See [PDF Metadata Support](#pdf-metadata-support) for the API interface.
 | Gotenberg Option | Route Configuration | Python Type | Notes        |
 | ---------------- | ------------------- | ----------- | ------------ |
 | `flatten`        | `.flatten()`        | `bool`      | keyword only |
+
+#### Native Watermark
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/convert-with-libreoffice/convert-to-pdf)
+
+Apply a watermark using LibreOffice's own watermarking engine (distinct from the pdfcpu/pdftk-based
+[Watermark](#watermark) in Global Options).
+
+| Gotenberg Option             | Route Configuration                | Python Type | Notes                                               |
+| ---------------------------- | ---------------------------------- | ----------- | --------------------------------------------------- |
+| `nativeWatermarkText`        | `.native_watermark_text()`         | `str`       | center watermark text                               |
+| `nativeWatermarkColor`       | `.native_watermark_color()`        | `int`       | RGB color as integer (e.g. `0x808080`)              |
+| `nativeWatermarkFontHeight`  | `.native_watermark_font_height()`  | `int`       | font size in points                                 |
+| `nativeWatermarkRotateAngle` | `.native_watermark_rotate_angle()` | `int`       | rotation in tenths of a degree (e.g. `450` = 45.0°) |
+| `nativeWatermarkFontName`    | `.native_watermark_font_name()`    | `str`       | font name                                           |
+| `nativeTiledWatermarkText`   | `.native_tiled_watermark_text()`   | `str`       | tiled watermark text repeated across page           |
+
+#### PDF Viewer Preferences
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/convert-with-libreoffice/convert-to-pdf)
+
+Set PDF viewer preferences that are embedded into the output PDF by LibreOffice.
+
+| Gotenberg Option            | Route Configuration                      | Python Type           | Notes                         |
+| --------------------------- | ---------------------------------------- | --------------------- | ----------------------------- |
+| `initialView`               | `.initial_view()`                        | `InitialView`         | panel open on initial display |
+| `initialPage`               | `.initial_page()`                        | `int`                 | page to display initially     |
+| `magnification`             | `.magnification()`                       | `MagnificationOption` | initial zoom level            |
+| `zoom`                      | `.zoom()`                                | `int`                 | zoom percentage               |
+| `pageLayout`                | `.page_layout()`                         | `PageLayout`          | page layout mode              |
+| `firstPageOnLeft`           | `.first_page_on_left(*, ...)`            | `bool`                | keyword only                  |
+| `resizeWindowToInitialPage` | `.resize_window_to_initial_page(*, ...)` | `bool`                | keyword only                  |
+| `centerWindow`              | `.center_window(*, ...)`                 | `bool`                | keyword only                  |
+| `openInFullScreenMode`      | `.open_in_full_screen_mode(*, ...)`      | `bool`                | keyword only                  |
+| `displayPDFDocumentTitle`   | `.display_pdf_document_title(*, ...)`    | `bool`                | keyword only                  |
+| `hideViewerMenubar`         | `.hide_viewer_menubar(*, ...)`           | `bool`                | keyword only                  |
+| `hideViewerToolbar`         | `.hide_viewer_toolbar(*, ...)`           | `bool`                | keyword only                  |
+| `hideViewerWindowControls`  | `.hide_viewer_window_controls(*, ...)`   | `bool`                | keyword only                  |
+| `useTransitionEffects`      | `.use_transition_effects(*, ...)`        | `bool`                | keyword only                  |
+| `openBookmarkLevels`        | `.open_bookmark_levels()`                | `int`                 | `-1` to open all levels       |
+
+`InitialView`, `MagnificationOption`, and `PageLayout` are importable from `gotenberg_client.options`.
 
 #### Watermark, Stamp, Rotate, Encrypt, Embeds, Download From
 
@@ -463,18 +545,20 @@ Required Properties:
 
 Optional Properties:
 
-| Gotenberg Option | Route Configuration                                                             | Python Type             | Notes                                             |
-| ---------------- | ------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------- |
-| `pdfa`           | `.pdf_format()`                                                                 | `PdfAFormat`            |                                                   |
-| `pdfua`          | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A                     |                                                   |
-| `flatten`        | `.flatten()`                                                                    | `bool`                  | keyword only                                      |
-| `metadata`       | `.metadata()`                                                                   | N/A                     | See [PDF Metadata Support](#pdf-metadata-support) |
-| watermark        | See [Watermark](#watermark)                                                     | `WatermarkStampSource`  |                                                   |
-| stamp            | See [Stamp](#stamp)                                                             | `WatermarkStampSource`  |                                                   |
-| rotate           | `.rotate()`                                                                     | `RotateAngle`           |                                                   |
-| encrypt          | `.user_password()` / `.owner_password()`                                        | `str`                   |                                                   |
-| embeds           | `.embed()` / `.embed_files()`                                                   | `Path` / `list[Path]`   |                                                   |
-| downloadFrom     | `.download_from()`                                                              | `list[DownloadFromUrl]` |                                                   |
+| Gotenberg Option     | Route Configuration                                                             | Python Type             | Notes                                                                          |
+| -------------------- | ------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------ |
+| `pdfa`               | `.pdf_format()`                                                                 | `PdfAFormat`            |                                                                                |
+| `pdfua`              | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A                     |                                                                                |
+| `flatten`            | `.flatten()`                                                                    | `bool`                  | keyword only                                                                   |
+| `metadata`           | `.metadata()`                                                                   | N/A                     | See [PDF Metadata Support](#pdf-metadata-support)                              |
+| `autoIndexBookmarks` | `.auto_index_bookmarks(*, enable)`                                              | `bool`                  | keyword only; re-index bookmark page numbers                                   |
+| `bookmarks`          | `.merge_bookmarks(bookmark_list)`                                               | `list[dict[str, Any]]`  | custom bookmarks; each entry: `{"title": str, "page": int, "children": [...]}` |
+| watermark            | See [Watermark](#watermark)                                                     | `WatermarkStampSource`  |                                                                                |
+| stamp                | See [Stamp](#stamp)                                                             | `WatermarkStampSource`  |                                                                                |
+| rotate               | `.rotate()`                                                                     | `RotateAngle`           |                                                                                |
+| encrypt              | `.user_password()` / `.owner_password()`                                        | `str`                   |                                                                                |
+| embeds               | `.embed()` / `.embed_files()`                                                   | `Path` / `list[Path]`   |                                                                                |
+| downloadFrom         | `.download_from()`                                                              | `list[DownloadFromUrl]` |                                                                                |
 
 ```python
 from gotenberg_client import GotenbergClient

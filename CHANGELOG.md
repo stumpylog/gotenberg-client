@@ -56,6 +56,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `RotateAngle` enum (`Clockwise90`, `Clockwise180`, `Clockwise270`)
     - `WatermarkStampOptions` dataclass (font, points, color, rotation, opacity, scale)
     - `DownloadFromUrl` dataclass (url, extra_http_headers, embedded, field)
+- New Chromium route options (available on all PDF and screenshot routes):
+    - `wait_for_selector(selector)` — wait for a CSS selector before rendering
+    - `emulated_media_features(features)` — override CSS media features (e.g. `prefers-color-scheme`)
+    - `fail_on_resource_status_codes(codes)` — fail if any loaded resource returns a listed HTTP status code
+    - `ignore_resource_status_domains(domains)` — exclude specific domains from resource status code checks
+    - `skip_network_almost_idle(*, skip)` — skip the network "almost idle" event for faster rendering
+- New Chromium PDF-only options:
+    - `generate_tagged_pdf(*, generate)` — generate a tagged (accessible) PDF structure
+- New Chromium PDF route convenience methods on `HeaderFooterMixin`:
+    - `string_header(html)` — set the header from an in-memory HTML string
+    - `string_footer(html)` — set the footer from an in-memory HTML string
+- New LibreOffice route options:
+    - `export_placeholders(*, export_placeholders)` — export placeholder fields to PDF
+    - Native watermark support via `LibreOfficeNativeWatermarkMixin`: `native_watermark_text()`,
+      `native_watermark_color()`, `native_watermark_font_height()`, `native_watermark_rotate_angle()`,
+      `native_watermark_font_name()`, `native_tiled_watermark_text()`
+    - PDF viewer preferences via `LibreOfficeViewerPreferencesMixin`: `initial_view()`, `initial_page()`,
+      `magnification()`, `zoom()`, `page_layout()`, `first_page_on_left()`,
+      `resize_window_to_initial_page()`, `center_window()`, `open_in_full_screen_mode()`,
+      `display_pdf_document_title()`, `hide_viewer_menubar()`, `hide_viewer_toolbar()`,
+      `hide_viewer_window_controls()`, `use_transition_effects()`, `open_bookmark_levels()`
+    - New enums `InitialView`, `MagnificationOption`, and `PageLayout` in `gotenberg_client.options`
+      for use with viewer preference methods
+- New Merge PDF route options:
+    - `auto_index_bookmarks(*, enable)` — auto-extract bookmarks from input PDFs and re-index page numbers
+    - `merge_bookmarks(bookmark_list)` — set custom bookmarks on the merged PDF
 
 ### Changed
 

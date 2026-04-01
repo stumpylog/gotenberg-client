@@ -1,11 +1,11 @@
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from http import HTTPStatus
 from pathlib import Path
 
 import pikepdf
 import pytest
-from httpx import codes
 
 from gotenberg_client import GotenbergClient
 from gotenberg_client import InvalidKeywordError
@@ -60,7 +60,7 @@ class TestPdfMetadataOnConvert:
                 .run_with_retry()
             )
 
-        assert resp.status_code == codes.OK
+        assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
@@ -106,7 +106,7 @@ class TestPdfMetadataOnConvert:
                 .run_with_retry()
             )
 
-        assert resp.status_code == codes.OK
+        assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
@@ -138,7 +138,7 @@ class TestPdfMetadataOnConvert:
                 .run_with_retry()
             )
 
-        assert resp.status_code == codes.OK
+        assert resp.status_code == HTTPStatus.OK
         assert "Content-Type" in resp.headers
         assert resp.headers["Content-Type"] == "application/pdf"
 
@@ -270,7 +270,7 @@ class TestPdfMetadataWriteExisting:
             sync_write_pdf_metadata_route.write_files([pdf_sample_one_file]).metadata(author=author).run_with_retry()
         )
 
-        assert response.status_code == codes.OK
+        assert response.status_code == HTTPStatus.OK
         assert "Content-Type" in response.headers
         assert response.headers["Content-Type"] == "application/pdf"
 
@@ -316,7 +316,7 @@ class TestPdfMetadataRoundTrip:
                 .run_with_retry()
             )
 
-        assert write_response.status_code == codes.OK
+        assert write_response.status_code == HTTPStatus.OK
         assert write_response.headers["Content-Type"] == "application/pdf"
         written_pdf = tmp_path / "round_trip.pdf"
         write_response.to_file(written_pdf)

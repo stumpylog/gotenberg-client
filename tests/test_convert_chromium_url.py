@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
+from http import HTTPStatus
 from typing import Literal
 
 import pytest
@@ -279,3 +280,98 @@ class TestConvertChromiumUrlMocked:
         with sync_client.chromium.url_to_pdf() as route:
             route.url(webserver_docker_internal_url).flatten(flatten=True).run()
         verify_stream_contains(httpx_mock.get_request(), "flatten", "true")
+
+    def test_wait_for_selector(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).wait_for_selector("#main-content").run()
+        verify_stream_contains(httpx_mock.get_request(), "waitForSelector", "#main-content")
+
+    def test_emulated_media_features(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        features = [{"name": "prefers-color-scheme", "value": "dark"}]
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).emulated_media_features(features).run()
+        verify_stream_contains(httpx_mock.get_request(), "emulatedMediaFeatures", "prefers-color-scheme")
+
+    def test_fail_on_resource_http_status_codes(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).fail_on_resource_status_codes([HTTPStatus.NOT_FOUND]).run()
+        verify_stream_contains(httpx_mock.get_request(), "failOnResourceHttpStatusCodes", "404")
+
+    def test_ignore_resource_http_status_domains(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).ignore_resource_status_domains(["cdn.example.com"]).run()
+        verify_stream_contains(httpx_mock.get_request(), "ignoreResourceHttpStatusDomains", "cdn.example.com")
+
+    def test_skip_network_almost_idle_event(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).skip_network_almost_idle(skip=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "skipNetworkAlmostIdleEvent", "true")
+
+    def test_generate_tagged_pdf(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).generate_tagged_pdf(generate=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "generateTaggedPdf", "true")
+
+    def test_string_header(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).string_header("<html><body>Header</body></html>").run()
+        request = httpx_mock.get_request()
+        boundary = request.headers["Content-Type"].split("boundary=")[1]
+        parts = request.content.split(f"--{boundary}".encode())
+        assert any(b'filename="header.html"' in part for part in parts)
+
+    def test_string_footer(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).string_footer("<html><body>Footer</body></html>").run()
+        request = httpx_mock.get_request()
+        boundary = request.headers["Content-Type"].split("boundary=")[1]
+        parts = request.content.split(f"--{boundary}".encode())
+        assert any(b'filename="footer.html"' in part for part in parts)

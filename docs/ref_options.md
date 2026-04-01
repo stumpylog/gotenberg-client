@@ -35,3 +35,12 @@
 
 ::: gotenberg_client.options.DownloadFromUrl
     handler: python
+
+::: gotenberg_client.options.InitialView
+    handler: python
+
+::: gotenberg_client.options.MagnificationOption
+    handler: python
+
+::: gotenberg_client.options.PageLayout
+    handler: python
