@@ -588,3 +588,37 @@ class EmulatedMediaFeaturesMixin:
     def emulated_media_features(self, features: list[dict[str, str]]) -> Self:
         self._form_data.update({"emulatedMediaFeatures": json.dumps(features)})  # type: ignore[attr-defined,misc]
         return self
+
+
+class ResourceStatusCodesMixin:
+    """
+    https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#invalid-http-status-codes
+    Fail the conversion if any loaded resource returns one of the specified HTTP status codes.
+    """
+
+    def fail_on_resource_status_codes(self, codes: Iterable[HTTPStatus]) -> Self:
+        codes_str = ",".join([str(int(x)) for x in codes])
+        self._form_data.update({"failOnResourceHttpStatusCodes": f"[{codes_str}]"})  # type: ignore[attr-defined,misc]
+        return self
+
+
+class IgnoreResourceDomainsMixin:
+    """
+    https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#invalid-http-status-codes
+    Domains to exclude from resource status code checking.
+    """
+
+    def ignore_resource_status_domains(self, domains: list[str]) -> Self:
+        self._form_data.update({"ignoreResourceHttpStatusDomains": json.dumps(domains)})  # type: ignore[attr-defined,misc]
+        return self
+
+
+class NetworkAlmostIdleMixin:
+    """
+    https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#performance-mode
+    Also skip the network 'almost idle' event for even faster rendering.
+    """
+
+    def skip_network_almost_idle(self, *, skip: bool) -> Self:
+        self._form_data.update(bool_to_form("skipNetworkAlmostIdleEvent", skip))  # type: ignore[attr-defined,misc]
+        return self

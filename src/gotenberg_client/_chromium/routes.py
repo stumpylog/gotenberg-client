@@ -14,9 +14,11 @@ from gotenberg_client._chromium.mixins import DocumentOutlineMixin
 from gotenberg_client._chromium.mixins import EmulatedMediaFeaturesMixin
 from gotenberg_client._chromium.mixins import EmulatedMediaMixin
 from gotenberg_client._chromium.mixins import HeaderFooterMixin
+from gotenberg_client._chromium.mixins import IgnoreResourceDomainsMixin
 from gotenberg_client._chromium.mixins import InvalidStatusCodesMixin
 from gotenberg_client._chromium.mixins import MarginMixin
 from gotenberg_client._chromium.mixins import NativePageRangeMixin
+from gotenberg_client._chromium.mixins import NetworkAlmostIdleMixin
 from gotenberg_client._chromium.mixins import NetworkErrorsMixin
 from gotenberg_client._chromium.mixins import OmitBackgroundMixin
 from gotenberg_client._chromium.mixins import PageOrientMixin
@@ -24,6 +26,7 @@ from gotenberg_client._chromium.mixins import PageSizeMixin
 from gotenberg_client._chromium.mixins import PerformanceModeMixin
 from gotenberg_client._chromium.mixins import PrintBackgroundMixin
 from gotenberg_client._chromium.mixins import RenderControlMixin
+from gotenberg_client._chromium.mixins import ResourceStatusCodesMixin
 from gotenberg_client._chromium.mixins import ScaleMixin
 from gotenberg_client._chromium.mixins import ScreenShotSettingsMixin
 from gotenberg_client._chromium.mixins import SinglePageMixin
@@ -62,9 +65,12 @@ class _BaseChromiumConvertMixin(
     CookiesMixin,
     CustomHTTPHeaderMixin,
     InvalidStatusCodesMixin,
+    ResourceStatusCodesMixin,
+    IgnoreResourceDomainsMixin,
     NetworkErrorsMixin,
     ConsoleExceptionMixin,
     PerformanceModeMixin,
+    NetworkAlmostIdleMixin,
     SplitModeMixin,
     PdfFormatMixin,
     PdfUniversalAccessMixin,
@@ -374,8 +380,11 @@ class _BaseScreenShotSettingsMixin(
     CookiesMixin,
     CustomHTTPHeaderMixin,
     InvalidStatusCodesMixin,
+    ResourceStatusCodesMixin,
+    IgnoreResourceDomainsMixin,
     ConsoleExceptionMixin,
     PerformanceModeMixin,
+    NetworkAlmostIdleMixin,
     OmitBackgroundMixin,
     ScreenShotSettingsMixin,
 ):

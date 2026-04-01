@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
+from http import HTTPStatus
 from typing import Literal
 
 import pytest
@@ -302,3 +303,36 @@ class TestConvertChromiumUrlMocked:
         with sync_client.chromium.url_to_pdf() as route:
             route.url(webserver_docker_internal_url).emulated_media_features(features).run()
         verify_stream_contains(httpx_mock.get_request(), "emulatedMediaFeatures", "prefers-color-scheme")
+
+    def test_fail_on_resource_http_status_codes(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).fail_on_resource_status_codes([HTTPStatus.NOT_FOUND]).run()
+        verify_stream_contains(httpx_mock.get_request(), "failOnResourceHttpStatusCodes", "404")
+
+    def test_ignore_resource_http_status_domains(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).ignore_resource_status_domains(["cdn.example.com"]).run()
+        verify_stream_contains(httpx_mock.get_request(), "ignoreResourceHttpStatusDomains", "cdn.example.com")
+
+    def test_skip_network_almost_idle_event(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).skip_network_almost_idle(skip=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "skipNetworkAlmostIdleEvent", "true")
