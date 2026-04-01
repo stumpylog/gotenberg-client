@@ -332,3 +332,25 @@ class TestLibreOfficeMocked:
         with sync_client.libre_office.to_pdf() as route:
             route.convert(docx_sample_file).native_tiled_watermark_text("DRAFT").run()
         verify_stream_contains(httpx_mock.get_request(), "nativeTiledWatermarkText", "DRAFT")
+
+    def test_initial_page(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).initial_page(3).run()
+        verify_stream_contains(httpx_mock.get_request(), "initialPage", "3")
+
+    def test_hide_viewer_menubar(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).hide_viewer_menubar(hide=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "hideViewerMenubar", "true")

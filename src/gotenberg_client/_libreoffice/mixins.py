@@ -377,6 +377,77 @@ class LibreOfficeCompressOptionsMixin:
         return self
 
 
+class LibreOfficeViewerPreferencesMixin:
+    """
+    PDF viewer preferences set by LibreOffice during conversion.
+    See https://gotenberg.dev/docs/convert-with-libreoffice/convert-to-pdf
+    """
+
+    def initial_view(self, view: int) -> Self:
+        """0=none, 1=outline, 2=thumbnails."""
+        self._form_data.update({"initialView": str(view)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def initial_page(self, page: int) -> Self:
+        self._form_data.update({"initialPage": str(page)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def magnification(self, magnification: int) -> Self:
+        """0=default, 1=fit page, 2=fit width, 3=fit height, 4=fit box."""
+        self._form_data.update({"magnification": str(magnification)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def zoom(self, zoom_percent: int) -> Self:
+        self._form_data.update({"zoom": str(zoom_percent)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def page_layout(self, layout: int) -> Self:
+        """0=default, 1=single page, 2=continuous, 3=two columns."""
+        self._form_data.update({"pageLayout": str(layout)})  # type: ignore[attr-defined,misc]
+        return self
+
+    def first_page_on_left(self, *, first_page_on_left: bool) -> Self:
+        self._form_data.update(bool_to_form("firstPageOnLeft", first_page_on_left))  # type: ignore[attr-defined,misc]
+        return self
+
+    def resize_window_to_initial_page(self, *, resize: bool) -> Self:
+        self._form_data.update(bool_to_form("resizeWindowToInitialPage", resize))  # type: ignore[attr-defined,misc]
+        return self
+
+    def center_window(self, *, center: bool) -> Self:
+        self._form_data.update(bool_to_form("centerWindow", center))  # type: ignore[attr-defined,misc]
+        return self
+
+    def open_in_full_screen_mode(self, *, full_screen: bool) -> Self:
+        self._form_data.update(bool_to_form("openInFullScreenMode", full_screen))  # type: ignore[attr-defined,misc]
+        return self
+
+    def display_pdf_document_title(self, *, display_title: bool) -> Self:
+        self._form_data.update(bool_to_form("displayPDFDocumentTitle", display_title))  # type: ignore[attr-defined,misc]
+        return self
+
+    def hide_viewer_menubar(self, *, hide: bool) -> Self:
+        self._form_data.update(bool_to_form("hideViewerMenubar", hide))  # type: ignore[attr-defined,misc]
+        return self
+
+    def hide_viewer_toolbar(self, *, hide: bool) -> Self:
+        self._form_data.update(bool_to_form("hideViewerToolbar", hide))  # type: ignore[attr-defined,misc]
+        return self
+
+    def hide_viewer_window_controls(self, *, hide: bool) -> Self:
+        self._form_data.update(bool_to_form("hideViewerWindowControls", hide))  # type: ignore[attr-defined,misc]
+        return self
+
+    def use_transition_effects(self, *, use: bool) -> Self:
+        self._form_data.update(bool_to_form("useTransitionEffects", use))  # type: ignore[attr-defined,misc]
+        return self
+
+    def open_bookmark_levels(self, levels: int) -> Self:
+        """Number of bookmark levels to open in the viewer (-1 = all)."""
+        self._form_data.update({"openBookmarkLevels": str(levels)})  # type: ignore[attr-defined,misc]
+        return self
+
+
 class LibreOfficeMergeOptionMixin:
     """
     Provides document merging options for LibreOffice conversions.
