@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import enum
 import logging
 from typing import Final
 from typing import Literal
@@ -11,6 +12,60 @@ from gotenberg_client._utils import bool_to_form
 from gotenberg_client.options import PageOrientation
 
 logger = logging.getLogger(__name__)
+
+
+@enum.unique
+class InitialView(enum.IntEnum):
+    """
+    Controls which panel is open in the PDF viewer on initial display.
+
+    Attributes:
+        NONE: No panel open (default).
+        OUTLINE: Show document outline/bookmarks panel.
+        THUMBNAILS: Show page thumbnails panel.
+    """
+
+    NONE = 0
+    OUTLINE = 1
+    THUMBNAILS = 2
+
+
+@enum.unique
+class MagnificationOption(enum.IntEnum):
+    """
+    Controls the initial magnification/zoom level used by the PDF viewer.
+
+    Attributes:
+        DEFAULT: Use the viewer default.
+        FIT_PAGE: Fit the entire page in the window.
+        FIT_WIDTH: Fit the page width in the window.
+        FIT_HEIGHT: Fit the page height in the window.
+        FIT_BOX: Fit the bounding box of the page in the window.
+    """
+
+    DEFAULT = 0
+    FIT_PAGE = 1
+    FIT_WIDTH = 2
+    FIT_HEIGHT = 3
+    FIT_BOX = 4
+
+
+@enum.unique
+class PageLayout(enum.IntEnum):
+    """
+    Controls the page layout mode used by the PDF viewer on initial display.
+
+    Attributes:
+        DEFAULT: Use the viewer default.
+        SINGLE_PAGE: Display one page at a time.
+        CONTINUOUS: Display pages in a continuous vertical column.
+        TWO_COLUMNS: Display two pages side by side.
+    """
+
+    DEFAULT = 0
+    SINGLE_PAGE = 1
+    CONTINUOUS = 2
+    TWO_COLUMNS = 3
 
 
 class LibreOfficePagePropertiesMixin:
@@ -383,27 +438,27 @@ class LibreOfficeViewerPreferencesMixin:
     See https://gotenberg.dev/docs/convert-with-libreoffice/convert-to-pdf
     """
 
-    def initial_view(self, view: int) -> Self:
-        """0=none, 1=outline, 2=thumbnails."""
-        self._form_data.update({"initialView": str(view)})  # type: ignore[attr-defined,misc]
+    def initial_view(self, view: InitialView) -> Self:
+        """Set which panel is open in the PDF viewer (none, outline, or thumbnails)."""
+        self._form_data.update({"initialView": str(int(view))})  # type: ignore[attr-defined,misc]
         return self
 
     def initial_page(self, page: int) -> Self:
         self._form_data.update({"initialPage": str(page)})  # type: ignore[attr-defined,misc]
         return self
 
-    def magnification(self, magnification: int) -> Self:
-        """0=default, 1=fit page, 2=fit width, 3=fit height, 4=fit box."""
-        self._form_data.update({"magnification": str(magnification)})  # type: ignore[attr-defined,misc]
+    def magnification(self, magnification: MagnificationOption) -> Self:
+        """Set the initial magnification/zoom level in the PDF viewer."""
+        self._form_data.update({"magnification": str(int(magnification))})  # type: ignore[attr-defined,misc]
         return self
 
     def zoom(self, zoom_percent: int) -> Self:
         self._form_data.update({"zoom": str(zoom_percent)})  # type: ignore[attr-defined,misc]
         return self
 
-    def page_layout(self, layout: int) -> Self:
-        """0=default, 1=single page, 2=continuous, 3=two columns."""
-        self._form_data.update({"pageLayout": str(layout)})  # type: ignore[attr-defined,misc]
+    def page_layout(self, layout: PageLayout) -> Self:
+        """Set the page layout mode used by the PDF viewer."""
+        self._form_data.update({"pageLayout": str(int(layout))})  # type: ignore[attr-defined,misc]
         return self
 
     def first_page_on_left(self, *, first_page_on_left: bool) -> Self:

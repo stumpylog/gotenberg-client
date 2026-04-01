@@ -13,6 +13,9 @@ from pytest_httpx import HTTPXMock
 from gotenberg_client import GotenbergClient
 from gotenberg_client import SingleFileResponse
 from gotenberg_client import ZipFileResponse
+from gotenberg_client._libreoffice.mixins import InitialView
+from gotenberg_client._libreoffice.mixins import MagnificationOption
+from gotenberg_client._libreoffice.mixins import PageLayout
 from gotenberg_client._libreoffice.routes import AsyncOfficeDocumentToPdfRoute
 from gotenberg_client._utils import guess_mime_type_stdlib
 from gotenberg_client.options import PageOrientation
@@ -354,3 +357,146 @@ class TestLibreOfficeMocked:
         with sync_client.libre_office.to_pdf() as route:
             route.convert(docx_sample_file).hide_viewer_menubar(hide=True).run()
         verify_stream_contains(httpx_mock.get_request(), "hideViewerMenubar", "true")
+
+    def test_initial_view(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).initial_view(InitialView.OUTLINE).run()
+        verify_stream_contains(httpx_mock.get_request(), "initialView", "1")
+
+    def test_magnification(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).magnification(MagnificationOption.FIT_WIDTH).run()
+        verify_stream_contains(httpx_mock.get_request(), "magnification", "2")
+
+    def test_zoom(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).zoom(50).run()
+        verify_stream_contains(httpx_mock.get_request(), "zoom", "50")
+
+    def test_page_layout(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).page_layout(PageLayout.CONTINUOUS).run()
+        verify_stream_contains(httpx_mock.get_request(), "pageLayout", "2")
+
+    def test_first_page_on_left(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).first_page_on_left(first_page_on_left=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "firstPageOnLeft", "true")
+
+    def test_resize_window_to_initial_page(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).resize_window_to_initial_page(resize=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "resizeWindowToInitialPage", "true")
+
+    def test_center_window(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).center_window(center=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "centerWindow", "true")
+
+    def test_open_in_full_screen_mode(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).open_in_full_screen_mode(full_screen=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "openInFullScreenMode", "true")
+
+    def test_display_pdf_document_title(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).display_pdf_document_title(display_title=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "displayPDFDocumentTitle", "true")
+
+    def test_hide_viewer_toolbar(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).hide_viewer_toolbar(hide=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "hideViewerToolbar", "true")
+
+    def test_hide_viewer_window_controls(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).hide_viewer_window_controls(hide=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "hideViewerWindowControls", "true")
+
+    def test_use_transition_effects(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).use_transition_effects(use=True).run()
+        verify_stream_contains(httpx_mock.get_request(), "useTransitionEffects", "true")
+
+    def test_open_bookmark_levels(
+        self,
+        sync_client: GotenbergClient,
+        docx_sample_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.libre_office.to_pdf() as route:
+            route.convert(docx_sample_file).open_bookmark_levels(-1).run()
+        verify_stream_contains(httpx_mock.get_request(), "openBookmarkLevels", "-1")
