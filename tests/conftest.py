@@ -104,9 +104,9 @@ def gotenberg_host(docker_services, docker_ip: str, gotenberg_service_name: str)
     """
     url = f"http://{docker_ip}:{docker_services.port_for(gotenberg_service_name, 3000)}"
     docker_services.wait_until_responsive(
-        timeout=30.0,
-        pause=1,
-        check=lambda: is_responsive(f"{url}/version"),
+        timeout=60.0,
+        pause=2,
+        check=lambda: is_responsive(f"{url}/health"),
     )
     return url
 
