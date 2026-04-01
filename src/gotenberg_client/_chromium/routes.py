@@ -11,6 +11,7 @@ from gotenberg_client._chromium.mixins import CookiesMixin
 from gotenberg_client._chromium.mixins import CssPageSizeMixin
 from gotenberg_client._chromium.mixins import CustomHTTPHeaderMixin
 from gotenberg_client._chromium.mixins import DocumentOutlineMixin
+from gotenberg_client._chromium.mixins import EmulatedMediaFeaturesMixin
 from gotenberg_client._chromium.mixins import EmulatedMediaMixin
 from gotenberg_client._chromium.mixins import HeaderFooterMixin
 from gotenberg_client._chromium.mixins import InvalidStatusCodesMixin
@@ -26,6 +27,7 @@ from gotenberg_client._chromium.mixins import RenderControlMixin
 from gotenberg_client._chromium.mixins import ScaleMixin
 from gotenberg_client._chromium.mixins import ScreenShotSettingsMixin
 from gotenberg_client._chromium.mixins import SinglePageMixin
+from gotenberg_client._chromium.mixins import WaitForSelectorMixin
 from gotenberg_client._common import DownloadFromMixin
 from gotenberg_client._common import EmbedsMixin
 from gotenberg_client._common import EncryptMixin
@@ -54,7 +56,9 @@ class _BaseChromiumConvertMixin(
     NativePageRangeMixin,
     HeaderFooterMixin,
     RenderControlMixin,
+    WaitForSelectorMixin,
     EmulatedMediaMixin,
+    EmulatedMediaFeaturesMixin,
     CookiesMixin,
     CustomHTTPHeaderMixin,
     InvalidStatusCodesMixin,
@@ -364,7 +368,9 @@ class AsyncMarkdownToPdfRoute(_BaseMarkdownToPdfRoute, AsyncBaseRoute):
 
 class _BaseScreenShotSettingsMixin(
     RenderControlMixin,
+    WaitForSelectorMixin,
     EmulatedMediaMixin,
+    EmulatedMediaFeaturesMixin,
     CookiesMixin,
     CustomHTTPHeaderMixin,
     InvalidStatusCodesMixin,

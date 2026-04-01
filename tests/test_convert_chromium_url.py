@@ -279,3 +279,26 @@ class TestConvertChromiumUrlMocked:
         with sync_client.chromium.url_to_pdf() as route:
             route.url(webserver_docker_internal_url).flatten(flatten=True).run()
         verify_stream_contains(httpx_mock.get_request(), "flatten", "true")
+
+    def test_wait_for_selector(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).wait_for_selector("#main-content").run()
+        verify_stream_contains(httpx_mock.get_request(), "waitForSelector", "#main-content")
+
+    def test_emulated_media_features(
+        self,
+        sync_client: GotenbergClient,
+        webserver_docker_internal_url: str,
+        httpx_mock: HTTPXMock,
+    ):
+        httpx_mock.add_response(method="POST")
+        features = [{"name": "prefers-color-scheme", "value": "dark"}]
+        with sync_client.chromium.url_to_pdf() as route:
+            route.url(webserver_docker_internal_url).emulated_media_features(features).run()
+        verify_stream_contains(httpx_mock.get_request(), "emulatedMediaFeatures", "prefers-color-scheme")

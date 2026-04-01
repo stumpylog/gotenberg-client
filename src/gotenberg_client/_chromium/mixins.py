@@ -566,3 +566,27 @@ class ScreenShotSettingsMixin:
             ScreenshotRoute: This object itself for method chaining.
         """
         return self.image_optimize(optimize_for_speed=False)
+
+
+class WaitForSelectorMixin:
+    """
+    https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#javascript-timing
+    Wait for a CSS selector to appear before rendering.
+    """
+
+    def wait_for_selector(self, selector: str) -> Self:
+        self._form_data.update({"waitForSelector": selector})  # type: ignore[attr-defined,misc]
+        return self
+
+
+class EmulatedMediaFeaturesMixin:
+    """
+    https://gotenberg.dev/docs/convert-with-chromium/convert-url-to-pdf#emulated-media-type
+    Override specific CSS media features (e.g., prefers-color-scheme).
+    """
+
+    def emulated_media_features(self, features: list[dict[str, str]]) -> Self:
+        import json  # noqa: PLC0415
+
+        self._form_data.update({"emulatedMediaFeatures": json.dumps(features)})  # type: ignore[attr-defined,misc]
+        return self
