@@ -28,14 +28,18 @@ class TestVersionApiLive:
         version = sync_version_api.get()
         assert isinstance(version, str)
         assert len(version) > 0
-        parts = version.split(".")
-        assert len(parts) == 3
-        assert all(p.isdigit() for p in parts)
+        # semver (e.g. "8.29.1") or a build tag (e.g. "edge")
+        if "." in version:
+            parts = version.split(".")
+            assert len(parts) == 3
+            assert all(p.isdigit() for p in parts)
 
     async def test_version_async(self, async_version_api: AsyncVersionApi):
         version = await async_version_api.get()
         assert isinstance(version, str)
         assert len(version) > 0
-        parts = version.split(".")
-        assert len(parts) == 3
-        assert all(p.isdigit() for p in parts)
+        # semver (e.g. "8.29.1") or a build tag (e.g. "edge")
+        if "." in version:
+            parts = version.split(".")
+            assert len(parts) == 3
+            assert all(p.isdigit() for p in parts)
