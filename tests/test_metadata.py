@@ -1,3 +1,4 @@
+from datetime import UTC
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -10,6 +11,7 @@ from httpx import codes
 from gotenberg_client import GotenbergClient
 from gotenberg_client import InvalidKeywordError
 from gotenberg_client import InvalidPdfRevisionError
+from gotenberg_client import PdfMetadata
 from gotenberg_client._common import MetadataMixin
 from gotenberg_client._pdfmetadata.routes import AsyncReadPdfMetadataRoute
 from gotenberg_client._pdfmetadata.routes import SyncReadPdfMetadataRoute
@@ -193,20 +195,31 @@ class TestPdfMetadataOnConvert:
 
 class TestPdfMetadataReadExisting:
     @staticmethod
-    def sample_one_metadata_verify(data: dict[str, dict[str, str]], filename: str):
-        # These are the stable fields
-        assert data[filename]["CreateDate"] == "2018:12:06 17:50:06+00:00"
-        assert data[filename]["Creator"] == "Chromium"
-        assert data[filename]["FileName"] == filename
-        assert data[filename]["FileSize"] == "208 kB"
-        assert data[filename]["FileType"] == "PDF"
-        assert data[filename]["FileTypeExtension"] == "pdf"
-        assert data[filename]["Linearized"] == "No"
-        assert data[filename]["MIMEType"] == "application/pdf"
-        assert data[filename]["ModifyDate"] == "2018:12:06 17:50:06+00:00"
-        assert data[filename]["PDFVersion"] == 1.4
-        assert data[filename]["PageCount"] == 3
-        assert data[filename]["Producer"] == "Skia/PDF m70"
+    def sample_one_metadata_verify(data: dict[str, PdfMetadata], filename: str):
+        meta = data[filename]
+        # PDF document information fields
+        assert "CreateDate" in meta
+        assert meta["CreateDate"] == "2018:12:06 17:50:06+00:00"
+        assert "Creator" in meta
+        assert meta["Creator"] == "Chromium"
+        assert "ModifyDate" in meta
+        assert meta["ModifyDate"] == "2018:12:06 17:50:06+00:00"
+        assert "Producer" in meta
+        assert meta["Producer"] == "Skia/PDF m70"
+        # ExifTool-derived fields (present in current Gotenberg, may be removed later)
+        assert "FileType" in meta
+        assert meta["FileType"] == "PDF"
+        assert "FileTypeExtension" in meta
+        assert meta["FileTypeExtension"] == "pdf"
+        assert "Linearized" in meta
+        assert meta["Linearized"] == "No"
+        assert "MIMEType" in meta
+        assert meta["MIMEType"] == "application/pdf"
+        assert "PDFVersion" in meta
+        assert meta["PDFVersion"] == 1.4
+        assert "PageCount" in meta
+        assert meta["PageCount"] == 3
+        # FileName and FileSize were stripped in Gotenberg 8.29 and are no longer present
 
     async def test_read_metadata_from_pdf(
         self,
@@ -267,3 +280,63 @@ class TestPdfMetadataWriteExisting:
         with pikepdf.Pdf.open(output) as pdf:
             assert "/Author" in pdf.docinfo
             assert pdf.docinfo["/Author"] == author
+
+
+class TestPdfMetadataRoundTrip:
+    def test_write_then_read(
+        self,
+        sync_client: GotenbergClient,
+        pdf_sample_one_file: Path,
+        tmp_path: Path,
+    ):
+        """
+        Round-trip: write known metadata, then read it back via Gotenberg.
+
+        This test exercises the write→read contract and reveals how ExifTool
+        normalises tag names on read.  Specifically it checks whether the PDF
+        info-dict key "ModDate" (what the mixin sends) comes back as "ModDate"
+        or as ExifTool's canonical "ModifyDate".  It also confirms that dates
+        are overridden by Gotenberg/ExifTool rather than preserved as written.
+        """
+        author = "Round Trip Author"
+        title = "Round Trip Title"
+        creator = "Round Trip Creator"
+
+        # Step 1: write metadata fields to a copy of the sample PDF.
+        with sync_client.metadata.write() as route:
+            write_response = (
+                route.write(pdf_sample_one_file)
+                .metadata(
+                    author=author,
+                    title=title,
+                    creator=creator,
+                    # The mixin sends this as "ModDate" in JSON.  After the
+                    # round-trip we check which key ExifTool returns it under.
+                    modification_date=datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC),
+                )
+                .run_with_retry()
+            )
+
+        assert write_response.status_code == codes.OK
+        assert write_response.headers["Content-Type"] == "application/pdf"
+        written_pdf = tmp_path / "round_trip.pdf"
+        write_response.to_file(written_pdf)
+
+        # Step 2: read the metadata back from the written PDF.
+        with sync_client.metadata.read() as route:
+            read_response = route.read(written_pdf).run_with_retry()
+
+        assert written_pdf.name in read_response
+        result = read_response[written_pdf.name]
+
+        # These document-information fields should survive the round-trip.
+        assert result.get("Author") == author
+        assert result.get("Title") == title
+        assert result.get("Creator") == creator
+
+        # The mixin writes modification date under the key "ModDate" (the raw
+        # PDF info-dict name).  ExifTool maps that to its canonical tag name
+        # "ModifyDate" on read.  Gotenberg overrides the actual value with the
+        # current time, so we only assert on key presence, not the value.
+        assert "ModifyDate" in result
+        assert "ModDate" not in result

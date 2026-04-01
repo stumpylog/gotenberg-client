@@ -6,8 +6,52 @@ import zipfile
 from collections.abc import Mapping
 from io import BytesIO
 from pathlib import Path
+from typing import TypedDict
 
 from gotenberg_client._errors import CannotExtractHereError
+
+
+class PdfMetadata(TypedDict, total=False):
+    """
+    Typed representation of PDF metadata returned by Gotenberg's read-metadata route.
+
+    All fields are optional (``total=False``) because:
+
+    - Not every PDF contains every metadata field.
+    - The set of returned fields varies by Gotenberg version — for example,
+      ``FileName`` and ``FileSize`` were stripped in Gotenberg 8.29 and will
+      not appear in responses from that version onward.
+    - ExifTool-derived fields (``PageCount``, ``PDFVersion``, etc.) are present
+      in current Gotenberg releases but the maintainer has indicated they may be
+      removed in a future version.
+
+    Use ``.get()`` rather than direct key access to handle version differences
+    gracefully.
+    """
+
+    # Standard PDF document information fields
+    Author: str
+    Copyright: str
+    CreateDate: str
+    Creator: str
+    Keywords: str | list[str]  # array when written as JSON array; string otherwise
+    Marked: bool
+    ModifyDate: str
+    Producer: str
+    Subject: str
+    Title: str
+    Trapped: str
+    # ExifTool-derived/computed fields — present in current Gotenberg versions,
+    # but flagged by the maintainer as candidates for future removal.
+    FileType: str
+    FileTypeExtension: str
+    Linearized: str
+    MIMEType: str
+    PageCount: int
+    PDFVersion: float
+    # Legacy system fields stripped as of Gotenberg 8.29; present in older versions.
+    FileName: str
+    FileSize: str
 
 
 @dataclasses.dataclass(slots=True)
