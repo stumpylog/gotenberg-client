@@ -14,6 +14,8 @@ services:
       - "gotenberg"
       - "--log-level=info"
       - "--log-format=text"
+      - "--chromium-allow-list=^file:///tmp/.*"
+      - "--chromium-allow-list=^http://nginx-webserver"
   nginx-webserver-edge:
     image: docker.io/nginx:1-alpine
     networks:
