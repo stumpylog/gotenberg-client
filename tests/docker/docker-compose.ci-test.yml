@@ -5,7 +5,7 @@ networks:
   gotenberg-test-net:
 services:
   gotenberg-client-test-server:
-    image: docker.io/gotenberg/gotenberg:8.29.1
+    image: docker.io/gotenberg/gotenberg:8.31.0
     networks:
       - gotenberg-test-net
     ports:
@@ -14,6 +14,8 @@ services:
       - "gotenberg"
       - "--log-level=info"
       - "--log-format=text"
+      - "--chromium-allow-list=^file:///tmp/.*"
+      - "--chromium-allow-list=^http://nginx-webserver"
   nginx-webserver:
     image: docker.io/nginx:1-alpine
     networks:
