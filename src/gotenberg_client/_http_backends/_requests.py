@@ -41,7 +41,7 @@ class RequestsResponseAdapter:
     def raise_for_status(self) -> None:
         try:
             self._response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
+        except requests.exceptions.HTTPError as e:  # type: ignore[misc]
             raise HttpStatusError(response=self) from e
 
     def json(self) -> Any:
@@ -58,7 +58,7 @@ class RequestsSyncAdapter:
 
     @property
     def headers(self) -> MutableMapping[str, str]:
-        return self._session.headers  # type: ignore[return-value]
+        return self._session.headers
 
     def post(
         self,
