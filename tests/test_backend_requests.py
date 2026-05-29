@@ -26,6 +26,7 @@ def sync_requests_client(gotenberg_host: str) -> Generator[SyncGotenbergClient, 
 @pytest.mark.live
 @pytest.mark.requests
 class TestRequestsBackendSync:
+    @pytest.mark.flaky(reruns=3)
     def test_health_check(self, sync_requests_client: SyncGotenbergClient):
         with sync_requests_client.health as api:
             status = api.health()

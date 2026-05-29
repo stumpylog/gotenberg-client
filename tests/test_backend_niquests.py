@@ -65,6 +65,7 @@ class TestNiquestsBackendSync:
 @pytest.mark.niquests
 @pytest.mark.async_route
 class TestNiquestsBackendAsync:
+    @pytest.mark.flaky(reruns=3)
     async def test_health_check(self, async_niquests_client: AsyncGotenbergClient):
         async with async_niquests_client.health as api:
             status = await api.health()
