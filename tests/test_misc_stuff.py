@@ -19,6 +19,7 @@ from gotenberg_client import GotenbergClient
 from gotenberg_client import HttpStatusError
 from gotenberg_client import MaxRetriesExceededError
 from gotenberg_client import ZipFileResponse
+from tests.utils import verify_stream_contains
 
 if TYPE_CHECKING:
     from httpx import Request
@@ -225,3 +226,85 @@ class TestWebhookHeaders:
         assert "Gotenberg-Webhook-Extra-Http-Headers" in request.headers
         assert request.headers["Gotenberg-Webhook-Extra-Http-Headers"] == headers_str
         assert loads(request.headers["Gotenberg-Webhook-Extra-Http-Headers"]) == headers
+
+
+class TestResetFormFieldsMixin:
+    @pytest.mark.parametrize(("value", "expected"), [(True, "true"), (False, "false")])
+    def test_reset_form_fields_on_pdf_start_sync(
+        self,
+        value: bool,  # noqa: FBT001
+        expected: str,
+        sync_client: GotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
+
+        with sync_client.chromium.html_to_pdf() as route:
+            _ = route.index(basic_html_file).reset_form_fields_on_pdf_start(reset=value).run_with_retry()
+
+        requests = httpx_mock.get_requests()
+        assert len(requests) == 1
+
+        request: Request = requests[0]
+        verify_stream_contains(request, "resetFormFieldsOnPdfStart", expected)
+
+    @pytest.mark.parametrize(("value", "expected"), [(True, "true"), (False, "false")])
+    async def test_reset_form_fields_on_pdf_start_async(
+        self,
+        value: bool,  # noqa: FBT001
+        expected: str,
+        async_client: AsyncGotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
+
+        async with async_client.chromium.html_to_pdf() as route:
+            _ = await route.index(basic_html_file).reset_form_fields_on_pdf_start(reset=value).run_with_retry()
+
+        requests = httpx_mock.get_requests()
+        assert len(requests) == 1
+
+        request: Request = requests[0]
+        verify_stream_contains(request, "resetFormFieldsOnPdfStart", expected)
+
+    @pytest.mark.parametrize(("value", "expected"), [(True, "true"), (False, "false")])
+    def test_reset_form_fields_on_pdf_end_sync(
+        self,
+        value: bool,  # noqa: FBT001
+        expected: str,
+        sync_client: GotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
+
+        with sync_client.chromium.html_to_pdf() as route:
+            _ = route.index(basic_html_file).reset_form_fields_on_pdf_end(reset=value).run_with_retry()
+
+        requests = httpx_mock.get_requests()
+        assert len(requests) == 1
+
+        request: Request = requests[0]
+        verify_stream_contains(request, "resetFormFieldsOnPdfEnd", expected)
+
+    @pytest.mark.parametrize(("value", "expected"), [(True, "true"), (False, "false")])
+    async def test_reset_form_fields_on_pdf_end_async(
+        self,
+        value: bool,  # noqa: FBT001
+        expected: str,
+        async_client: AsyncGotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
+
+        async with async_client.chromium.html_to_pdf() as route:
+            _ = await route.index(basic_html_file).reset_form_fields_on_pdf_end(reset=value).run_with_retry()
+
+        requests = httpx_mock.get_requests()
+        assert len(requests) == 1
+
+        request: Request = requests[0]
+        verify_stream_contains(request, "resetFormFieldsOnPdfEnd", expected)
