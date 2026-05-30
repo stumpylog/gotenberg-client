@@ -484,7 +484,13 @@ class ConsoleExceptionMixin:
 
 class PerformanceModeMixin:
     """
-    https://gotenberg.dev/docs/routes#performance-mode-chromium
+    Enables or disables performance mode by controlling the skipNetworkIdleEvent behavior.
+
+    See [documentation](https://gotenberg.dev/docs/routes#performance-mode-chromium) for more details.
+
+    Note: Prior to Gotenberg 8.11.0, skipNetworkIdleEvent defaulted to false. Users on
+    older servers should verify this behavior does not cause unexpected performance changes
+    when enabling performance mode.
     """
 
     def performance_mode(self, *, use_performance_mode: bool) -> Self:
