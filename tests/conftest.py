@@ -438,6 +438,32 @@ async def async_client(gotenberg_host: str) -> AsyncGenerator[AsyncGotenbergClie
 
 
 @pytest.fixture
+def mock_sync_client() -> Generator[SyncGotenbergClient, None, None]:
+    """
+    A sync client for tests that mock the HTTP response (e.g. with ``httpx_mock``).
+
+    Unlike ``sync_client``, this does NOT depend on ``gotenberg_host`` and therefore never
+    starts the Docker stack. The host is a dummy value because the request is intercepted
+    before it leaves the process. The ``httpx`` backend is forced because ``pytest-httpx``
+    only intercepts ``httpx``.
+    """
+    with SyncGotenbergClient(host="http://localhost:3000", backend="httpx", log_level=logging.INFO) as client:
+        yield client
+
+
+@pytest.fixture
+async def mock_async_client() -> AsyncGenerator[AsyncGotenbergClient, None]:
+    """
+    An async client for tests that mock the HTTP response (e.g. with ``httpx_mock``).
+
+    The async counterpart to ``mock_sync_client``: no ``gotenberg_host`` dependency, so it
+    never starts the Docker stack.
+    """
+    async with AsyncGotenbergClient(host="http://localhost:3000", backend="httpx", log_level=logging.INFO) as client:
+        yield client
+
+
+@pytest.fixture
 def sync_html_to_pdf_route(sync_client: SyncGotenbergClient) -> Generator[SyncHtmlToPdfRoute, None, None]:
     with sync_client.chromium.html_to_pdf() as route:
         yield route

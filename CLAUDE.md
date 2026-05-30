@@ -30,16 +30,61 @@ The project uses [`hatch`](https://hatch.pypa.io/) for environment management, t
 CI runs `hatch fmt --check`, `hatch run typing:run`, prek hooks, and the test matrix across
 Python 3.10-3.14 (plus PyPy) before a merge is allowed.
 
-### Testing requires a live Gotenberg server
+### Testing structure
 
-The test suite is integration-heavy and spins up Gotenberg + an nginx webserver via Docker using
-`pytest-docker` (compose files in `tests/docker/`). Docker must be available locally to run tests.
-Set `GOTENBERG_CLIENT_EDGE_TEST=1` to test against the Gotenberg `:edge` image instead of the
-pinned release. `pytest-randomly` randomizes test order and `pytest-xdist` runs in parallel by default.
+Tests fall into three tiers. **Pick the lightest tier that proves what you need** — do not reach for
+the live Docker stack to verify something that is really just request construction.
 
-Pytest markers (see `pyproject.toml`): `live`, `chromium`, `libreoffice`, `screenshot`,
-`httpx`, `niquests`, `requests`, `async_route`. `asyncio_mode = "auto"`, so `async def` tests run
-without an explicit decorator.
+1. **Pure unit tests** — no client, no network, no Docker. They exercise `options.py` dataclasses/enums
+   and other pure logic directly (e.g. `Measurement(...).to_form(...)`). See `tests/test_options.py`.
+   This is the right tier for anything that can be checked by calling a function and asserting its
+   return value.
+2. **Mocked request-construction tests** — verify that a route builds the correct multipart form data
+   and headers, _without_ performing a real conversion. They intercept the outgoing POST with the
+   `httpx_mock` fixture (from `pytest-httpx`), then assert on the captured request with
+   `verify_stream_contains` (see `tests/utils.py`). Conventionally grouped in a `Test*Mocked` class with
+   **no** `@pytest.mark.live`. Use this tier for new option-setting mixin methods: add the option, mock
+   the response, assert the field/header is present. `pytest-httpx` only intercepts the **httpx**
+   backend, so mocked tests run against httpx.
+3. **Live integration tests** — marked `@pytest.mark.live`, they hit a real Gotenberg server and verify
+   the produced PDF/image with `pikepdf`/`pypdf`. Use only when you genuinely need a real conversion
+   (output correctness, PDF/A status, page counts, screenshots, server-side retry behavior).
+
+**Pick the right client fixture — this controls whether Docker starts.** `pytest-docker` only spins up
+the Gotenberg + nginx stack when a test (transitively) requests the `gotenberg_host` / `web_server_host`
+fixtures. So fixture choice decides whether a test needs Docker:
+
+- **No-server tests (tiers 1 and 2)** must use `mock_sync_client` / `mock_async_client` (in `conftest.py`).
+  These build a client against a dummy host with the httpx backend and have **no** `gotenberg_host`
+  dependency, so they never start Docker. Build the route inline from the client
+  (`with mock_sync_client.chromium.html_to_pdf() as route: ...`).
+- **Live tests (tier 3)** use `sync_client` / `async_client` (or the per-route fixtures built on them,
+  e.g. `sync_merge_pdfs_route`). These resolve `gotenberg_host` and therefore require the Docker stack.
+
+Do **not** give a mocked test `sync_client`/`async_client` or a `sync_*_route`/`async_*_route` fixture —
+that drags the whole Docker stack into a test that never makes a real request. `webserver_docker_internal_url`
+is just a hostname string (no Docker dependency) and is fine to use as a `.url()` argument in mocked tests.
+Running `hatch test -m "not live"` exercises tiers 1 and 2 with zero Docker.
+
+**Live tests require Docker.** The live tier spins up Gotenberg + an nginx webserver via `pytest-docker`
+(compose files in `tests/docker/`). Docker must be available locally. Set `GOTENBERG_CLIENT_EDGE_TEST=1`
+to test against the Gotenberg `:edge` image instead of the pinned release. `pytest-randomly` randomizes
+test order and `pytest-xdist` runs in parallel by default.
+
+Pytest markers (see `pyproject.toml`, `--strict-markers` is on): `live`, `chromium`, `libreoffice`,
+`screenshot`, `httpx`, `niquests`, `requests`, `async_route`. `asyncio_mode = "auto"`, so `async def`
+tests run without an explicit decorator. Sync and async variants are tested as separate classes/tests
+(mirroring the `Sync*`/`Async*` code split), the async ones additionally marked `@pytest.mark.async_route`.
+
+### Test-writing preferences
+
+- **Parametrize over duplication.** Use `@pytest.mark.parametrize` to cover input/output variations
+  rather than copy-pasting near-identical test functions (see `TestMeasurement` in `tests/test_options.py`).
+- **`httpx_mock` (`pytest-httpx`)** is the preferred way to assert what request a route sends, and to
+  simulate server responses/status codes (e.g. driving the 5xx retry loop). Pair it with
+  `verify_stream_contains` for form-field assertions.
+- **`mocker` (`pytest-mock`)** is the preferred way to patch/stub internals and assert on calls; prefer
+  it over hand-rolled monkeypatching or `unittest.mock` directly.
 
 ## Architecture
 

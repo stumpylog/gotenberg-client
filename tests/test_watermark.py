@@ -16,12 +16,12 @@ from tests.utils import verify_stream_contains
 class TestWatermarkRouteMocked:
     def test_watermark_text_mocked(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.watermark.watermark() as route:
+        with mock_sync_client.watermark.watermark() as route:
             route.add_file(sample_directory / "sample1.pdf").watermark_source(
                 WatermarkStampSource.Text,
             ).watermark_expression("DRAFT").run()
@@ -30,12 +30,12 @@ class TestWatermarkRouteMocked:
 
     def test_watermark_add_files_mocked(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.watermark.watermark() as route:
+        with mock_sync_client.watermark.watermark() as route:
             route.add_files([sample_directory / "sample1.pdf"]).watermark_source(
                 WatermarkStampSource.Text,
             ).watermark_expression("DRAFT").run()

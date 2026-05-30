@@ -16,12 +16,12 @@ from tests.utils import verify_stream_contains
 class TestStampRouteMocked:
     def test_stamp_text_mocked(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.stamp.stamp() as route:
+        with mock_sync_client.stamp.stamp() as route:
             route.add_file(sample_directory / "sample1.pdf").stamp_source(WatermarkStampSource.Text).stamp_expression(
                 "CONFIDENTIAL",
             ).run()
@@ -30,12 +30,12 @@ class TestStampRouteMocked:
 
     def test_stamp_add_files_mocked(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.stamp.stamp() as route:
+        with mock_sync_client.stamp.stamp() as route:
             route.add_files([sample_directory / "sample1.pdf"]).stamp_source(
                 WatermarkStampSource.Text,
             ).stamp_expression("CONFIDENTIAL").run()

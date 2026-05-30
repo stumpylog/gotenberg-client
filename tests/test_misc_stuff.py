@@ -100,7 +100,7 @@ class TestMiscFunctionality:
 
 
 class TestServerErrorRetry:
-    def test_server_error_retry(self, sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
+    def test_server_error_retry(self, mock_sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         # Response 1
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
         # Response 2
@@ -112,14 +112,14 @@ class TestServerErrorRetry:
         # Response 5
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.SERVICE_UNAVAILABLE)
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             with pytest.raises(MaxRetriesExceededError) as exc_info:
                 _ = route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
     async def test_server_error_retry_async(
         self,
-        async_client: AsyncGotenbergClient,
+        mock_async_client: AsyncGotenbergClient,
         basic_html_file: Path,
         httpx_mock: HTTPXMock,
     ):
@@ -134,43 +134,48 @@ class TestServerErrorRetry:
         # Response 5
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.SERVICE_UNAVAILABLE)
 
-        async with async_client.chromium.html_to_pdf() as route:
+        async with mock_async_client.chromium.html_to_pdf() as route:
             with pytest.raises(MaxRetriesExceededError) as exc_info:
                 _ = await route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
-    def test_not_a_server_error(self, sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
+    def test_not_a_server_error(self, mock_sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
         # Response 1
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.NOT_FOUND)
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             with pytest.raises(HttpStatusError) as exc_info:
                 _ = route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
 
     async def test_not_a_server_error_async(
         self,
-        async_client: AsyncGotenbergClient,
+        mock_async_client: AsyncGotenbergClient,
         basic_html_file: Path,
         httpx_mock: HTTPXMock,
     ):
         # Response 1
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.BAD_REQUEST)
 
-        async with async_client.chromium.html_to_pdf() as route:
+        async with mock_async_client.chromium.html_to_pdf() as route:
             with pytest.raises(HttpStatusError) as exc_info:
                 _ = await route.index(basic_html_file).run_with_retry(initial_retry_wait=0.1, retry_scale=0.1)
             assert exc_info.value.response.status_code == HTTPStatus.BAD_REQUEST
 
 
 class TestWebhookHeaders:
-    def test_webhook_basic_headers(self, sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
+    def test_webhook_basic_headers(
+        self,
+        mock_sync_client: GotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
-        sync_client.add_webhook_url("http://myapi:3000/on-success")
-        sync_client.add_error_webhook_url("http://myapi:3000/on-error")
+        mock_sync_client.add_webhook_url("http://myapi:3000/on-success")
+        mock_sync_client.add_error_webhook_url("http://myapi:3000/on-error")
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(basic_html_file).run_with_retry()
 
         requests = httpx_mock.get_requests()
@@ -184,15 +189,20 @@ class TestWebhookHeaders:
         assert "Gotenberg-Webhook-Error-Url" in request.headers
         assert request.headers["Gotenberg-Webhook-Error-Url"] == "http://myapi:3000/on-error"
 
-    def test_webhook_http_methods(self, sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
+    def test_webhook_http_methods(
+        self,
+        mock_sync_client: GotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
-        sync_client.add_webhook_url("http://myapi:3000/on-success")
-        sync_client.set_webhook_http_method("POST")
-        sync_client.add_error_webhook_url("http://myapi:3000/on-error")
-        sync_client.set_error_webhook_http_method("PATCH")
+        mock_sync_client.add_webhook_url("http://myapi:3000/on-success")
+        mock_sync_client.set_webhook_http_method("POST")
+        mock_sync_client.add_error_webhook_url("http://myapi:3000/on-error")
+        mock_sync_client.set_error_webhook_http_method("PATCH")
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(basic_html_file).run_with_retry()
 
         requests = httpx_mock.get_requests()
@@ -206,15 +216,20 @@ class TestWebhookHeaders:
         assert "Gotenberg-Webhook-Error-Method" in request.headers
         assert request.headers["Gotenberg-Webhook-Error-Method"] == "PATCH"
 
-    def test_webhook_extra_headers(self, sync_client: GotenbergClient, basic_html_file: Path, httpx_mock: HTTPXMock):
+    def test_webhook_extra_headers(
+        self,
+        mock_sync_client: GotenbergClient,
+        basic_html_file: Path,
+        httpx_mock: HTTPXMock,
+    ):
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
         headers = {"Token": "mytokenvalue"}
         headers_str = dumps(headers)
 
-        sync_client.set_webhook_extra_headers(headers)
+        mock_sync_client.set_webhook_extra_headers(headers)
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(basic_html_file).run_with_retry()
 
         requests = httpx_mock.get_requests()
@@ -234,13 +249,13 @@ class TestResetFormFieldsMixin:
         self,
         value: bool,  # noqa: FBT001
         expected: str,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         basic_html_file: Path,
         httpx_mock: HTTPXMock,
     ) -> None:
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(basic_html_file).reset_form_fields_on_pdf_start(reset=value).run_with_retry()
 
         requests = httpx_mock.get_requests()
@@ -254,13 +269,13 @@ class TestResetFormFieldsMixin:
         self,
         value: bool,  # noqa: FBT001
         expected: str,
-        async_client: AsyncGotenbergClient,
+        mock_async_client: AsyncGotenbergClient,
         basic_html_file: Path,
         httpx_mock: HTTPXMock,
     ) -> None:
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
-        async with async_client.chromium.html_to_pdf() as route:
+        async with mock_async_client.chromium.html_to_pdf() as route:
             _ = await route.index(basic_html_file).reset_form_fields_on_pdf_start(reset=value).run_with_retry()
 
         requests = httpx_mock.get_requests()
@@ -274,13 +289,13 @@ class TestResetFormFieldsMixin:
         self,
         value: bool,  # noqa: FBT001
         expected: str,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         basic_html_file: Path,
         httpx_mock: HTTPXMock,
     ) -> None:
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(basic_html_file).reset_form_fields_on_pdf_end(reset=value).run_with_retry()
 
         requests = httpx_mock.get_requests()
@@ -294,13 +309,13 @@ class TestResetFormFieldsMixin:
         self,
         value: bool,  # noqa: FBT001
         expected: str,
-        async_client: AsyncGotenbergClient,
+        mock_async_client: AsyncGotenbergClient,
         basic_html_file: Path,
         httpx_mock: HTTPXMock,
     ) -> None:
         httpx_mock.add_response(method="POST", status_code=HTTPStatus.OK)
 
-        async with async_client.chromium.html_to_pdf() as route:
+        async with mock_async_client.chromium.html_to_pdf() as route:
             _ = await route.index(basic_html_file).reset_form_fields_on_pdf_end(reset=value).run_with_retry()
 
         requests = httpx_mock.get_requests()

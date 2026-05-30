@@ -202,22 +202,22 @@ class TestConvertChromiumHtml:
 
 @pytest.mark.chromium
 class TestConvertChromiumHtmlMocked:
-    def test_convert_page_size(self, sync_client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
+    def test_convert_page_size(self, mock_sync_client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")
         test_file = sample_directory / "basic.html"
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).size(A4).run()
 
         request = httpx_mock.get_request()
         verify_stream_contains(request, "paperWidth", "8.27")
         verify_stream_contains(request, "paperHeight", "11.7")
 
-    def test_convert_margin(self, sync_client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
+    def test_convert_margin(self, mock_sync_client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
         httpx_mock.add_response(method="POST")
         test_file = sample_directory / "basic.html"
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = (
                 route.index(test_file)
                 .margins(
@@ -237,11 +237,16 @@ class TestConvertChromiumHtmlMocked:
         verify_stream_contains(request, "marginLeft", "3mm")
         verify_stream_contains(request, "marginRight", "4")
 
-    def test_convert_render_control(self, sync_client: GotenbergClient, sample_directory: Path, httpx_mock: HTTPXMock):
+    def test_convert_render_control(
+        self,
+        mock_sync_client: GotenbergClient,
+        sample_directory: Path,
+        httpx_mock: HTTPXMock,
+    ):
         httpx_mock.add_response(method="POST")
         test_file = sample_directory / "basic.html"
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).render_wait(timedelta(seconds=500.0)).run()
 
         verify_stream_contains(httpx_mock.get_request(), "waitDelay", "500.0")
@@ -252,7 +257,7 @@ class TestConvertChromiumHtmlMocked:
     )
     def test_convert_orientation(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
         orientation: PageOrientation,
@@ -260,7 +265,7 @@ class TestConvertChromiumHtmlMocked:
         httpx_mock.add_response(method="POST")
         test_file = sample_directory / "basic.html"
 
-        with sync_client.chromium.html_to_pdf() as route:
+        with mock_sync_client.chromium.html_to_pdf() as route:
             _ = route.index(test_file).orient(orientation).run()
 
         verify_stream_contains(

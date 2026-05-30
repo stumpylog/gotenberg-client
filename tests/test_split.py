@@ -20,11 +20,11 @@ class TestSplitApi:
 class TestSplitMocked:
     def test_split_user_password(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.split.split() as route:
+        with mock_sync_client.split.split() as route:
             route.split(sample_directory / "sample1.pdf").split_mode("pages").split_span("1").user_password("pw").run()
         verify_stream_contains(httpx_mock.get_request(), "userPassword", "pw")

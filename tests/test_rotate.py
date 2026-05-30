@@ -16,23 +16,23 @@ from tests.utils import verify_stream_contains
 class TestRotateRouteMocked:
     def test_rotate_90_mocked(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.rotate.rotate() as route:
+        with mock_sync_client.rotate.rotate() as route:
             route.add_file(sample_directory / "sample1.pdf").rotate(RotateAngle.Clockwise90).run()
         verify_stream_contains(httpx_mock.get_request(), "rotateAngle", "90")
 
     def test_rotate_add_files_mocked(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.rotate.rotate() as route:
+        with mock_sync_client.rotate.rotate() as route:
             route.add_files([sample_directory / "sample1.pdf"]).rotate(RotateAngle.Clockwise90).run()
         verify_stream_contains(httpx_mock.get_request(), "rotateAngle", "90")
 

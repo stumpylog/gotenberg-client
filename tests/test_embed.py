@@ -14,12 +14,12 @@ from tests.utils import verify_basic_response_values_pdf
 class TestEmbedRouteMocked:
     def test_embed_file(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.embed.embed() as route:
+        with mock_sync_client.embed.embed() as route:
             route.add_pdf(sample_directory / "sample1.pdf").embed(sample_directory / "basic.html").run()
         request = httpx_mock.get_request()
         boundary = request.headers["Content-Type"].split("boundary=")[1]
@@ -29,12 +29,12 @@ class TestEmbedRouteMocked:
 
     def test_embed_add_pdfs_mocked(
         self,
-        sync_client: GotenbergClient,
+        mock_sync_client: GotenbergClient,
         sample_directory: Path,
         httpx_mock: HTTPXMock,
     ):
         httpx_mock.add_response(method="POST")
-        with sync_client.embed.embed() as route:
+        with mock_sync_client.embed.embed() as route:
             route.add_pdfs([sample_directory / "sample1.pdf"]).embed(sample_directory / "basic.html").run()
         request = httpx_mock.get_request()
         boundary = request.headers["Content-Type"].split("boundary=")[1]
