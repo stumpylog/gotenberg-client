@@ -6,10 +6,26 @@ import enum
 import json
 from typing import Final
 from typing import Literal
+from typing import TypedDict
 
 from gotenberg_client._typing_compat import StrEnum
 from gotenberg_client._utils import bool_to_form
 from gotenberg_client._utils import optional_to_form
+
+
+class _CookieJarDictRequired(TypedDict):
+    name: str
+    value: str
+    domain: str
+
+
+class CookieJarDict(_CookieJarDictRequired, total=False):
+    """TypedDict for the return value of :meth:`CookieJar.asdict`."""
+
+    path: str
+    secure: bool
+    httpOnly: bool
+    sameSite: str
 
 
 @dataclasses.dataclass(slots=True)
@@ -37,8 +53,8 @@ class CookieJar:
     http_only: bool | None = None
     same_site: Literal["Strict", "Lax", "None"] | None = None
 
-    def asdict(self) -> dict[str, str | bool]:
-        data: dict[str, str | bool] = {
+    def asdict(self) -> CookieJarDict:
+        data: CookieJarDict = {
             "name": self.name,
             "value": self.value,
             "domain": self.domain,
@@ -46,9 +62,9 @@ class CookieJar:
         if self.path:
             data["path"] = self.path
         if self.secure:
-            data.update({"secure": self.secure})
+            data["secure"] = self.secure
         if self.http_only:
-            data.update({"httpOnly": self.http_only})
+            data["httpOnly"] = self.http_only
         if self.same_site:
             data["sameSite"] = self.same_site
         return data
@@ -403,6 +419,18 @@ class PageLayout(enum.IntEnum):
     TWO_COLUMNS = 3
 
 
+class _DownloadFromUrlDictRequired(TypedDict):
+    url: str
+    embedded: bool
+
+
+class DownloadFromUrlDict(_DownloadFromUrlDictRequired, total=False):
+    """TypedDict for the return value of :meth:`DownloadFromUrl.asdict`."""
+
+    extraHttpHeaders: dict[str, str]
+    field: str
+
+
 @dataclasses.dataclass(slots=True)
 class DownloadFromUrl:
     """
@@ -424,8 +452,8 @@ class DownloadFromUrl:
     embedded: bool = False
     field: str | None = None
 
-    def asdict(self) -> dict[str, str | bool | dict[str, str]]:
-        data: dict[str, str | bool | dict[str, str]] = {"url": self.url, "embedded": self.embedded}
+    def asdict(self) -> DownloadFromUrlDict:
+        data: DownloadFromUrlDict = {"url": self.url, "embedded": self.embedded}
         if self.extra_http_headers:
             data["extraHttpHeaders"] = self.extra_http_headers
         if self.field is not None:
