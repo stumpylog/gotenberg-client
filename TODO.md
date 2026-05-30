@@ -13,43 +13,6 @@
 
 ## MISSING ROUTES
 
-### [HIGH] Version Route Not Implemented
-
-**Location:** `src/gotenberg_client/client/base.py`
-
-The `version` property raises `NotImplementedError`. The route is simple:
-
-- Endpoint: `GET /version`
-- Returns: Plain text version string (e.g., "8.25.1")
-
-**Implementation needed:**
-
-- Create `_version/routes.py` with sync/async route classes
-- Return a simple string response (not PDF)
-
-### [MEDIUM] Encrypt Route (Standalone PDF Engines)
-
-**Location:** Not implemented
-
-Gotenberg provides a standalone encrypt route:
-
-- Endpoint: `POST /forms/pdfengines/encrypt`
-- Required: `files` (PDF files), `userPassword`
-- Optional: `ownerPassword`
-
-Currently, encryption is only available as options on other routes (Chromium, LibreOffice), not as a standalone operation.
-
-### [MEDIUM] Embed Files Route (Standalone PDF Engines)
-
-**Location:** Not implemented
-
-Gotenberg provides a standalone embed route:
-
-- Endpoint: `POST /forms/pdfengines/embed`
-- Required: `files` (PDFs to embed into), `embeds` (files to embed)
-
-This is useful for ZUGFeRD/Factur-X invoice embedding. Currently not implemented as standalone.
-
 ### [LOW] Debug Route
 
 **Location:** Not implemented
@@ -73,72 +36,6 @@ Low priority, specialized use case.
 
 ## MISSING FEATURES/OPTIONS
 
-### [HIGH] Embed Files Support on Conversion Routes
-
-**Gotenberg Docs:** All Chromium and LibreOffice routes accept an `embeds` form field
-
-The `embeds` form field allows embedding files (like XML invoices) into generated PDFs. This is not currently implemented as a mixin.
-
-**Routes affected:**
-
-- All Chromium conversion routes
-- LibreOffice conversion route
-- Merge route
-- Split route
-
-**Implementation:** Create an `EmbedFilesMixin` class.
-
-### [HIGH] Encrypt Options on Chromium Routes
-
-**Gotenberg Docs:** Chromium routes accept `userPassword` and `ownerPassword`
-
-The encryption options (`userPassword`, `ownerPassword`) are documented for Chromium routes but not implemented in the Chromium mixins.
-
-**Implementation:** Create an `EncryptMixin` class and add to Chromium route inheritance.
-
-### [HIGH] Download From Feature
-
-**Gotenberg Docs:** All multipart/form-data endpoints accept `downloadFrom`
-
-The `downloadFrom` form field allows Gotenberg to fetch files from URLs instead of requiring file uploads. This is useful for:
-
-- Large files
-- Files already hosted elsewhere
-- Reduced upload bandwidth
-
-**Structure:**
-
-```json
-[
-    {
-        "url": "http://url/to/file.com",
-        "extraHttpHeaders": { "X-Header": "value" },
-        "embedded": false
-    }
-]
-```
-
-### [MEDIUM] Flatten Option on Chromium Routes
-
-**Gotenberg Docs:** Chromium routes accept the `flatten` form field
-
-The flatten option is implemented for LibreOffice and PDFEngines routes but not for Chromium conversion routes.
-
-### [MEDIUM] Resource Status Code Filtering (Chromium)
-
-**Gotenberg Docs:** `failOnResourceHttpStatusCodes` form field
-
-Currently only `failOnHttpStatusCodes` (for main page) is implemented via `InvalidStatusCodesMixin`. The docs also mention `failOnResourceHttpStatusCodes` for loaded resources.
-
-### [MEDIUM] String-based Header/Footer for Chromium
-
-**Location:** `src/gotenberg_client/_chromium/mixins.py`
-
-The `HeaderFooterMixin` only accepts `Path` objects. Consider adding methods for in-memory HTML strings:
-
-- `string_header(html: str) -> Self`
-- `string_footer(html: str) -> Self`
-
 ### [LOW] Reset Form Fields on Start Options (Chromium)
 
 **Gotenberg Docs:** `resetFormFieldsOnPdfStart` and `resetFormFieldsOnPdfEnd`
@@ -149,27 +46,17 @@ These boolean options are not implemented.
 
 ## CODE QUALITY IMPROVEMENTS
 
-### [MEDIUM] Consolidate Common Mixins
+### [MEDIUM] Logging Consistency
 
-Several mixins are duplicated or could be shared more effectively:
+**Location:** `src/gotenberg_client/_libreoffice/mixins.py`
 
-1. **EncryptMixin** - `userPassword`/`ownerPassword` appears on multiple routes
-2. **EmbedsMixin** - `embeds` field appears on multiple routes
-3. **FlattenMixin** - exists but not used on all applicable routes
+Routes receive a logger via constructor (passed from the client's `logging.getLogger("gotenberg-client")`), but `_libreoffice/mixins.py` creates its own module-level logger with `logging.getLogger(__name__)`. This breaks the established pattern.
 
 ### [MEDIUM] Type Annotations Improvements
 
-**Location:** Various files
+**Location:** `src/gotenberg_client/options.py`
 
-Some areas could benefit from stricter typing:
-
-- Use `Final` more consistently for class constants
-- Consider using `TypedDict` for complex dictionary structures (cookies, downloadFrom)
-- Replace `dict[str, str]` with more specific types where applicable
-
-### [LOW] Logging Consistency
-
-Some modules create their own loggers (`logger = logging.getLogger(__name__)`), while routes use a passed-in logger. Consider standardizing.
+`CookieJar.asdict()` returns `dict[str, str | bool]` and `DownloadFromUrl.asdict()` returns `dict[str, str | bool | dict[str, str]]` without `TypedDict` definitions. These would benefit from stricter typing.
 
 ---
 
@@ -190,6 +77,12 @@ def cookies(self, cookies: list[CookieJar]) -> Self:
         ])
     """
 ```
+
+### [MEDIUM] Document skipNetworkIdleEvent Version Behavior
+
+**Location:** `src/gotenberg_client/_chromium/mixins.py` - `PerformanceModeMixin`
+
+Prior to Gotenberg 8.11.0, `skipNetworkIdleEvent` defaulted to `false`. The `PerformanceModeMixin` docstring should document this version-specific behavior.
 
 ### [LOW] Document Gotenberg Version Compatibility
 
@@ -222,24 +115,8 @@ The `options.py` module (PageSize, Measurement, CookieJar, etc.) would benefit f
 
 Add mock-based tests for features that can't be tested against a live server:
 
-- `downloadFrom` functionality
 - Webhook configurations
 - Error scenarios
-
----
-
-## DEPRECATIONS TO TRACK
-
-### Gotenberg 8.11.0 Change
-
-**Note:** Prior to Gotenberg 8.11.0, `skipNetworkIdleEvent` defaulted to `false`. The client's `PerformanceModeMixin` should document this version-specific behavior.
-
-### PDF/A-1a Deprecation
-
-The `PdfAFormat.A1a` is marked deprecated. Consider:
-
-- Adding a note about when it will be removed
-- Updating users to use `A1b` (once implemented)
 
 ---
 

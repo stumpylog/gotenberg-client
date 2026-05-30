@@ -653,3 +653,36 @@ class GenerateTaggedPdfMixin:
     def generate_tagged_pdf(self, *, generate: bool) -> Self:
         self._form_data.update(bool_to_form("generateTaggedPdf", generate))  # type: ignore[attr-defined,misc]
         return self
+
+
+class ResetFormFieldsMixin:
+    """
+    https://gotenberg.dev/docs/convert-with-chromium/
+    Control form field reset behavior in PDF conversions.
+    """
+
+    def reset_form_fields_on_pdf_start(self, *, reset: bool) -> Self:
+        """
+        Resets form fields at the start of PDF rendering.
+
+        Args:
+            reset: True to reset form fields on PDF start, False otherwise.
+
+        Returns:
+            self: The current instance of the route, allowing for method chaining.
+        """
+        self._form_data.update(bool_to_form("resetFormFieldsOnPdfStart", reset))  # type: ignore[attr-defined,misc]
+        return self
+
+    def reset_form_fields_on_pdf_end(self, *, reset: bool) -> Self:
+        """
+        Resets form fields at the end of PDF rendering.
+
+        Args:
+            reset: True to reset form fields on PDF end, False otherwise.
+
+        Returns:
+            self: The current instance of the route, allowing for method chaining.
+        """
+        self._form_data.update(bool_to_form("resetFormFieldsOnPdfEnd", reset))  # type: ignore[attr-defined,misc]
+        return self

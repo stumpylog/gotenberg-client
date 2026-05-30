@@ -27,6 +27,7 @@ from gotenberg_client._chromium.mixins import PageSizeMixin
 from gotenberg_client._chromium.mixins import PerformanceModeMixin
 from gotenberg_client._chromium.mixins import PrintBackgroundMixin
 from gotenberg_client._chromium.mixins import RenderControlMixin
+from gotenberg_client._chromium.mixins import ResetFormFieldsMixin
 from gotenberg_client._chromium.mixins import ResourceStatusCodesMixin
 from gotenberg_client._chromium.mixins import ScaleMixin
 from gotenberg_client._chromium.mixins import ScreenShotSettingsMixin
@@ -73,6 +74,7 @@ class _BaseChromiumConvertMixin(
     PerformanceModeMixin,
     NetworkAlmostIdleMixin,
     GenerateTaggedPdfMixin,
+    ResetFormFieldsMixin,
     SplitModeMixin,
     PdfFormatMixin,
     PdfUniversalAccessMixin,
