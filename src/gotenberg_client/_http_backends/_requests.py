@@ -4,6 +4,7 @@
 from collections.abc import Mapping
 from collections.abc import MutableMapping
 from typing import Any
+from typing import cast
 
 import requests
 import requests.auth
@@ -41,7 +42,7 @@ class RequestsResponseAdapter:
     def raise_for_status(self) -> None:
         try:
             self._response.raise_for_status()
-        except requests.exceptions.HTTPError as e:  # type: ignore[misc]
+        except requests.exceptions.HTTPError as e:
             raise HttpStatusError(response=self) from e
 
     def json(self) -> Any:
@@ -58,7 +59,7 @@ class RequestsSyncAdapter:
 
     @property
     def headers(self) -> MutableMapping[str, str]:
-        return self._session.headers
+        return cast("MutableMapping[str, str]", self._session.headers)
 
     def post(
         self,
