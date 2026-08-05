@@ -136,7 +136,7 @@ def make_niquests_sync_client(
     session = niquests.Session()
     session.base_url = base_url
     session.timeout = timeout
-    session.headers.update({"User-Agent": user_agent})  # type: ignore[misc]
+    session.headers.update({"User-Agent": user_agent})
     niquests_auth = _build_niquests_auth(auth)
     if niquests_auth is not None:
         session.auth = niquests_auth
@@ -154,7 +154,7 @@ def make_niquests_async_client(
     session = niquests.AsyncSession()
     session.base_url = base_url
     session.timeout = timeout
-    session.headers.update({"User-Agent": user_agent})  # type: ignore[misc]
+    session.headers.update({"User-Agent": user_agent})
     niquests_auth = _build_niquests_auth(auth)
     if niquests_auth is not None:
         session.auth = niquests_auth
