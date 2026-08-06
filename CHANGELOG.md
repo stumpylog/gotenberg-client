@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-06
+
 ### Breaking Changes
 
 - `httpx` is no longer installed by default - install the backend you want explicitly:
