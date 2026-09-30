@@ -60,6 +60,14 @@ If you need MIME-type detection for automatic content-type headers, add the `mag
 pip install "gotenberg-client[httpx,magic]"
 ```
 
+On platforms where libmagic is unavailable or unreliable (such as Windows), use the `magika` extra instead, which needs no native library:
+
+```console
+pip install "gotenberg-client[httpx,magika]"
+```
+
+If both are installed, `magic` is preferred. With neither, detection falls back to the standard library's `mimetypes`.
+
 ## Examples
 
 ### HTML to PDF
