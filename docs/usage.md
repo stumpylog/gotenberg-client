@@ -6,6 +6,7 @@ An HTTP backend is required. Pick the one that suits your project:
 
 ```console
 pip install "gotenberg-client[httpx]"      # recommended — HTTP/2 and async support
+pip install "gotenberg-client[httpx2]"     # alternative — HTTP/2 and async support
 pip install "gotenberg-client[niquests]"   # alternative — HTTP/2 and async support
 pip install "gotenberg-client[requests]"   # sync-only
 ```
@@ -49,8 +50,9 @@ The `backend` parameter selects the HTTP library used to communicate with Gotenb
 
 | Value              | Behaviour                                                                                |
 | ------------------ | ---------------------------------------------------------------------------------------- |
-| `"auto"` (default) | Use httpx if installed, otherwise fall back to niquests                                  |
+| `"auto"` (default) | Use httpx if installed, then niquests, then httpx2                                       |
 | `"httpx"`          | Always use httpx (install with `pip install "gotenberg-client[httpx]"`)                  |
+| `"httpx2"`         | Always use httpx2 (install with `pip install "gotenberg-client[httpx2]"`)                |
 | `"niquests"`       | Always use niquests (install with `pip install "gotenberg-client[niquests]"`)            |
 | `"requests"`       | Always use requests (sync-only; install with `pip install "gotenberg-client[requests]"`) |
 

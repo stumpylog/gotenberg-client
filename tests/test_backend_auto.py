@@ -11,6 +11,7 @@ from __future__ import annotations
 from collections.abc import MutableMapping
 from typing import TYPE_CHECKING
 
+import httpx2
 import niquests
 import niquests.exceptions
 import pytest
@@ -23,6 +24,9 @@ from gotenberg_client import SyncGotenbergClient
 from gotenberg_client._http_backends import _resolve_backend
 from gotenberg_client._http_backends._httpx import HttpxAsyncAdapter
 from gotenberg_client._http_backends._httpx import HttpxSyncAdapter
+from gotenberg_client._http_backends._httpx2 import Httpx2AsyncAdapter
+from gotenberg_client._http_backends._httpx2 import Httpx2ResponseAdapter
+from gotenberg_client._http_backends._httpx2 import Httpx2SyncAdapter
 from gotenberg_client._http_backends._niquests import NiquestsAsyncAdapter
 from gotenberg_client._http_backends._niquests import NiquestsResponseAdapter
 from gotenberg_client._http_backends._niquests import NiquestsSyncAdapter
@@ -34,6 +38,7 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.httpx
+@pytest.mark.httpx2
 @pytest.mark.niquests
 class TestAutoBackendSelection:
     def test_auto_selects_httpx_sync(self):
@@ -55,6 +60,25 @@ class TestAutoBackendSelection:
         """backend='httpx' always uses the httpx adapter (async)."""
         async with AsyncGotenbergClient(host="http://localhost:3000", backend="httpx") as client:
             assert isinstance(client._client, HttpxAsyncAdapter)
+
+    def test_explicit_httpx2_sync(self):
+        """backend='httpx2' always uses the httpx2 adapter."""
+        with SyncGotenbergClient(host="http://localhost:3000", backend="httpx2") as client:
+            assert isinstance(client._client, Httpx2SyncAdapter)
+
+    async def test_explicit_httpx2_async(self):
+        """backend='httpx2' always uses the httpx2 adapter (async)."""
+        async with AsyncGotenbergClient(host="http://localhost:3000", backend="httpx2") as client:
+            assert isinstance(client._client, Httpx2AsyncAdapter)
+
+    def test_tuple_auth_httpx2(self):
+        """Tuple auth is accepted and converted for the httpx2 backend."""
+        with SyncGotenbergClient(host="http://localhost:3000", backend="httpx2", auth=("user", "pass")) as client:
+            assert isinstance(client._client, Httpx2SyncAdapter)
+
+    def test_resolve_backend_httpx2(self):
+        """_resolve_backend returns 'httpx2' when explicitly requested."""
+        assert _resolve_backend("httpx2") == "httpx2"
 
     def test_explicit_niquests_sync(self):
         """backend='niquests' uses the niquests adapter when niquests is installed."""
@@ -107,6 +131,37 @@ class TestAutoBackendSelection:
         with pytest.raises(ValueError, match="synchronous"):
             async with AsyncGotenbergClient(host="http://localhost:3000", backend="requests"):
                 pass
+
+
+@pytest.mark.httpx2
+class TestHttpx2AdapterUnit:
+    """Unit tests for httpx2 adapter internals that don't require Docker."""
+
+    def test_sync_adapter_headers(self):
+        client = httpx2.Client()
+        assert isinstance(Httpx2SyncAdapter(client).headers, MutableMapping)
+        client.close()
+
+    async def test_async_adapter_headers(self):
+        client = httpx2.AsyncClient()
+        assert isinstance(Httpx2AsyncAdapter(client).headers, MutableMapping)
+        await client.aclose()
+
+    @pytest.mark.parametrize("is_server_error", [True, False])
+    def test_response_is_server_error(self, mocker: MockerFixture, *, is_server_error: bool):
+        mock_resp: httpx2.Response = mocker.MagicMock()
+        mock_resp.is_server_error = is_server_error
+        assert Httpx2ResponseAdapter(mock_resp).is_server_error is is_server_error
+
+    def test_response_raise_for_status_converts_exception(self, mocker: MockerFixture):
+        mock_resp: httpx2.Response = mocker.MagicMock()
+        mock_resp.raise_for_status.side_effect = httpx2.HTTPStatusError(
+            "500",
+            request=mocker.MagicMock(),
+            response=mocker.MagicMock(),
+        )
+        with pytest.raises(HttpStatusError):
+            Httpx2ResponseAdapter(mock_resp).raise_for_status()
 
 
 @pytest.mark.niquests

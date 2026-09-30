@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `httpx2` HTTP backend: select via `backend="httpx2"` or install with `pip install "gotenberg-client[httpx2]"`
+
 ## [1.0.0] - 2026-08-06
 
 ### Breaking Changes
