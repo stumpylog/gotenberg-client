@@ -24,9 +24,12 @@ def _get_trapped(pdf: pikepdf.Pdf) -> str | None:
     releases and to XMP (pdf:Trapped) on newer ones (gotenberg/gotenberg#1628).
     """
     if "/Trapped" in pdf.docinfo:
-        return str(pdf.docinfo["/Trapped"]).removeprefix("/")
-    with pdf.open_metadata() as meta:
-        return meta.get("pdf:Trapped")
+        value = str(pdf.docinfo["/Trapped"])
+    else:
+        with pdf.open_metadata() as meta:
+            value = meta.get("pdf:Trapped")
+    # Either location may carry the PDF name form (e.g. "/True") rather than the bare value
+    return None if value is None else value.removeprefix("/")
 
 
 @pytest.mark.live
