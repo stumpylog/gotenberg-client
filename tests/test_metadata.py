@@ -18,7 +18,7 @@ from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
 from gotenberg_client.options import TrappedStatus
 
 
-def _get_trapped(pdf: pikepdf.Pdf) -> str | None:
+def _get_trapped(pdf: pikepdf.Pdf) -> str | None:  # pragma: no cover
     """
     Reads the Trapped value, which Gotenberg writes to the document info dictionary on older
     releases and to XMP (pdf:Trapped) on newer ones (gotenberg/gotenberg#1628).
