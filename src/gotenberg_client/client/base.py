@@ -81,6 +81,8 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         # Set the log level
         logging.getLogger("httpx").setLevel(log_level)
         logging.getLogger("httpcore").setLevel(log_level)
+        logging.getLogger("httpx2").setLevel(log_level)
+        logging.getLogger("httpcore2").setLevel(log_level)
         self._log = logging.getLogger("gotenberg-client")
         self._log.setLevel(log_level)
 

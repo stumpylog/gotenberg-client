@@ -37,7 +37,7 @@ capabilities, so you can skip the multipart form-data boilerplate and focus on y
 
 - **Fully typed** with concrete return types and full `py.typed` support
 - **Sync and async** APIs with identical interfaces
-- **Pluggable HTTP backends** -- [httpx](https://github.com/encode/httpx) (with HTTP/2), [niquests](https://github.com/jawah/niquests), or [requests](https://github.com/psf/requests) — install whichever you prefer
+- **Pluggable HTTP backends** -- [httpx](https://github.com/encode/httpx) (with HTTP/2), [httpx2](https://pypi.org/project/httpx2/) (with HTTP/2), [niquests](https://github.com/jawah/niquests), or [requests](https://github.com/psf/requests) — install whichever you prefer
 - **Pathlib-native** -- pass `Path` objects directly, no manual file handling
 - **Thoroughly tested** against a real Gotenberg server across multiple Python versions
 - **Broad route coverage** including Chromium, LibreOffice, PDF merge/convert/split, health checks, and more
@@ -49,6 +49,7 @@ An HTTP backend is required. Pick the one that suits your project:
 
 ```console
 pip install "gotenberg-client[httpx]"      # recommended — HTTP/2 and async support
+pip install "gotenberg-client[httpx2]"     # alternative — HTTP/2 and async support
 pip install "gotenberg-client[niquests]"   # alternative — HTTP/2 and async support
 pip install "gotenberg-client[requests]"   # sync-only
 ```
@@ -165,6 +166,10 @@ from gotenberg_client import GotenbergClient
 with GotenbergClient("http://localhost:3000", backend="httpx") as client:
     ...
 
+# httpx2 — pip install "gotenberg-client[httpx2]"
+with GotenbergClient("http://localhost:3000", backend="httpx2") as client:
+    ...
+
 # niquests — pip install "gotenberg-client[niquests]"
 with GotenbergClient("http://localhost:3000", backend="niquests") as client:
     ...
@@ -173,7 +178,7 @@ with GotenbergClient("http://localhost:3000", backend="niquests") as client:
 with GotenbergClient("http://localhost:3000", backend="requests") as client:
     ...
 
-# auto — tries httpx first, then niquests (default)
+# auto — tries httpx first, then niquests, then httpx2 (default)
 with GotenbergClient("http://localhost:3000") as client:
     ...
 ```
