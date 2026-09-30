@@ -18,6 +18,17 @@ from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
 from gotenberg_client.options import TrappedStatus
 
 
+def _get_trapped(pdf: pikepdf.Pdf) -> str | None:
+    """
+    Reads the Trapped value, which Gotenberg writes to the document info dictionary on older
+    releases and to XMP (pdf:Trapped) on newer ones (gotenberg/gotenberg#1628).
+    """
+    if "/Trapped" in pdf.docinfo:
+        return str(pdf.docinfo["/Trapped"]).removeprefix("/")
+    with pdf.open_metadata() as meta:
+        return meta.get("pdf:Trapped")
+
+
 @pytest.mark.live
 class TestPdfMetadataOnConvert:
     def test_metadata_basic(
@@ -87,8 +98,7 @@ class TestPdfMetadataOnConvert:
             assert "/Title" in pdf.docinfo
             assert pdf.docinfo["/Title"] == title
 
-            assert "/Trapped" in pdf.docinfo
-            assert pdf.docinfo["/Trapped"] == "/True"
+            assert _get_trapped(pdf) == "True"
 
             # TODO(stumpylog): Investigate why certain fields seems to not be possible to set
 
@@ -115,8 +125,7 @@ class TestPdfMetadataOnConvert:
         resp.to_file(output)
 
         with pikepdf.Pdf.open(output) as pdf:
-            assert "/Trapped" in pdf.docinfo
-            assert pdf.docinfo["/Trapped"] == "/True"
+            assert _get_trapped(pdf) == "True"
 
     def test_metadata_merging(
         self,
@@ -150,8 +159,7 @@ class TestPdfMetadataOnConvert:
             assert "/Title" in pdf.docinfo
             assert pdf.docinfo["/Title"] == new_title
 
-            assert "/Trapped" in pdf.docinfo
-            assert pdf.docinfo["/Trapped"] == "/Unknown"
+            assert _get_trapped(pdf) == "Unknown"
 
     @pytest.mark.parametrize(
         ("base_value", "delta"),
