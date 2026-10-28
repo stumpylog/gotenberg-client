@@ -297,10 +297,10 @@ Supported metadata fields:
 
     Some fields cannot be set or will be overwritten, depending on Gotenberg and its utilized PDF engine
 
-#### Flatten, Watermark, Stamp, Rotate, Encrypt, Embeds, Download From
+#### Flatten, Optimize Images, Watermark, Stamp, Rotate, Encrypt, Embeds, Download From
 
-Chromium conversion routes also support flattening, watermarking, stamping, rotation,
-encryption, file embedding, and URL-based input. See the [Global Options](#global-options)
+Chromium conversion routes also support flattening, image optimization, watermarking, stamping,
+rotation, encryption, file embedding, and URL-based input. See the [Global Options](#global-options)
 section for details.
 
 ## LibreOffice
@@ -445,10 +445,10 @@ Set PDF viewer preferences that are embedded into the output PDF by LibreOffice.
 
 `InitialView`, `MagnificationOption`, and `PageLayout` are importable from `gotenberg_client.options`.
 
-#### Watermark, Stamp, Rotate, Encrypt, Embeds, Download From
+#### Optimize Images, Watermark, Stamp, Rotate, Encrypt, Embeds, Download From
 
-The LibreOffice route also supports watermarking, stamping, rotation, encryption, file
-embedding, and URL-based input. See the [Global Options](#global-options) section for
+The LibreOffice route also supports image optimization, watermarking, stamping, rotation,
+encryption, file embedding, and URL-based input. See the [Global Options](#global-options) section for
 details.
 
 ## Convert into PDF/A & PDF/UA
@@ -550,6 +550,7 @@ Optional Properties:
 | `pdfa`               | `.pdf_format()`                                                                 | `PdfAFormat`            |                                                                                |
 | `pdfua`              | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A                     |                                                                                |
 | `flatten`            | `.flatten()`                                                                    | `bool`                  | keyword only                                                                   |
+| `optimizeImages`     | `.optimize_images(*, quality)`                                                  | N/A                     | Requires Gotenberg 8.36+, see [Optimize Images](#optimize-images)              |
 | `metadata`           | `.metadata()`                                                                   | N/A                     | See [PDF Metadata Support](#pdf-metadata-support)                              |
 | `autoIndexBookmarks` | `.auto_index_bookmarks(*, enable)`                                              | `bool`                  | keyword only; re-index bookmark page numbers                                   |
 | `bookmarks`          | `.merge_bookmarks(bookmark_list)`                                               | `list[dict[str, Any]]`  | custom bookmarks; each entry: `{"title": str, "page": int, "children": [...]}` |
@@ -587,21 +588,22 @@ Required Properties:
 
 Optional Properties:
 
-| Gotenberg Option | Route Configuration                                                             | Python Type                     | Notes                                             |
-| ---------------- | ------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------- |
-| `splitMode`      | `.split_mode()`                                                                 | `Literal["pages", "intervals"]` |                                                   |
-| `splitSpan`      | `.split_span()`                                                                 | `str`                           | e.g. `"1-3"`                                      |
-| `splitUnify`     | `.split_unify()`                                                                | `bool`                          | keyword only                                      |
-| `pdfa`           | `.pdf_format()`                                                                 | `PdfAFormat`                    |                                                   |
-| `pdfua`          | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A                             |                                                   |
-| `flatten`        | `.flatten()`                                                                    | `bool`                          | keyword only                                      |
-| `metadata`       | `.metadata()`                                                                   | N/A                             | See [PDF Metadata Support](#pdf-metadata-support) |
-| watermark        | See [Watermark](#watermark)                                                     | `WatermarkStampSource`          |                                                   |
-| stamp            | See [Stamp](#stamp)                                                             | `WatermarkStampSource`          |                                                   |
-| rotate           | `.rotate()`                                                                     | `RotateAngle`                   |                                                   |
-| encrypt          | `.user_password()` / `.owner_password()`                                        | `str`                           |                                                   |
-| embeds           | `.embed()` / `.embed_files()`                                                   | `Path` / `list[Path]`           |                                                   |
-| downloadFrom     | `.download_from()`                                                              | `list[DownloadFromUrl]`         |                                                   |
+| Gotenberg Option | Route Configuration                                                             | Python Type                     | Notes                                                             |
+| ---------------- | ------------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------- |
+| `splitMode`      | `.split_mode()`                                                                 | `Literal["pages", "intervals"]` |                                                                   |
+| `splitSpan`      | `.split_span()`                                                                 | `str`                           | e.g. `"1-3"`                                                      |
+| `splitUnify`     | `.split_unify()`                                                                | `bool`                          | keyword only                                                      |
+| `pdfa`           | `.pdf_format()`                                                                 | `PdfAFormat`                    |                                                                   |
+| `pdfua`          | <ul><li>`.enable_universal_access()`<li>`.disable_universal_access()`</li></ul> | N/A                             |                                                                   |
+| `flatten`        | `.flatten()`                                                                    | `bool`                          | keyword only                                                      |
+| `optimizeImages` | `.optimize_images(*, quality)`                                                  | N/A                             | Requires Gotenberg 8.36+, see [Optimize Images](#optimize-images) |
+| `metadata`       | `.metadata()`                                                                   | N/A                             | See [PDF Metadata Support](#pdf-metadata-support)                 |
+| watermark        | See [Watermark](#watermark)                                                     | `WatermarkStampSource`          |                                                                   |
+| stamp            | See [Stamp](#stamp)                                                             | `WatermarkStampSource`          |                                                                   |
+| rotate           | `.rotate()`                                                                     | `RotateAngle`                   |                                                                   |
+| encrypt          | `.user_password()` / `.owner_password()`                                        | `str`                           |                                                                   |
+| embeds           | `.embed()` / `.embed_files()`                                                   | `Path` / `list[Path]`           |                                                                   |
+| downloadFrom     | `.download_from()`                                                              | `list[DownloadFromUrl]`         |                                                                   |
 
 ```python
 from gotenberg_client import GotenbergClient
@@ -637,6 +639,34 @@ with GotenbergClient("http://localhost:3000") as client:
     with client.flatten.flatten() as route:
         response = route.flatten(Path("my.pdf")).run()
         response.to_file(Path("flattened.pdf"))
+```
+
+## Optimize PDFs
+
+[Gotenberg Documentation](https://gotenberg.dev/docs/routes#optimize-pdfs-route)
+
+Requires Gotenberg 8.36 or later. Older versions return a 404 for this route.
+
+Route Access: `client.optimize.optimize()`
+
+Required Properties:
+
+- At least one file via `.optimize(Path("file.pdf"))` or `.optimize_files([...])`
+
+Optional Properties:
+
+| Gotenberg Option | Route Configuration | Python Type | Notes                                         |
+| ---------------- | ------------------- | ----------- | --------------------------------------------- |
+| `imageQuality`   | `.image_quality()`  | `int`       | 1 to 100, Gotenberg uses 80 when not provided |
+
+```python
+from gotenberg_client import GotenbergClient
+from pathlib import Path
+
+with GotenbergClient("http://localhost:3000") as client:
+    with client.optimize.optimize() as route:
+        response = route.optimize(Path("my.pdf")).image_quality(60).run()
+        response.to_file(Path("optimized.pdf"))
 ```
 
 ## Watermark PDFs
@@ -952,6 +982,25 @@ with GotenbergClient("http://localhost:3000") as client:
 | `extra_http_headers` | `dict[str, str] \| None` | Additional request headers                       |
 | `embedded`           | `bool`                   | Embed the file in the request (default: `False`) |
 | `field`              | `str \| None`            | Override the form field name                     |
+
+### Optimize Images
+
+Re-encodes the images of the resulting PDF as JPEG to reduce the file size. Supported by the Chromium (URL, HTML, Markdown), LibreOffice, Merge and Split routes. The [Optimize PDFs](#optimize-pdfs) route does the same for existing PDFs.
+
+!!! note
+
+    Requires Gotenberg 8.36 or later. Older versions ignore these fields.
+
+| Gotenberg Option | Route Configuration                 | Python Type   | Notes                                                                           |
+| ---------------- | ----------------------------------- | ------------- | ------------------------------------------------------------------------------- |
+| `optimizeImages` | `.optimize_images(*, quality=None)` | `int \| None` | `quality` is 1 to 100 and sets `imageQuality`, Gotenberg uses 80 when not given |
+
+Only lossless images of at least 30 KiB are re-encoded. Text, vectors, JPEG images, images with transparency and CMYK images are left alone.
+
+```python
+with client.chromium.html_to_pdf() as route:
+    route.index(Path("index.html")).optimize_images(quality=60).run()
+```
 
 ### Watermark
 

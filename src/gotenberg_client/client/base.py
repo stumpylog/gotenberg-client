@@ -37,6 +37,7 @@ from gotenberg_client._merge import SyncMergePdfsApi
 from gotenberg_client._others import AsyncEmbedApi
 from gotenberg_client._others import AsyncEncryptApi
 from gotenberg_client._others import AsyncFlattenApi
+from gotenberg_client._others import AsyncOptimizeApi
 from gotenberg_client._others import AsyncRotateApi
 from gotenberg_client._others import AsyncSplitApi
 from gotenberg_client._others import AsyncStampApi
@@ -44,6 +45,7 @@ from gotenberg_client._others import AsyncWatermarkApi
 from gotenberg_client._others import SyncEmbedApi
 from gotenberg_client._others import SyncEncryptApi
 from gotenberg_client._others import SyncFlattenApi
+from gotenberg_client._others import SyncOptimizeApi
 from gotenberg_client._others import SyncRotateApi
 from gotenberg_client._others import SyncSplitApi
 from gotenberg_client._others import SyncStampApi
@@ -138,6 +140,11 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
     @property
     @abstractmethod
     def flatten(self) -> SyncOrAsyncApiT:  # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def optimize(self) -> SyncOrAsyncApiT:  # pragma: no cover
         pass
 
     @property
@@ -251,6 +258,7 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[SyncClient
       - [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route)
       - [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route)
       - [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route)
+      - [Optimize PDFs](https://gotenberg.dev/docs/routes#optimize-pdfs-route)
       - [Watermark PDFs](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs)
       - [Stamp PDFs](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs)
       - [Rotate PDFs](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs)
@@ -357,6 +365,15 @@ class SyncGotenbergClient(AbstractContextManager, BaseGotenbergClient[SyncClient
         return SyncFlattenApi(self._client, self._log)
 
     @property
+    def optimize(self) -> SyncOptimizeApi:
+        """
+        Returns a new instance for interacting with
+        [Optimize PDFs](https://gotenberg.dev/docs/routes#optimize-pdfs-route) route
+        for reducing the size of the images in PDFs. Requires Gotenberg 8.36 or later
+        """
+        return SyncOptimizeApi(self._client, self._log)
+
+    @property
     def health(self) -> SyncHealthCheckApi:
         """
         Returns a new instance for reading the [Health](https://gotenberg.dev/docs/routes#health-check-route) route
@@ -435,6 +452,7 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
       - [Merge PDFs](https://gotenberg.dev/docs/routes#merge-pdfs-route)
       - [Split PDFs](https://gotenberg.dev/docs/routes#split-pdfs-route)
       - [Flatten PDFs](https://gotenberg.dev/docs/routes#flatten-pdfs-route)
+      - [Optimize PDFs](https://gotenberg.dev/docs/routes#optimize-pdfs-route)
       - [Watermark PDFs](https://gotenberg.dev/docs/manipulate-pdfs/watermark-pdfs)
       - [Stamp PDFs](https://gotenberg.dev/docs/manipulate-pdfs/stamp-pdfs)
       - [Rotate PDFs](https://gotenberg.dev/docs/manipulate-pdfs/rotate-pdfs)
@@ -539,6 +557,15 @@ class AsyncGotenbergClient(AbstractAsyncContextManager, BaseGotenbergClient[Asyn
         for flattening PDFs
         """
         return AsyncFlattenApi(self._client, self._log)
+
+    @property
+    def optimize(self) -> AsyncOptimizeApi:
+        """
+        Returns a new instance for interacting with
+        [Optimize PDFs](https://gotenberg.dev/docs/routes#optimize-pdfs-route) route
+        for reducing the size of the images in PDFs. Requires Gotenberg 8.36 or later
+        """
+        return AsyncOptimizeApi(self._client, self._log)
 
     @property
     def health(self) -> AsyncHealthCheckApi:
