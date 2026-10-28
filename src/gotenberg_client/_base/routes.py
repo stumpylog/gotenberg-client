@@ -220,6 +220,9 @@ class BaseRoute(ABC, Generic[ClientT]):
                 )
 
         for resource_name, (data, mime_type) in self._in_memory_resources.items():
+            # A retry sends the same stream again, which requests and niquests leave at its end after the first send
+            if not isinstance(data, str) and data.seekable():
+                data.seek(0)
             if mime_type is not None:
                 resources.append((resource_name, (resource_name, data, mime_type)))
             else:
