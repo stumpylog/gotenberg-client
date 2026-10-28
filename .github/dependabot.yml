@@ -52,7 +52,3 @@ updates:
       pre-commit:
         patterns:
           - "*"
-        update-types:
-          - "major"
-          - "minor"
-          - "patch"
