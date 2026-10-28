@@ -60,6 +60,7 @@ from gotenberg_client._pdfmetadata.routes import SyncReadPdfMetadataRoute
 from gotenberg_client._pdfmetadata.routes import SyncWritePdfMetadataRoute
 from gotenberg_client._version import AsyncVersionApi
 from gotenberg_client._version import SyncVersionApi
+from tests.utils import ensure_gotenberg_healthy
 
 logger = logging.getLogger("gotenberg-client.tests")
 
@@ -539,6 +540,11 @@ async def async_convert_pdfs_route(
 ) -> AsyncGenerator[AsyncConvertToArchiveFormatRoute, None]:
     async with async_client.pdf_convert.to_pdfa() as route:
         yield route
+
+
+@pytest.fixture
+def gotenberg_healthy(gotenberg_host: str) -> None:
+    ensure_gotenberg_healthy(gotenberg_host)
 
 
 @pytest.fixture

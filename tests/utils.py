@@ -2,9 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import re
+import time
 from http import HTTPStatus
 from pathlib import Path
 
+import httpx
+import pytest
 from pypdf import PdfReader
 
 from gotenberg_client.responses import SingleFileResponse
@@ -36,3 +39,32 @@ def extract_text(pdf_path: Path) -> list[str]:
     """
     with PdfReader(pdf_path) as reader:
         return [re.sub(r"\s+", " ", line) for page in reader.pages for line in page.extract_text().splitlines()]
+
+
+def ensure_gotenberg_healthy(url: str, *, timeout: float = 60.0) -> None:
+    """
+    Waits until Gotenberg's /health reports up.
+
+    Gotenberg only restarts a failed Chromium when the next Chromium conversion arrives, so after any
+    Chromium failure /health returns 503 until then, however long it is polled. A trivial conversion
+    makes Gotenberg restart it.
+    """
+    deadline = time.monotonic() + timeout
+    last = "no response"
+    while True:
+        try:
+            response = httpx.get(f"{url}/health")
+        except httpx.HTTPError as e:
+            last = repr(e)
+        else:
+            if response.status_code == HTTPStatus.OK:
+                return
+            last = f"{response.status_code} {response.text}"
+            httpx.post(
+                f"{url}/forms/chromium/convert/html",
+                files={"index.html": ("index.html", b"<html></html>", "text/html")},
+                timeout=timeout,
+            )
+        if time.monotonic() >= deadline:
+            pytest.fail(f"Gotenberg not healthy after {timeout}s, last response: {last}")
+        time.sleep(1)
