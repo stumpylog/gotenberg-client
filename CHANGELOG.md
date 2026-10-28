@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- An in-memory file added with `convert_in_memory_file` was sent empty when `run_with_retry` retried a request with the `requests` or `niquests` backend
+
 ## [1.1.0] - 2026-10-28
 
 ### Added
