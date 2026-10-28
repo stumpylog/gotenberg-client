@@ -9,6 +9,7 @@ from gotenberg_client._health import SyncHealthCheckApi
 
 
 @pytest.mark.live
+@pytest.mark.usefixtures("gotenberg_healthy")
 @pytest.mark.flaky(reruns=5, rerun_delay=5)
 class TestHealthStatus:
     def test_health_endpoint(

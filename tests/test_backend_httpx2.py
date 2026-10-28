@@ -34,6 +34,7 @@ async def async_httpx2_client(gotenberg_host: str) -> AsyncGenerator[AsyncGotenb
 @pytest.mark.live
 @pytest.mark.httpx2
 class TestHttpx2BackendSync:
+    @pytest.mark.usefixtures("gotenberg_healthy")
     @pytest.mark.flaky(reruns=5, rerun_delay=5)
     def test_health_check(self, sync_httpx2_client: SyncGotenbergClient):
         with sync_httpx2_client.health as api:
@@ -65,6 +66,7 @@ class TestHttpx2BackendSync:
 @pytest.mark.httpx2
 @pytest.mark.async_route
 class TestHttpx2BackendAsync:
+    @pytest.mark.usefixtures("gotenberg_healthy")
     @pytest.mark.flaky(reruns=5, rerun_delay=5)
     async def test_health_check(self, async_httpx2_client: AsyncGotenbergClient):
         async with async_httpx2_client.health as api:
