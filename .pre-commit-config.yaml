@@ -39,11 +39,11 @@ repos:
           - json
         exclude: "(^docs/changelog.md$)"
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.2
+    rev: v2.4.3
     hooks:
       - id: codespell
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.23.1
+    rev: v1.31.1
     hooks:
       - id: zizmor
         args:
@@ -63,7 +63,7 @@ repos:
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.18.1"
+    rev: "v2.30.3"
     hooks:
       - id: pyproject-fmt
   # TODO: mypy, but it runs differently??
