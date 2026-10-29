@@ -33,7 +33,7 @@ class TestMeasurement:
     )
     def test_to_form(
         self,
-        value: float | int,
+        value: float,
         unit: MeasurementUnitType,
         field: str,
         expected: dict[str, str],

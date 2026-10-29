@@ -95,8 +95,8 @@ class BaseRoute(ABC, Generic[ClientT]):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> ResponseProtocol | Coroutine[Any, Any, ResponseProtocol]:
         """
         Execute the route request with automatic retries for server errors.
@@ -149,8 +149,8 @@ class BaseRoute(ABC, Generic[ClientT]):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> SingleFileResponse | ZipFileResponse | Coroutine[Any, Any, SingleFileResponse | ZipFileResponse]:
         """
         Execute the API request with automatic retries and process the response.
@@ -376,8 +376,8 @@ class SyncBaseRoute(BaseRoute[SyncClientProtocol], AbstractContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> ResponseProtocol:
         """
         Send the request to Gotenberg with automatic retries for server errors.
@@ -452,8 +452,8 @@ class SyncBaseRoute(BaseRoute[SyncClientProtocol], AbstractContextManager):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> SingleFileResponse | ZipFileResponse:
         """
         Execute the API request with retries and process the response.
@@ -547,8 +547,8 @@ class AsyncBaseRoute(BaseRoute[AsyncClientProtocol], AbstractAsyncContextManager
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> ResponseProtocol:
         """
         Send the request to Gotenberg asynchronously with automatic retries.
@@ -623,8 +623,8 @@ class AsyncBaseRoute(BaseRoute[AsyncClientProtocol], AbstractAsyncContextManager
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> SingleFileResponse | ZipFileResponse:
         """
         Execute the asynchronous API request with retries and process the response.

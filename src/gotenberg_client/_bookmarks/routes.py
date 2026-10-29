@@ -60,8 +60,8 @@ class SyncReadBookmarksRoute(_BaseReadBookmarksRoute, SyncBaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> dict[str, list[BookmarkEntry]]:
         response = self._post_data_with_retry(
             max_retry_count=max_retry_count,
@@ -80,8 +80,8 @@ class AsyncReadBookmarksRoute(_BaseReadBookmarksRoute, AsyncBaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> dict[str, list[BookmarkEntry]]:
         response = await self._post_data_with_retry(
             max_retry_count=max_retry_count,

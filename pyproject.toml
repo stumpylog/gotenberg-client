@@ -85,7 +85,7 @@ serve = [
 ]
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
-dependencies = [ "ruff == 0.15.22" ]
+dependencies = [ "ruff == 0.17.1" ]
 config-path = "none"
 [tool.hatch.envs.hatch-test]
 dependencies = [
@@ -243,7 +243,7 @@ ignore = [
   "TD002",
   "TD003",
 ]
-per-file-ignores."tests/**/*" = [ "PLR2004", "S101", "SLF001", "TID252" ]
+per-file-ignores."tests/**/*" = [ "PLR0917", "PLR2004", "S101", "SLF001", "TID252" ]
 per-file-ignores."tests/utils.py" = [ "S603" ]
 flake8-tidy-imports.ban-relative-imports = "all"
 isort.force-single-line = true
