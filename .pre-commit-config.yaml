@@ -69,7 +69,7 @@ repos:
   # TODO: mypy, but it runs differently??
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.10.9
+    rev: 0.13.5
     hooks:
       # Update the uv lockfile
       - id: uv-lock
