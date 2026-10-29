@@ -240,7 +240,7 @@ class ScaleMixin:
     increase or decrease the size of the content.
     """
 
-    def scale(self, scale: float | int) -> Self:
+    def scale(self, scale: float) -> Self:
         """
         Sets the scale factor for the generated PDF.
 
@@ -342,7 +342,7 @@ class RenderControlMixin:
 
     """
 
-    def render_wait(self, wait: float | int | timedelta) -> Self:
+    def render_wait(self, wait: float | timedelta) -> Self:
         """
         Specifies the delay before rendering begins.
 

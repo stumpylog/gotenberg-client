@@ -102,7 +102,7 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
         pass
 
     @abstractmethod
-    def close(self) -> None | Coroutine[Any, Any, None]:
+    def close(self) -> Coroutine[Any, Any, None] | None:
         """
         Close the underlying HTTP client connection.
         """

@@ -131,7 +131,7 @@ from pathlib import Path
 with GotenbergClient("http://localhost:3000") as client:
     client.add_webhook_url("https://my-service.example.com/webhook/result")
     client.add_error_webhook_url("https://my-service.example.com/webhook/error")
-    client.set_webhook_http_method("POST")   # "POST", "PATCH", or "PUT"
+    client.set_webhook_http_method("POST")  # "POST", "PATCH", or "PUT"
     client.set_webhook_extra_headers({"Authorization": "Bearer my-token"})
 
     with client.chromium.html_to_pdf() as route:
@@ -178,9 +178,9 @@ with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
         try:
             resp = route.index(Path("index.html")).run_with_retry(
-                max_retry_count=5,       # number of attempts (default: 5)
+                max_retry_count=5,  # number of attempts (default: 5)
                 initial_retry_wait=5.0,  # seconds before first retry (default: 5.0)
-                retry_scale=2.0,         # multiplier applied after each attempt (default: 2.0)
+                retry_scale=2.0,  # multiplier applied after each attempt (default: 2.0)
             )
         except MaxRetriesExceededError as e:
             print(f"Gave up after retries, last status: {e.response.status_code}")

@@ -18,7 +18,7 @@ class ForceMultipartList(list):
         return True
 
 
-def optional_to_form(value: bool | int | float | str | None, name: str) -> dict[str, str]:  # noqa: FBT001
+def optional_to_form(value: bool | float | str | None, name: str) -> dict[str, str]:  # noqa: FBT001
     """
     Converts an optional value to a form data field with the given name,
     handling None values gracefully.
@@ -80,7 +80,7 @@ def guess_mime_type_magic(url: str | Path) -> str | None:
 
     try:
         return magic.from_file(str(url), mime=True)  # type: ignore[misc]
-    except Exception:  # pragma: no cover
+    except Exception:  # pragma: no cover  # noqa: BLE001
         # Handle libmagic exceptions gracefully
         return None
 
@@ -106,7 +106,7 @@ def guess_mime_type_magika(url: str | Path) -> str | None:
 
     try:
         return str(_get_magika().identify_path(Path(url)).output.mime_type)
-    except Exception:  # pragma: no cover
+    except Exception:  # pragma: no cover  # noqa: BLE001
         # Handle Magika exceptions gracefully
         return None
 

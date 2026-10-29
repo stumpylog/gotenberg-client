@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import dataclasses
-import datetime
+import datetime as dt
 import enum
 import re
 from contextlib import AbstractAsyncContextManager
@@ -82,7 +82,7 @@ class ModuleStatus:
     """
 
     status: StatusOptions
-    timestamp: datetime.datetime
+    timestamp: dt.datetime
 
 
 class HealthStatus:
@@ -114,11 +114,11 @@ class HealthStatus:
 
     def _extract_status(self, module: ModuleOptions) -> ModuleStatus:
         status = StatusOptions(self.data["details"][module.value]["status"])
-        timestamp: datetime.datetime = self._extract_datetime(self.data["details"][module.value]["timestamp"])
+        timestamp: dt.datetime = self._extract_datetime(self.data["details"][module.value]["timestamp"])
         return ModuleStatus(status, timestamp)
 
     @staticmethod
-    def _extract_datetime(timestamp: str) -> datetime.datetime:
+    def _extract_datetime(timestamp: str) -> dt.datetime:
         """P
         arse an ISO-format timestamp string into a datetime object.
 
@@ -143,15 +143,15 @@ class HealthStatus:
         tzinfo = None
         if timezone_str is not None:
             if timezone_str.lower() == "z":  # type: ignore[misc]
-                tzinfo = datetime.timezone.utc
+                tzinfo = dt.timezone.utc
             else:  # pragma: no cover
                 multi = -1 if timezone_str[0:1] == "-" else 1  # type: ignore[misc]
                 hours = int(timezone_str[1:3])  # type: ignore[misc]
                 minutes = int(timezone_str[4:])  # type: ignore[misc]
-                delta = datetime.timedelta(hours=hours, minutes=minutes) * multi
-                tzinfo = datetime.timezone(delta)
+                delta = dt.timedelta(hours=hours, minutes=minutes) * multi
+                tzinfo = dt.timezone(delta)
 
-        return datetime.datetime(
+        return dt.datetime(
             year=int(year),
             month=int(month),
             day=int(day),
@@ -227,7 +227,7 @@ class SyncHealthCheckApi(_BaseHealthCheckApi, AbstractContextManager, SyncBaseAp
         Returns:
             None
         """
-        return None
+        return
 
 
 class AsyncHealthCheckApi(_BaseHealthCheckApi, AbstractAsyncContextManager, AsyncBaseApi):
@@ -279,4 +279,4 @@ class AsyncHealthCheckApi(_BaseHealthCheckApi, AbstractAsyncContextManager, Asyn
         Returns:
             None
         """
-        return None
+        return

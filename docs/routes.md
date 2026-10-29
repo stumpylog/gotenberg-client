@@ -266,8 +266,8 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
-        response = (route
-            .index(Path("my-index.html"))
+        response = (
+            route.index(Path("my-index.html"))
             .metadata(
                 title="My Document",
                 author="John Doe",
@@ -275,7 +275,8 @@ with GotenbergClient("http://localhost:3000") as client:
                 keywords=["sample", "document"],
                 subject="Sample PDF Generation",
             )
-            .run())
+            .run()
+        )
 ```
 
 Supported metadata fields:
@@ -474,11 +475,7 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.pdf_convert.to_pdfa() as route:
-        response = (
-            route.convert(Path("my.pdf"))
-            .pdf_format(PdfAFormat.A2b)
-            .run()
-        )
+        response = route.convert(Path("my.pdf")).pdf_format(PdfAFormat.A2b).run()
         response.to_file(Path("my-pdfa.pdf"))
 ```
 
@@ -525,11 +522,7 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.metadata.write() as route:
-        response = (
-            route.write(Path("my.pdf"))
-            .metadata(title="New Title", author="New Author")
-            .run()
-        )
+        response = route.write(Path("my.pdf")).metadata(title="New Title", author="New Author").run()
         response.to_file(Path("my-updated.pdf"))
 ```
 
@@ -611,12 +604,7 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.split.split() as route:
-        response = (
-            route.split(Path("large.pdf"))
-            .split_mode("pages")
-            .split_span("1-3")
-            .run()
-        )
+        response = route.split(Path("large.pdf")).split_mode("pages").split_span("1-3").run()
         # Split produces a ZIP containing the resulting pages
         response.to_file(Path("split.zip"))
 ```
@@ -751,11 +739,7 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.rotate.rotate() as route:
-        response = (
-            route.add_file(Path("my.pdf"))
-            .rotate(RotateAngle.Clockwise90)
-            .run()
-        )
+        response = route.add_file(Path("my.pdf")).rotate(RotateAngle.Clockwise90).run()
         response.to_file(Path("rotated.pdf"))
 ```
 
@@ -812,11 +796,7 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.embed.embed() as route:
-        response = (
-            route.add_pdf(Path("invoice.pdf"))
-            .embed(Path("factur-x.xml"))
-            .run()
-        )
+        response = route.add_pdf(Path("invoice.pdf")).embed(Path("factur-x.xml")).run()
         response.to_file(Path("invoice-with-attachment.pdf"))
 ```
 
@@ -968,9 +948,11 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.url_to_pdf() as route:
-        response = route.download_from([
-            DownloadFromUrl(url="https://example.com/my.html"),
-        ]).run()
+        response = route.download_from(
+            [
+                DownloadFromUrl(url="https://example.com/my.html"),
+            ]
+        ).run()
         response.to_file(Path("output.pdf"))
 ```
 

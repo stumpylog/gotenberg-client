@@ -161,7 +161,7 @@ class MetadataMixin:
     MIN_PDF_VERSION: Final[float] = 1.0
     MAX_PDF_VERSION: Final[float] = 2.0
 
-    def metadata(
+    def metadata(  # noqa: PLR0917
         self,
         author: str | None = None,
         pdf_copyright: str | None = None,

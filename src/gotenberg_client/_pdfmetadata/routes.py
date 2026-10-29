@@ -49,8 +49,8 @@ class SyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, SyncBaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> dict[str, PdfMetadata]:
         response = self._post_data_with_retry(
             max_retry_count=max_retry_count,
@@ -69,8 +69,8 @@ class AsyncReadPdfMetadataRoute(_BaseReadPdfMetadataRoute, AsyncBaseRoute):
         self,
         *,
         max_retry_count: int = 5,
-        initial_retry_wait: float | int = 5.0,
-        retry_scale: float | int = 2.0,
+        initial_retry_wait: float = 5.0,
+        retry_scale: float = 2.0,
     ) -> dict[str, PdfMetadata]:
         response = await self._post_data_with_retry(
             max_retry_count=max_retry_count,

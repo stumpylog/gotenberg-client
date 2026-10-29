@@ -102,12 +102,7 @@ from pathlib import Path
 
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
-        response = (
-            route.index(Path("my-index.html"))
-            .resource("image.png")
-            .resource("style.css")
-            .run()
-        )
+        response = route.index(Path("my-index.html")).resource("image.png").resource("style.css").run()
         response.to_file(Path("my-index.pdf"))
 ```
 
@@ -133,10 +128,7 @@ from pathlib import Path
 with GotenbergClient("http://localhost:3000") as client:
     with client.chromium.html_to_pdf() as route:
         response = (
-            route.index(Path("my-index.html"))
-            .resources(["image.png", "style.css"])
-            .pdf_format(PdfAFormat.A2b)
-            .run()
+            route.index(Path("my-index.html")).resources(["image.png", "style.css"]).pdf_format(PdfAFormat.A2b).run()
         )
         response.to_file(Path("my-index.pdf"))
 ```
