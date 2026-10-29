@@ -54,6 +54,8 @@ Documentation = "https://stumpylog.github.io/gotenberg-client/"
 Issues = "https://github.com/stumpylog/gotenberg-client/issues"
 Source = "https://github.com/stumpylog/gotenberg-client/"
 
+[tool.hatch.version]
+path = "src/gotenberg_client/__about__.py"
 [tool.hatch.build.targets.sdist]
 exclude = [
   ".github",
@@ -65,30 +67,27 @@ installer = "uv"
 template = "docs"
 # detached = true
 dependencies = [
-  "mkdocs-material[imaging] ~= 9.7",
   "mike ~= 2.2",
+  "mkdocs-material[imaging] ~= 9.7",
   "mkdocs-minify-plugin ~= 0.8",
   "mkdocstrings[python] ~= 1.0",
 ]
 [tool.hatch.envs.docs.scripts]
-new = [ "mkdocs new ." ]
 build = [ "mkdocs build" ]
-serve = [
-  "mkdocs serve",
-]
-mike-help = [ "mike deploy --help" ]
 deploy = [
   "mike deploy --push --branch gh-pages --remote origin --update-aliases {args} latest",
   "mike set-default --branch gh-pages --remote origin --push latest",
+]
+mike-help = [ "mike deploy --help" ]
+new = [ "mkdocs new ." ]
+serve = [
+  "mkdocs serve",
 ]
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/config/internal/static-analysis/
 dependencies = [ "ruff == 0.15.22" ]
 config-path = "none"
 [tool.hatch.envs.hatch-test]
-# https://hatch.pypa.io/latest/config/internal/testing/
-parallel = true
-randomize = true
 dependencies = [
   "coverage-enable-subprocess == 1.0",
   "coverage[toml] ~= 7.13",
@@ -99,24 +98,33 @@ dependencies = [
   "pytest-xdist[psutil] ~= 3.8",
 ]
 extra-dependencies = [
-  "pytest-sugar",
   "httpx[http2]>=0.27",
   "httpx2[http2]>=2",
-  "pytest-httpx ~= 0.36",
-  "pikepdf",
-  "python-magic",
   "magika>=1",
-  "pytest-docker ~= 3.2",
-  "pytest-asyncio",
-  "pypdf",
   "niquests>=3",
+  "pikepdf",
+  "pypdf",
+  "pytest-asyncio",
+  "pytest-docker ~= 3.2",
+  "pytest-httpx ~= 0.36",
+  "pytest-sugar",
+  "python-magic",
   "requests>=2",
   "responses",
 ]
 extra-args = [ "--maxprocesses=8", "--pythonwarnings=all" ]
+# https://hatch.pypa.io/latest/config/internal/testing/
+parallel = true
+randomize = true
 [[tool.hatch.envs.hatch-test.matrix]]
 python = [ "3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.10", "pypy3.11" ]
 [tool.hatch.envs.hatch-test.scripts]
+cov-combine = [ "coverage combine" ]
+cov-report = [
+  "coverage report",
+  "coverage json",
+  "coverage html",
+]
 run = [
   "python3 --version",
   "pytest{env:HATCH_TEST_ARGS:} {args}",
@@ -125,12 +133,6 @@ run-cov = [
   "python3 --version",
   "coverage erase",
   "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}",
-]
-cov-combine = [ "coverage combine" ]
-cov-report = [
-  "coverage report",
-  "coverage json",
-  "coverage html",
 ]
 [tool.hatch.envs.prek]
 template = "prek"
@@ -142,31 +144,28 @@ dependencies = [
 [tool.hatch.envs.prek.scripts]
 check = [ "prek run --all-files" ]
 update = [ "pre-commit autoupdate" ]
-
 #
 # Custom Environments
 #
 [tool.hatch.envs.typing]
 detached = true
 dependencies = [
-  "mypy ~= 2.1",
   "httpx",
   "httpx2",
   "magika>=1",
+  "mypy ~= 2.1",
   "niquests>=3",
-  "requests>=2",
-  "pytest",
   "pikepdf",
-  "pytest-httpx ~= 0.36",
   "pypdf",
+  "pytest",
+  "pytest-httpx ~= 0.36",
+  "requests>=2",
 ]
 [tool.hatch.envs.typing.scripts]
 run = [
   "mypy --version",
   "mypy --install-types --non-interactive {args:src/gotenberg_client}",
 ]
-[tool.hatch.version]
-path = "src/gotenberg_client/__about__.py"
 
 #
 # Tool Configuration
@@ -251,14 +250,29 @@ isort.force-single-line = true
 isort.known-first-party = [ "gotenberg_client" ]
 
 [tool.pyproject-fmt]
+max_supported_python = "3.14"
 table_format = "long"
 
+[tool.mypy]
+packages = [ "gotenberg_client" ]
+exclude = [
+  "tests",
+]
+python_version = "3.10"
+disallow_any_expr = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+warn_unused_configs = true
+
 [tool.pytest]
-minversion = "9.0"
-testpaths = [ "tests" ]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"
 addopts = [ "--strict-markers" ]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
 markers = [
   "live: marks tests that require a running Gotenberg server (deselect with '-m \"not live\"')",
   "chromium: marks tests using the Chromium/headless browser engine",
@@ -270,42 +284,29 @@ markers = [
   "requests: marks tests specific to the requests HTTP backend",
   "async_route: marks tests that exercise async code paths exclusively",
 ]
+minversion = "9.0"
+testpaths = [ "tests" ]
 
 [tool.pytest_env]
 
 # SAVE_TEST_OUTPUT = 1
-[tool.coverage.paths]
-gotenberg_client = [ "src/gotenberg_client" ]
-tests = [ "tests" ]
-[tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == '__main__':",
-  "if TYPE_CHECKING:",
-  "if SAVE_OUTPUTS:",
-]
+
 [tool.coverage.run]
 source_pkgs = [ "gotenberg_client", "tests" ]
-branch = true
-parallel = true
 omit = [
   "src/gotenberg_client/__about__.py",
   "tests/conftest.py",
   "tests/utils.py",
 ]
-
-[tool.mypy]
-exclude = [
-  "tests",
+branch = true
+parallel = true
+[tool.coverage.paths]
+gotenberg_client = [ "src/gotenberg_client" ]
+tests = [ "tests" ]
+[tool.coverage.report]
+exclude_lines = [
+  "if __name__ == '__main__':",
+  "if SAVE_OUTPUTS:",
+  "if TYPE_CHECKING:",
+  "no cov",
 ]
-packages = [ "gotenberg_client" ]
-python_version = "3.10"
-disallow_any_expr = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-strict_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_unreachable = true
-warn_unused_configs = true
