@@ -183,7 +183,10 @@ with GotenbergClient("http://localhost:3000") as client:
     ...
 ```
 
-### Basic authentication
+### Authentication
+
+Pass a `(username, password)` tuple for HTTP Basic Authentication with any backend,
+or omit `auth` / pass `None` for the backend's default behavior:
 
 ```python
 from gotenberg_client import GotenbergClient
@@ -193,6 +196,31 @@ with GotenbergClient("http://localhost:3000", auth=("user", "secret")) as client
         response = route.index(Path("my-index.html")).run()
         response.to_file(Path("my-index.pdf"))
 ```
+
+You can also pass native authentication supported by your selected backend:
+
+```python
+import httpx
+
+with GotenbergClient(
+    "https://gotenberg.example",
+    backend="httpx",
+    auth=httpx.DigestAuth("user", "secret"),  # Or your own httpx.Auth subclass
+) as client:
+    ...
+```
+
+HTTPX and HTTPX2 accept their own `Auth` instances for sync and async clients. Requests
+accepts `requests.auth.AuthBase` instances for sync clients. Niquests accepts its own
+`AuthBase` instances, plus `AsyncAuthBase` instances with an async client where supported
+by the installed Niquests version. Custom authentication should subclass the selected
+backend's auth base class; bare callables are not accepted.
+
+Set `backend=` explicitly with native authentication; native objects are specific to their
+backend. An incompatible auth object raises `TypeError` during client construction.
+Custom HTTPX auth can access the complete multipart upload body for signing by
+setting `requires_request_body = True`. See the [authentication guide](https://stumpylog.github.io/gotenberg-client/latest/usage/#authentication)
+for details and async usage.
 
 ## How It Works
 
