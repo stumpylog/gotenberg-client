@@ -143,3 +143,15 @@
     handler: python
     options:
       heading_level: 3
+
+## Optimize PDFs
+
+::: gotenberg_client._others.routes.SyncOptimizeRoute
+    handler: python
+    options:
+      heading_level: 3
+
+::: gotenberg_client._others.routes.AsyncOptimizeRoute
+    handler: python
+    options:
+      heading_level: 3

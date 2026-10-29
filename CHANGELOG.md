@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Image optimization, which requires Gotenberg 8.36 or later: `.optimize_images(*, quality)` on the Chromium, LibreOffice, merge and split routes, and a new `client.optimize.optimize()` route for existing PDFs with `.image_quality()`
+
 ### Fixed
 
 - An in-memory file added with `convert_in_memory_file` was sent empty when `run_with_retry` retried a request with the `requests` or `niquests` backend

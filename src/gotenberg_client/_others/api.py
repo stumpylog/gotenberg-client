@@ -6,6 +6,7 @@ from gotenberg_client._base import SyncBaseApi
 from gotenberg_client._others.routes import AsyncEmbedRoute
 from gotenberg_client._others.routes import AsyncEncryptRoute
 from gotenberg_client._others.routes import AsyncFlattenRoute
+from gotenberg_client._others.routes import AsyncOptimizeRoute
 from gotenberg_client._others.routes import AsyncRotateRoute
 from gotenberg_client._others.routes import AsyncSplitRoute
 from gotenberg_client._others.routes import AsyncStampRoute
@@ -13,6 +14,7 @@ from gotenberg_client._others.routes import AsyncWatermarkRoute
 from gotenberg_client._others.routes import SyncEmbedRoute
 from gotenberg_client._others.routes import SyncEncryptRoute
 from gotenberg_client._others.routes import SyncFlattenRoute
+from gotenberg_client._others.routes import SyncOptimizeRoute
 from gotenberg_client._others.routes import SyncRotateRoute
 from gotenberg_client._others.routes import SyncSplitRoute
 from gotenberg_client._others.routes import SyncStampRoute
@@ -27,6 +29,16 @@ class SyncFlattenApi(SyncBaseApi):
 class AsyncFlattenApi(AsyncBaseApi):
     def flatten(self) -> AsyncFlattenRoute:
         return AsyncFlattenRoute(self._client, AsyncFlattenRoute.ENDPOINT_URL, self._log)
+
+
+class SyncOptimizeApi(SyncBaseApi):
+    def optimize(self) -> SyncOptimizeRoute:
+        return SyncOptimizeRoute(self._client, SyncOptimizeRoute.ENDPOINT_URL, self._log)
+
+
+class AsyncOptimizeApi(AsyncBaseApi):
+    def optimize(self) -> AsyncOptimizeRoute:
+        return AsyncOptimizeRoute(self._client, AsyncOptimizeRoute.ENDPOINT_URL, self._log)
 
 
 class SyncSplitApi(SyncBaseApi):

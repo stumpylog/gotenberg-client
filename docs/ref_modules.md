@@ -42,6 +42,12 @@
 ::: gotenberg_client._others.AsyncFlattenApi
     handler: python
 
+::: gotenberg_client._others.SyncOptimizeApi
+    handler: python
+
+::: gotenberg_client._others.AsyncOptimizeApi
+    handler: python
+
 ::: gotenberg_client._health.SyncHealthCheckApi
     handler: python
 

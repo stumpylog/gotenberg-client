@@ -10,7 +10,9 @@ from gotenberg_client._common import DownloadFromMixin
 from gotenberg_client._common import EmbedsMixin
 from gotenberg_client._common import EncryptMixin
 from gotenberg_client._common import FlattenOptionMixin
+from gotenberg_client._common import ImageQualityMixin
 from gotenberg_client._common import MetadataMixin
+from gotenberg_client._common import OptimizeImagesMixin
 from gotenberg_client._common import PdfFormatMixin
 from gotenberg_client._common import PdfUniversalAccessMixin
 from gotenberg_client._common import RotateMixin
@@ -26,6 +28,7 @@ class _BaseSplitRoute(
     SplitModeMixin,
     MetadataMixin,
     FlattenOptionMixin,
+    OptimizeImagesMixin,
     WatermarkMixin,
     StampMixin,
     RotateMixin,
@@ -95,6 +98,41 @@ class SyncFlattenRoute(_BaseFlattenRoute, SyncBaseRoute):
 
 
 class AsyncFlattenRoute(_BaseFlattenRoute, AsyncBaseRoute):
+    pass
+
+
+class _BaseOptimizeRoute(ImageQualityMixin):
+    """
+    https://gotenberg.dev/docs/routes#optimize-pdfs-route
+
+    Requires Gotenberg 8.36 or later
+    """
+
+    ENDPOINT_URL: Final[str] = "/forms/pdfengines/optimize"
+
+    def optimize(self, file_path: Path) -> Self:
+        """
+        Adds a single PDF file for image optimization
+        """
+
+        self._add_file_map(file_path)  # type: ignore[attr-defined]
+        return self
+
+    def optimize_files(self, file_paths: list[Path]) -> Self:
+        """
+        Adds multiple PDF files for image optimization
+        """
+
+        for x in file_paths:
+            self.optimize(x)
+        return self
+
+
+class SyncOptimizeRoute(_BaseOptimizeRoute, SyncBaseRoute):
+    pass
+
+
+class AsyncOptimizeRoute(_BaseOptimizeRoute, AsyncBaseRoute):
     pass
 
 

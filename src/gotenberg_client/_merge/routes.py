@@ -13,6 +13,7 @@ from gotenberg_client._common import EmbedsMixin
 from gotenberg_client._common import EncryptMixin
 from gotenberg_client._common import FlattenOptionMixin
 from gotenberg_client._common import MetadataMixin
+from gotenberg_client._common import OptimizeImagesMixin
 from gotenberg_client._common import PdfFormatMixin
 from gotenberg_client._common import PdfUniversalAccessMixin
 from gotenberg_client._common import RotateMixin
@@ -27,6 +28,7 @@ class _BaseMergePdfFilesRoute(
     PdfUniversalAccessMixin,
     MetadataMixin,
     FlattenOptionMixin,
+    OptimizeImagesMixin,
     WatermarkMixin,
     StampMixin,
     RotateMixin,

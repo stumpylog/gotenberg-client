@@ -13,7 +13,9 @@ from gotenberg_client._common.mixins import DownloadFromMixin
 from gotenberg_client._common.mixins import EmbedsMixin
 from gotenberg_client._common.mixins import EncryptMixin
 from gotenberg_client._common.mixins import FlattenOptionMixin
+from gotenberg_client._common.mixins import ImageQualityMixin
 from gotenberg_client._common.mixins import MetadataMixin
+from gotenberg_client._common.mixins import OptimizeImagesMixin
 from gotenberg_client._common.mixins import PdfAFormat
 from gotenberg_client._common.mixins import PdfFormatMixin
 from gotenberg_client._common.mixins import PdfUniversalAccessMixin
@@ -31,7 +33,9 @@ __all__ = [
     "EmbedsMixin",
     "EncryptMixin",
     "FlattenOptionMixin",
+    "ImageQualityMixin",
     "MetadataMixin",
+    "OptimizeImagesMixin",
     "PdfAFormat",
     "PdfFormatMixin",
     "PdfUniversalAccessMixin",
