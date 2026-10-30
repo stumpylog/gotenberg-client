@@ -7,6 +7,7 @@ import subprocess
 import sys
 from hashlib import sha256
 from io import BytesIO
+from typing import get_type_hints
 
 import httpx
 import httpx2
@@ -23,18 +24,28 @@ from gotenberg_client import SyncGotenbergClient
 _HOST = "https://gotenberg.invalid"
 _PDF = b"%PDF-mocked"
 _AUTH_KINDS = ["none", "tuple", "basic", "body"]
+_AUTH_SELECTIONS = [(kind, "explicit") for kind in _AUTH_KINDS] + [(kind, "auto") for kind in ("basic", "body")]
 
 
-@pytest.mark.parametrize("backend", ["none", "httpx", "httpx2", "requests", "niquests"])
-def test_import_without_optional_backends(backend):
+@pytest.mark.parametrize(
+    ("backend", "selection"),
+    [("none", "explicit")]
+    + [
+        (backend, selection)
+        for backend in ("httpx", "httpx2", "requests", "niquests")
+        for selection in ("explicit", "auto")
+    ],
+)
+def test_import_without_optional_backends(backend, selection):
     """Only the explicitly selected backend may be imported or required."""
     script = """
 import asyncio
 import importlib.abc
 import importlib
 import sys
+from typing import get_type_hints
 
-selected = sys.argv[1]
+selected, selection = sys.argv[1:]
 blocked = {'httpx', 'httpx2', 'requests', 'niquests'} - {selected}
 
 class BlockBackends(importlib.abc.MetaPathFinder):
@@ -45,19 +56,23 @@ class BlockBackends(importlib.abc.MetaPathFinder):
 sys.meta_path.insert(0, BlockBackends())
 from gotenberg_client import AuthType, AsyncGotenbergClient, SyncGotenbergClient
 
+for client_class in (SyncGotenbergClient, AsyncGotenbergClient):
+    assert 'auth' in get_type_hints(client_class.__init__)
+
 if selected != 'none':
     module = importlib.import_module(selected)
     cls = module.BasicAuth if selected in {'httpx', 'httpx2'} else module.auth.HTTPBasicAuth
     auth = cls('user', 'secret')
-    with SyncGotenbergClient('https://gotenberg.invalid', backend=selected, auth=auth):
+    backend = selected if selection == 'explicit' else 'auto'
+    with SyncGotenbergClient('https://gotenberg.invalid', backend=backend, auth=auth):
         pass
     if selected != 'requests':
         async def check_async():
-            async with AsyncGotenbergClient('https://gotenberg.invalid', backend=selected, auth=auth):
+            async with AsyncGotenbergClient('https://gotenberg.invalid', backend=backend, auth=auth):
                 pass
         asyncio.run(check_async())
 """
-    subprocess.run([sys.executable, "-c", script, backend], check=True)  # noqa: S603
+    subprocess.run([sys.executable, "-c", script, backend, selection], check=True)  # noqa: S603
 
 
 def _sign(request, body):
@@ -153,11 +168,12 @@ def http_backend(request, httpx_mock, mocker):
     return module, captured
 
 
-@pytest.mark.parametrize("kind", _AUTH_KINDS)
-def test_httpx_auth_sync(http_backend, kind, basic_html_file):
+@pytest.mark.parametrize(("kind", "selection"), _AUTH_SELECTIONS)
+def test_httpx_auth_sync(http_backend, kind, selection, basic_html_file):
     module, captured = http_backend
+    backend = module.__name__ if selection == "explicit" else "auto"
     with (
-        SyncGotenbergClient(_HOST, backend=module.__name__, auth=_httpx_auth(module, kind)) as client,
+        SyncGotenbergClient(_HOST, backend=backend, auth=_httpx_auth(module, kind)) as client,
         client.chromium.html_to_pdf() as route,
     ):
         _assert_response(_configure(route, basic_html_file).run())
@@ -166,11 +182,12 @@ def test_httpx_auth_sync(http_backend, kind, basic_html_file):
 
 
 @pytest.mark.async_route
-@pytest.mark.parametrize("kind", _AUTH_KINDS)
-async def test_httpx_auth_async(http_backend, kind, basic_html_file):
+@pytest.mark.parametrize(("kind", "selection"), _AUTH_SELECTIONS)
+async def test_httpx_auth_async(http_backend, kind, selection, basic_html_file):
     module, captured = http_backend
+    backend = module.__name__ if selection == "explicit" else "auto"
     async with (
-        AsyncGotenbergClient(_HOST, backend=module.__name__, auth=_httpx_auth(module, kind)) as client,
+        AsyncGotenbergClient(_HOST, backend=backend, auth=_httpx_auth(module, kind)) as client,
         client.chromium.html_to_pdf() as route,
     ):
         _assert_response(await _configure(route, basic_html_file).run())
@@ -193,15 +210,16 @@ def _session_response(module, request):
     "module",
     [pytest.param(requests, marks=pytest.mark.requests), pytest.param(niquests, marks=pytest.mark.niquests)],
 )
-@pytest.mark.parametrize("kind", _AUTH_KINDS)
-def test_session_auth_sync(module, kind, basic_html_file, mocker):
+@pytest.mark.parametrize(("kind", "selection"), _AUTH_SELECTIONS)
+def test_session_auth_sync(module, kind, selection, basic_html_file, mocker):
     def send(request, **_kwargs):
         _assert_upload(request.headers, request.body, kind, basic_html_file)
         return _session_response(module, request)
 
     transport = mocker.patch.object(module.adapters.HTTPAdapter, "send", side_effect=send)
+    backend = module.__name__ if selection == "explicit" else "auto"
     with (
-        SyncGotenbergClient(_HOST, backend=module.__name__, auth=_session_auth(module, kind)) as client,
+        SyncGotenbergClient(_HOST, backend=backend, auth=_session_auth(module, kind)) as client,
         client.chromium.html_to_pdf() as route,
     ):
         _assert_response(_configure(route, basic_html_file).run())
@@ -210,8 +228,11 @@ def test_session_auth_sync(module, kind, basic_html_file, mocker):
 
 @pytest.mark.niquests
 @pytest.mark.async_route
-@pytest.mark.parametrize("kind", [*_AUTH_KINDS, "async_body"])
-async def test_niquests_auth_async(kind, basic_html_file, mocker):
+@pytest.mark.parametrize(
+    ("kind", "selection"),
+    _AUTH_SELECTIONS + [("async_body", selection) for selection in ("explicit", "auto")],
+)
+async def test_niquests_auth_async(kind, selection, basic_html_file, mocker):
     if kind == "async_body":
 
         class AsyncBodyAuth(niquests.auth.AsyncAuthBase):
@@ -227,8 +248,9 @@ async def test_niquests_auth_async(kind, basic_html_file, mocker):
         return _session_response(niquests, request)
 
     transport = mocker.patch.object(niquests.adapters.AsyncHTTPAdapter, "send", side_effect=send)
+    backend = "niquests" if selection == "explicit" else "auto"
     async with (
-        AsyncGotenbergClient(_HOST, backend="niquests", auth=auth) as client,
+        AsyncGotenbergClient(_HOST, backend=backend, auth=auth) as client,
         client.chromium.html_to_pdf() as route,
     ):
         _assert_response(await _configure(route, basic_html_file).run())
@@ -278,11 +300,12 @@ def test_invalid_auth(client_class, backend, auth):
         client_class(_HOST, backend=backend, auth=auth)
 
 
+@pytest.mark.parametrize("backend", ["niquests", "auto"])
 @pytest.mark.parametrize("auth_class", [niquests.auth.AsyncAuthBase, niquests.auth.AsyncHTTPDigestAuth])
-def test_niquests_async_auth_rejected_by_sync_client(auth_class):
+def test_niquests_async_auth_rejected_by_sync_client(auth_class, backend):
     auth = auth_class("user", "secret") if auth_class is niquests.auth.AsyncHTTPDigestAuth else auth_class()
     with pytest.raises(TypeError, match="Asynchronous Niquests auth requires AsyncGotenbergClient"):
-        SyncGotenbergClient(_HOST, backend="niquests", auth=auth)
+        SyncGotenbergClient(_HOST, backend=backend, auth=auth)
 
 
 @pytest.mark.niquests
@@ -292,3 +315,14 @@ async def test_niquests_without_async_auth_base(mocker):
     mocker.patch("gotenberg_client._http_backends._niquests._ASYNC_AUTH_BASE", None)
     async with AsyncGotenbergClient(_HOST, backend="niquests", auth=niquests.auth.HTTPBasicAuth("user", "secret")):
         pass
+
+
+@pytest.mark.parametrize("client_class", [SyncGotenbergClient, AsyncGotenbergClient])
+def test_client_auth_type_hints(client_class):
+    assert "auth" in get_type_hints(client_class.__init__)
+
+
+@pytest.mark.parametrize("auth", [requests.auth.HTTPBasicAuth("user", "secret"), _session_auth(requests, "body")])
+def test_auto_requests_auth_rejected_by_async_client(auth):
+    with pytest.raises(ValueError, match="only supports synchronous usage"):
+        AsyncGotenbergClient(_HOST, auth=auth)

@@ -9,7 +9,6 @@ from typing import BinaryIO
 from typing import Protocol
 from typing import TypeAlias
 from typing import TypeVar
-from typing import Union
 
 if TYPE_CHECKING:
     import httpx
@@ -17,16 +16,19 @@ if TYPE_CHECKING:
     import niquests.auth
     import requests.auth
 
-# Forward references keep optional backends out of runtime imports.
-AuthType: TypeAlias = Union[
-    tuple[str, str],
-    "httpx.Auth",
-    "httpx2.Auth",
-    "requests.auth.AuthBase",
-    "niquests.auth.AuthBase",
-    "niquests.auth.AsyncAuthBase",
-    None,
-]
+    AuthType: TypeAlias = (
+        tuple[str, str]
+        | httpx.Auth
+        | httpx2.Auth
+        | requests.auth.AuthBase
+        | niquests.auth.AuthBase
+        | niquests.auth.AsyncAuthBase
+        | None
+    )
+else:
+    # Runtime introspection must work without importing optional backends.
+    # The selected backend validates the actual authentication class.
+    AuthType = tuple[str, str] | object | None
 
 _AuthT = TypeVar("_AuthT")
 _BASIC_AUTH_TUPLE_LENGTH = 2

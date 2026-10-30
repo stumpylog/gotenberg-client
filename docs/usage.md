@@ -52,7 +52,7 @@ The `backend` parameter selects the HTTP library used to communicate with Gotenb
 
 | Value              | Behaviour                                                                                |
 | ------------------ | ---------------------------------------------------------------------------------------- |
-| `"auto"` (default) | Use httpx if installed, then niquests, then httpx2                                       |
+| `"auto"` (default) | Select the native auth object's backend, otherwise try httpx, niquests, then httpx2      |
 | `"httpx"`          | Always use httpx (install with `pip install "gotenberg-client[httpx]"`)                  |
 | `"httpx2"`         | Always use httpx2 (install with `pip install "gotenberg-client[httpx2]"`)                |
 | `"niquests"`       | Always use niquests (install with `pip install "gotenberg-client[niquests]"`)            |
@@ -81,11 +81,17 @@ matching authentication through unchanged:
 | `"niquests"`                      | `niquests.auth.AuthBase` and subclasses                                                         | Sync and async                                            |
 | `"niquests"` with an async client | `niquests.auth.AsyncAuthBase` and subclasses, where supported by the installed Niquests version | Async only                                                |
 
-Always set `backend=` explicitly when using native authentication. Native auth objects
-belong to their backend; they are not interchangeable between backends. A mismatched
-object raises a `TypeError` identifying the backend and expected authentication types.
-Malformed username/password tuples and other unsupported values also raise `TypeError`.
-`backend="auto"` selects an installed backend without considering your authentication object.
+With `backend="auto"`, a native auth object selects its backend. This also works for
+custom subclasses defined in your application or a third-party package, by inspecting
+their native base classes. With a username/password tuple or `None`, auto-selection tries
+httpx, then niquests, then httpx2 as before.
+
+You can set `backend=` explicitly to choose a backend. Native auth objects belong to
+their backend; they are not interchangeable between backends. A mismatched object raises
+a `TypeError` identifying the backend and expected authentication types. Malformed
+username/password tuples and other unsupported values also raise `TypeError`.
+Requests authentication selects the sync-only Requests backend, so using it with
+`AsyncGotenbergClient` raises `ValueError`, including in auto mode.
 
 For custom authentication, subclass the selected backend's auth base class. Bare callables
 are not accepted. See the [Niquests authentication API](https://niquests.readthedocs.io/en/latest/api.html#authentication)
@@ -116,10 +122,12 @@ Body buffering uses memory proportional to the encoded upload size. Requests and
 prepare multipart uploads before invoking authentication, exposing the encoded body as
 `PreparedRequest.body`.
 
-The public `AuthType` alias is a union of `(username, password)` tuples, `None`, and
-the native auth base classes listed above. Forward references and type-checking-only
-imports keep optional backends out of runtime imports. Runtime validation rejects
-foreign-backend auth and Niquests async auth used with a synchronous client.
+For static type checking, the public `AuthType` alias is a union of `(username, password)`
+tuples, `None`, and the native auth base classes listed above. At runtime it uses
+`tuple[str, str] | object | None`, allowing `typing.get_type_hints()` to resolve client
+annotations without importing optional backends. Runtime validation enforces the native
+auth classes and rejects foreign-backend auth or Niquests async auth used with a
+synchronous client.
 
 ## Client lifetime
 

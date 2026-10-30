@@ -81,8 +81,9 @@ class BaseGotenbergClient(ABC, Generic[ClientT, SyncOrAsyncApiT]):
 
         ``auth`` accepts a (username, password) tuple, None, or authentication
         derived from the selected HTTP backend's native auth base class.
-        Matching auth objects are passed through unchanged; use an explicit
-        ``backend`` with them. Unsupported or mismatched auth raises TypeError.
+        Matching auth objects are passed through unchanged. With ``backend="auto"``,
+        native auth selects its backend. An explicit backend must match the auth
+        object; unsupported or mismatched auth raises TypeError.
         """
         # Configure the client
         self._client = self._get_client(host, timeout, user_agent, auth, http2=http2, backend=backend)

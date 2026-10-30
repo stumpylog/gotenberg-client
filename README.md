@@ -216,8 +216,9 @@ accepts `requests.auth.AuthBase` instances for sync clients. Niquests accepts it
 by the installed Niquests version. Custom authentication should subclass the selected
 backend's auth base class; bare callables are not accepted.
 
-Set `backend=` explicitly with native authentication; native objects are specific to their
-backend. An incompatible auth object raises `TypeError` during client construction.
+With `backend="auto"`, native authentication selects its backend, including for custom
+subclasses. Tuples and `None` retain the default backend preference. You can set `backend=`
+explicitly; an incompatible auth object raises `TypeError` during client construction.
 Custom HTTPX auth can access the complete multipart upload body for signing by
 setting `requires_request_body = True`. See the [authentication guide](https://stumpylog.github.io/gotenberg-client/latest/usage/#authentication)
 for details and async usage.
