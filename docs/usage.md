@@ -37,6 +37,8 @@ class GotenbergClient:
     def __init__(
         self,
         host: str,
+        user_agent: str = "gotenberg-client/<version>",
+        auth: AuthType = None,
         *,
         timeout: float = 30.0,
         log_level: int = logging.ERROR,
@@ -50,7 +52,7 @@ The `backend` parameter selects the HTTP library used to communicate with Gotenb
 
 | Value              | Behaviour                                                                                |
 | ------------------ | ---------------------------------------------------------------------------------------- |
-| `"auto"` (default) | Use httpx if installed, then niquests, then httpx2                                       |
+| `"auto"` (default) | Select the native auth object's backend, otherwise try httpx, niquests, then httpx2      |
 | `"httpx"`          | Always use httpx (install with `pip install "gotenberg-client[httpx]"`)                  |
 | `"httpx2"`         | Always use httpx2 (install with `pip install "gotenberg-client[httpx2]"`)                |
 | `"niquests"`       | Always use niquests (install with `pip install "gotenberg-client[niquests]"`)            |
@@ -58,13 +60,76 @@ The `backend` parameter selects the HTTP library used to communicate with Gotenb
 
 ## Authentication
 
-The `auth` parameter accepts a `(username, password)` tuple for HTTP Basic Authentication,
-and works with all backends:
+The `auth` parameter accepts a `(username, password)` tuple for HTTP Basic Authentication
+with every backend. Omit it or pass `None` to use the backend's default authentication
+behavior:
 
 ```python
 with GotenbergClient("http://localhost:3000", auth=("user", "secret")) as client:
     ...
 ```
+
+You can also pass an instance of your selected backend's native authentication base
+class. The client validates its type before constructing the backend client and passes
+matching authentication through unchanged:
+
+| Backend                           | Native authentication                                                                           | Client support                                            |
+| --------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `"httpx"`                         | `httpx.Auth`, including `BasicAuth`, `DigestAuth`, and custom subclasses                        | Sync and async; custom flows must support the chosen mode |
+| `"httpx2"`                        | `httpx2.Auth` and subclasses                                                                    | Sync and async; custom flows must support the chosen mode |
+| `"requests"`                      | `requests.auth.AuthBase` and subclasses                                                         | Sync only                                                 |
+| `"niquests"`                      | `niquests.auth.AuthBase` and subclasses                                                         | Sync and async                                            |
+| `"niquests"` with an async client | `niquests.auth.AsyncAuthBase` and subclasses, where supported by the installed Niquests version | Async only                                                |
+
+With `backend="auto"`, a native auth object selects its backend. This also works for
+custom subclasses defined in your application or a third-party package, by inspecting
+their native base classes. With a username/password tuple or `None`, auto-selection tries
+httpx, then niquests, then httpx2 as before.
+
+You can set `backend=` explicitly to choose a backend. Native auth objects belong to
+their backend; they are not interchangeable between backends. A mismatched object raises
+a `TypeError` identifying the backend and expected authentication types. Malformed
+username/password tuples and other unsupported values also raise `TypeError`.
+Requests authentication selects the sync-only Requests backend, so using it with
+`AsyncGotenbergClient` raises `ValueError`, including in auto mode.
+
+For custom authentication, subclass the selected backend's auth base class. Bare callables
+are not accepted. See the [Niquests authentication API](https://niquests.readthedocs.io/en/latest/api.html#authentication)
+and [Requests custom authentication guide](https://requests.readthedocs.io/en/latest/user/advanced/#custom-authentication).
+
+```python
+import httpx
+
+from gotenberg_client import AsyncGotenbergClient, SyncGotenbergClient
+
+auth = httpx.DigestAuth("user", "secret")  # Or your own httpx.Auth subclass
+
+with SyncGotenbergClient("https://gotenberg.example", backend="httpx", auth=auth) as client:
+    ...
+
+async with AsyncGotenbergClient("https://gotenberg.example", backend="httpx", auth=auth) as client:
+    ...
+```
+
+For multipart request signing with a custom `httpx.Auth`, set
+`requires_request_body = True` on the auth class. HTTPX then buffers the complete encoded
+multipart body before calling `auth_flow()`, making it available as `request.content` in
+both sync and async clients. This includes form fields, uploaded files, and multipart
+boundaries. The body is sent intact after authentication. For custom `sync_auth_flow()`
+or `async_auth_flow()` overrides, manage body reads with `request.read()` or
+`await request.aread()` as needed. See [HTTPX custom authentication](https://www.python-httpx.org/advanced/authentication/#custom-authentication-schemes).
+Body buffering uses memory proportional to the encoded upload size. Requests and Niquests
+prepare multipart uploads before invoking authentication, exposing the encoded body as
+`PreparedRequest.body`.
+
+For static type checking, the public `AuthType` alias is a union of `(username, password)`
+tuples, `None`, and the native auth base classes listed above. At runtime it uses
+`tuple[str, str] | object | None`, allowing `typing.get_type_hints()` to resolve client
+annotations without importing optional backends. Runtime validation enforces the native
+auth classes and rejects foreign-backend auth or Niquests async auth used with a
+synchronous client.
+
+## Client lifetime
 
 The client should live as long as you will be communicating with Gotenberg as this
 allows the connection to remain open, saving some time to re-negotiate a connection.

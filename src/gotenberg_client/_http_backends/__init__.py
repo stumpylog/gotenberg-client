@@ -29,12 +29,12 @@ def make_sync_client(
     http2: bool,
 ) -> SyncClientProtocol:
     """Factory that returns a SyncClientProtocol for the requested backend."""
-    if backend == "requests":
+    resolved = _resolve_backend(backend, auth)
+    if resolved == "requests":
         # requests — imported lazily so other backends don't pay the import cost
         from gotenberg_client._http_backends._requests import make_requests_sync_client  # noqa: PLC0415
 
         return make_requests_sync_client(base_url, timeout, user_agent, auth, http2=http2)
-    resolved = _resolve_backend(backend)
     if resolved == "httpx":
         from gotenberg_client._http_backends._httpx import make_httpx_sync_client  # noqa: PLC0415
 
@@ -59,13 +59,13 @@ def make_async_client(
     http2: bool,
 ) -> AsyncClientProtocol:
     """Factory that returns an AsyncClientProtocol for the requested backend."""
-    if backend == "requests":
+    resolved = _resolve_backend(backend, auth)
+    if resolved == "requests":
         msg = (
             "The 'requests' backend only supports synchronous usage. "
             "Use 'httpx', 'httpx2' or 'niquests' for AsyncGotenbergClient."
         )
         raise ValueError(msg)
-    resolved = _resolve_backend(backend)
     if resolved == "httpx":
         from gotenberg_client._http_backends._httpx import make_httpx_async_client  # noqa: PLC0415
 
@@ -80,13 +80,25 @@ def make_async_client(
     return make_niquests_async_client(base_url, timeout, user_agent, auth, http2=http2)
 
 
-def _resolve_backend(backend: BackendType) -> Literal["httpx", "httpx2", "niquests"]:
-    if backend == "httpx":
-        return "httpx"
-    if backend == "httpx2":
-        return "httpx2"
-    if backend == "niquests":
-        return "niquests"
+def _resolve_backend(
+    backend: BackendType,
+    auth: AuthType = None,
+) -> Literal["httpx", "httpx2", "niquests", "requests"]:
+    if backend != "auto":
+        return backend
+    if auth is not None and not isinstance(auth, tuple):
+        # Walk base classes too: custom auth often lives in an application or
+        # third-party module rather than the backend's own namespace.
+        for auth_class in type(auth).__mro__:
+            module = auth_class.__module__.partition(".")[0]
+            if module == "httpx":
+                return "httpx"
+            if module == "httpx2":
+                return "httpx2"
+            if module == "niquests":
+                return "niquests"
+            if module == "requests":
+                return "requests"
     # "auto" — prefer httpx, fall back to niquests
     try:
         import httpx  # noqa: F401, PLC0415
