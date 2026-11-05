@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Image optimization, which requires Gotenberg 8.36 or later: `.optimize_images(*, quality)` on the Chromium, LibreOffice, merge and split routes, and a new `client.optimize.optimize()` route for existing PDFs with `.image_quality()`
+- Support each HTTP backend's native auth base classes through the typed public `auth` parameter, including custom HTTPX authentication that reads multipart request bodies in sync and async clients. Username/password tuples and `None` remain supported; `backend="auto"` recognizes native auth classes, and incompatible authentication raises a clear `TypeError`
 
 ### Fixed
 

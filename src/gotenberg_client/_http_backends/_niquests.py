@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 from collections.abc import Mapping
 from collections.abc import MutableMapping
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 import niquests
 import niquests.auth
@@ -12,7 +14,13 @@ import niquests.exceptions
 from gotenberg_client._errors import HttpStatusError
 from gotenberg_client._http_backends._protocols import AuthType
 from gotenberg_client._http_backends._protocols import RequestFiles
+from gotenberg_client._http_backends._protocols import _validate_auth
 
+if TYPE_CHECKING:
+    from niquests.typing import HttpAuthenticationType
+
+# Older Niquests versions do not expose asynchronous authentication classes.
+_ASYNC_AUTH_BASE = cast("type[object] | None", getattr(niquests.auth, "AsyncAuthBase", None))
 _SERVER_ERROR_STATUS_CODE = 500
 
 
@@ -116,15 +124,6 @@ class NiquestsAsyncAdapter:
         await self._session.close()
 
 
-def _build_niquests_auth(
-    auth: AuthType,
-) -> niquests.auth.HTTPBasicAuth | None:
-    """Convert a (username, password) tuple to niquests HTTPBasicAuth."""
-    if auth is None:
-        return None
-    return niquests.auth.HTTPBasicAuth(auth[0], auth[1])
-
-
 def make_niquests_sync_client(
     base_url: str,
     timeout: float,
@@ -133,13 +132,15 @@ def make_niquests_sync_client(
     *,
     http2: bool,  # noqa: ARG001 — niquests uses HTTP/2 by default
 ) -> NiquestsSyncAdapter:
+    if _ASYNC_AUTH_BASE is not None and isinstance(auth, _ASYNC_AUTH_BASE):
+        msg = "Asynchronous Niquests auth requires AsyncGotenbergClient with backend='niquests'."
+        raise TypeError(msg)
+    niquests_auth = _validate_auth(auth, niquests.auth.AuthBase, "niquests")
     session = niquests.Session()
     session.base_url = base_url
     session.timeout = timeout
     session.headers["User-Agent"] = user_agent
-    niquests_auth = _build_niquests_auth(auth)
-    if niquests_auth is not None:
-        session.auth = niquests_auth
+    session.auth = niquests_auth
     return NiquestsSyncAdapter(session)
 
 
@@ -151,11 +152,13 @@ def make_niquests_async_client(
     *,
     http2: bool,  # noqa: ARG001 — niquests uses HTTP/2 by default
 ) -> NiquestsAsyncAdapter:
+    auth_types = (niquests.auth.AuthBase,) if _ASYNC_AUTH_BASE is None else (niquests.auth.AuthBase, _ASYNC_AUTH_BASE)
+    niquests_auth = _validate_auth(auth, auth_types, "niquests")
     session = niquests.AsyncSession()
     session.base_url = base_url
     session.timeout = timeout
     session.headers["User-Agent"] = user_agent
-    niquests_auth = _build_niquests_auth(auth)
-    if niquests_auth is not None:
-        session.auth = niquests_auth
+    # AsyncSession inherits Session's sync-only annotation for this attribute.
+    # Niquests also accepts native asynchronous auth here when supported.
+    session.auth = cast("HttpAuthenticationType | None", niquests_auth)
     return NiquestsAsyncAdapter(session)

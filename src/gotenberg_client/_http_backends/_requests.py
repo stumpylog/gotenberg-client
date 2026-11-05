@@ -13,6 +13,7 @@ import requests.exceptions
 from gotenberg_client._errors import HttpStatusError
 from gotenberg_client._http_backends._protocols import AuthType
 from gotenberg_client._http_backends._protocols import RequestFiles
+from gotenberg_client._http_backends._protocols import _validate_auth
 
 _SERVER_ERROR_STATUS_CODE = 500
 
@@ -93,15 +94,6 @@ class RequestsSyncAdapter:
         self._session.close()
 
 
-def _build_requests_auth(
-    auth: AuthType,
-) -> requests.auth.HTTPBasicAuth | None:
-    """Convert a (username, password) tuple to requests HTTPBasicAuth."""
-    if auth is None:
-        return None
-    return requests.auth.HTTPBasicAuth(auth[0], auth[1])
-
-
 def make_requests_sync_client(
     base_url: str,
     timeout: float,
@@ -110,9 +102,8 @@ def make_requests_sync_client(
     *,
     http2: bool,  # noqa: ARG001 — requests does not support HTTP/2
 ) -> RequestsSyncAdapter:
+    requests_auth = _validate_auth(auth, requests.auth.AuthBase, "requests")
     session = requests.Session()
     session.headers.update({"User-Agent": user_agent})
-    requests_auth = _build_requests_auth(auth)
-    if requests_auth is not None:
-        session.auth = requests_auth
+    session.auth = requests_auth
     return RequestsSyncAdapter(session, base_url, timeout)

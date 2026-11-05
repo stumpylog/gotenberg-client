@@ -10,6 +10,7 @@ import httpx2
 from gotenberg_client._errors import HttpStatusError
 from gotenberg_client._http_backends._protocols import AuthType
 from gotenberg_client._http_backends._protocols import RequestFiles
+from gotenberg_client._http_backends._protocols import _validate_auth
 
 
 class Httpx2ResponseAdapter:
@@ -120,14 +121,11 @@ def make_httpx2_sync_client(
     *,
     http2: bool,
 ) -> Httpx2SyncAdapter:
-    httpx2_auth: httpx2.BasicAuth | None = (
-        httpx2.BasicAuth(username=auth[0], password=auth[1]) if auth is not None else None
-    )
     client = httpx2.Client(
         base_url=base_url,
         timeout=timeout,
         http2=http2,
-        auth=httpx2_auth,
+        auth=_validate_auth(auth, httpx2.Auth, "httpx2"),
         headers={"User-Agent": user_agent},
     )
     return Httpx2SyncAdapter(client)
@@ -141,14 +139,11 @@ def make_httpx2_async_client(
     *,
     http2: bool,
 ) -> Httpx2AsyncAdapter:
-    httpx2_auth: httpx2.BasicAuth | None = (
-        httpx2.BasicAuth(username=auth[0], password=auth[1]) if auth is not None else None
-    )
     client = httpx2.AsyncClient(
         base_url=base_url,
         timeout=timeout,
         http2=http2,
-        auth=httpx2_auth,
+        auth=_validate_auth(auth, httpx2.Auth, "httpx2"),
         headers={"User-Agent": user_agent},
     )
     return Httpx2AsyncAdapter(client)

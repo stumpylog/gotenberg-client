@@ -117,9 +117,10 @@ class TestAutoBackendSelection:
         """_resolve_backend returns 'niquests' when explicitly requested."""
         assert _resolve_backend("niquests") == "niquests"
 
-    def test_resolve_backend_auto_prefers_httpx(self):
-        """_resolve_backend('auto') returns 'httpx' when httpx is installed."""
-        assert _resolve_backend("auto") == "httpx"
+    @pytest.mark.parametrize("auth", [None, ("user", "pass")])
+    def test_resolve_backend_auto_prefers_httpx(self, auth):
+        """Portable auth retains the default backend preference."""
+        assert _resolve_backend("auto", auth) == "httpx"
 
     def test_explicit_requests_sync(self):
         """backend='requests' uses the requests adapter."""

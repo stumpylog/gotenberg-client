@@ -3,11 +3,36 @@
 # SPDX-License-Identifier: MPL-2.0
 from collections.abc import Mapping
 from collections.abc import MutableMapping
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import BinaryIO
 from typing import Protocol
+from typing import TypeAlias
+from typing import TypeVar
 
-AuthType = tuple[str, str] | None
+if TYPE_CHECKING:
+    import httpx
+    import httpx2
+    import niquests.auth
+    import requests.auth
+
+    AuthType: TypeAlias = (
+        tuple[str, str]
+        | httpx.Auth
+        | httpx2.Auth
+        | requests.auth.AuthBase
+        | niquests.auth.AuthBase
+        | niquests.auth.AsyncAuthBase
+        | None
+    )
+else:
+    # Runtime introspection must work without importing optional backends.
+    # The selected backend validates the actual authentication class.
+    AuthType = tuple[str, str] | object | None
+
+_AuthT = TypeVar("_AuthT")
+_BASIC_AUTH_TUPLE_LENGTH = 2
+
 
 # Type alias for multipart file uploads compatible with httpx and niquests.
 # Values are either (filename, content, mime_type) or (filename, content).
@@ -86,3 +111,26 @@ class AsyncClientProtocol(Protocol):  # no cov
     ) -> ResponseProtocol: ...
 
     async def aclose(self) -> None: ...
+
+
+def _validate_auth(
+    auth: AuthType,
+    auth_types: type[_AuthT] | tuple[type[_AuthT], ...],
+    backend: str,
+) -> _AuthT | tuple[str, str] | None:
+    """Validate authentication before allocating an HTTP client or session."""
+    if auth is None or isinstance(auth, auth_types):
+        return auth
+    if (
+        isinstance(auth, tuple)
+        and len(auth) == _BASIC_AUTH_TUPLE_LENGTH
+        and all(isinstance(value, str) for value in auth)
+    ):
+        return auth
+    classes = auth_types if isinstance(auth_types, tuple) else (auth_types,)
+    expected = ", ".join(f"{cls.__module__}.{cls.__qualname__}" for cls in classes)
+    msg = (
+        f"Invalid auth for backend '{backend}': expected None, a (username, password) tuple of strings, "
+        f"or an instance of {expected}; got {type(auth).__module__}.{type(auth).__qualname__}."
+    )
+    raise TypeError(msg)
