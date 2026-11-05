@@ -120,6 +120,8 @@ jobs:
   test-edge:
     name: Test Gotenberg :edge
     runs-on: ubuntu-latest
+    # Gotenberg v9 is :edge and is not compatible with the pinned release, so failures are allowed
+    continue-on-error: true
     permissions:
       contents: read
     needs:
