@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-05
+
 ### Added
 
 - Image optimization, which requires Gotenberg 8.36 or later: `.optimize_images(*, quality)` on the Chromium, LibreOffice, merge and split routes, and a new `client.optimize.optimize()` route for existing PDFs with `.image_quality()`
