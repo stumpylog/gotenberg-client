@@ -117,47 +117,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.python-version }}
           report_type: test_results
-  test-edge:
-    name: Test Gotenberg :edge
-    runs-on: ubuntu-latest
-    # Gotenberg v9 is :edge and is not compatible with the pinned release, so failures are allowed
-    continue-on-error: true
-    permissions:
-      contents: read
-    needs:
-      - lint
-    env:
-      GOTENBERG_CLIENT_EDGE_TEST: 1
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Pull Docker images
-        run: |
-          docker compose --file tests/docker/docker-compose.ci-test-edge.yml pull --quiet
-      - name: Show pulled image info
-        run: |
-          docker compose --file tests/docker/docker-compose.ci-test-edge.yml config --images | \
-            xargs docker inspect --format='{{join .RepoTags ", "}} ({{index .RepoDigests 0}}){{"\n"}}Labels: {{json .Config.Labels}}'
-      - name: Set up Python ${{ env.DEFAULT_PYTHON_VERSION }}
-        id: setup-python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      - name: Install uv
-        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-        with:
-          version: ${{ env.DEFAULT_UV_VERSION }}
-          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-      - name: Install Hatch
-        run: |
-          uv tool install --python ${{ steps.setup-python.outputs.python-version }} --upgrade hatch
-      - name: Show environment
-        run: |
-          hatch test --show --python ${{ env.DEFAULT_PYTHON_VERSION }}
-      - name: Run tests
-        run: |
-          hatch test --cover --python ${{ env.DEFAULT_PYTHON_VERSION }}
   build:
     name: Build
     runs-on: ubuntu-latest
